@@ -1,0 +1,51 @@
+import {
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  ValidationPipe,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UsersService } from './users.service';
+import { UpdateProfileDto, ChangePasswordDto } from './dto/user.dto';
+
+@Controller('users')
+@UseGuards(JwtAuthGuard)
+export class UsersController {
+  constructor(private usersService: UsersService) {}
+
+  @Get('profile')
+  async getProfile(@Req() req: any) {
+    return this.usersService.getProfile(req.user.id);
+  }
+
+  @Patch('profile')
+  async updateProfile(
+    @Req() req: any,
+    @Body(ValidationPipe) updateProfileDto: UpdateProfileDto
+  ) {
+    return this.usersService.updateProfile(req.user.id, updateProfileDto);
+  }
+
+  @Patch('change-password')
+  async changePassword(
+    @Req() req: any,
+    @Body(ValidationPipe) changePasswordDto: ChangePasswordDto
+  ) {
+    return this.usersService.changePassword(req.user.id, changePasswordDto);
+  }
+
+  @Get('slug/:slug')
+  async getUserBySlug(@Param('slug') slug: string, @Req() req: any) {
+    return this.usersService.getUserBySlug(slug);
+  }
+
+  @Delete('deactivate')
+  async deactivateAccount(@Req() req: any) {
+    return this.usersService.deactivateAccount(req.user.id);
+  }
+}

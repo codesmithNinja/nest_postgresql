@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserType {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("user_types")
+}
+
+model Language {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+
+  @@map("languages")
+}
+
+model User {
+  id                            String      @id @default(cuid())
+  firstName                     String
+  lastName                      String
+  slug                          String?     @unique
+  photo                         String?
+  coverPhoto                    String?
+  email                         String      @unique
+  password                      String
+  phoneNumber                   String?
+  userLocation                  String?
+  zipcode                       String?
+  kycStatus                     String?
+  kycReferenceId                String?
+  aboutYourself                 String?
+  outsideLinks                  String?     // JSON string of {title: string, url: string}[]
+  userTypeId                    String?
+  userType                      UserType?   @relation(fields: [userTypeId], references: [id])
+  active                        ActiveStatus @default(PENDING)
+  enableTwoFactorAuth           String      @default("no")
+  appliedBytwoFactorAuth        String      @default("no")
+  twoFactorAuthVerified         String      @default("yes")
+  twoFactorSecretKey            String?
+  signupIpAddress               String?
+  loginIpAddress                String?
+  uniqueGoogleId                String?
+  uniqueLinkedInId              String?
+  uniqueFacebookId              String?
+  uniqueTwitterId               String?
+  achCustomerId                 String?
+  achAccountId                  String?
+  achAccountStatus              String?
+  isAdmin                       String?
+  accountActivationToken        String?
+  passwordChangedAt             DateTime?
+  passwordResetToken            String?
+  passwordResetExpires          DateTime?
+  walletId                      String?
+  mangoPayOwnerId               String?
+  mangoPayOwnerWalletId         String?
+  plaidDwollaCustomerId         String?
+  plaidDwollFundingSourceId     String?
+  plaidDwollFundingSourceStatus String?
+  plaidDwollaKYCStatus          String?
+  globalSocketId                String?
+  enableNotification            NotificationStatus @default(YES)
+  notificationLanguageId        String?
+  notificationLanguage          Language?   @relation(fields: [notificationLanguageId], references: [id])
+  walletAddress                 String?
+  createdAt                     DateTime    @default(now())
+  updatedAt                     DateTime    @updatedAt
+
+  // Indexes as mentioned in original schema
+  @@index([active])
+  @@index([email])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([signupIpAddress])
+  @@index([userTypeId])
+  @@index([active, id])
+  @@index([firstName, lastName, email, signupIpAddress, id])
+  @@map("users")
+}
+
+enum ActiveStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  DELETED
+}
+
+enum NotificationStatus {
+  YES
+  NO
+}
