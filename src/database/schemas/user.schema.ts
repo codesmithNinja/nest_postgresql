@@ -10,8 +10,33 @@ export type UserDocument = User & Document;
 @Schema({
   timestamps: true,
   collection: 'users',
+  // ✅ ADD JSON TRANSFORM TO CONVERT _id TO id
+  toJSON: {
+    transform: function (
+      _doc: Document,
+      ret: Record<string, any> & { _id: unknown; __v?: number }
+    ): Record<string, any> & { id: string } {
+      const id =
+        typeof ret._id === 'object' && ret._id && 'toString' in ret._id
+          ? ret._id.toString()
+          : String(ret._id);
+
+      const result = {
+        ...ret,
+        id,
+      };
+
+      delete result._id;
+      delete result.__v;
+
+      return result;
+    },
+  },
 })
 export class User {
+  // ✅ ADD ID PROPERTY FOR TYPE COMPATIBILITY
+  id?: string;
+
   @Prop({ required: true })
   firstName: string;
 
@@ -146,6 +171,10 @@ export class User {
 
   @Prop()
   walletAddress?: string;
+
+  // ✅ ADD TIMESTAMP PROPERTIES FOR COMPATIBILITY
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

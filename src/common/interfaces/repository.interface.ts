@@ -24,8 +24,8 @@ export interface IRepository<T> {
 export interface QueryOptions {
   select?: string[];
   populate?: string[];
-  skip?: number;
-  limit?: number;
+  skip?: number; // ✅ ADD THIS
+  limit?: number; // ✅ ADD THIS
   sort?: Record<string, 1 | -1>;
 }
 

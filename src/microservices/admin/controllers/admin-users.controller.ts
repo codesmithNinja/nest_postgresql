@@ -8,11 +8,11 @@ import {
   Param,
   Query,
   UseGuards,
-  Req,
   ValidationPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { AdminUsersService } from '../services/admin-users.service';
+import { ActiveStatus } from '../../../common/enums/database-type.enum';
 
 interface AdminQueryDto {
   page?: number;
@@ -24,7 +24,7 @@ interface AdminQueryDto {
 }
 
 interface UpdateUserStatusDto {
-  status: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'DELETED';
+  status: ActiveStatus; // ✅ USE PROPER ENUM TYPE
 }
 
 @Controller('admin/users')

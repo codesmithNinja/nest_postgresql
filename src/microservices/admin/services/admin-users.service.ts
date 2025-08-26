@@ -7,7 +7,9 @@ import {
 import {
   IUserRepository,
   USER_REPOSITORY,
+  MongoQuery,
 } from '../../../database/repositories/user/user.repository.interface';
+import { User } from '../../../database/entities/user.entity';
 import { ActiveStatus } from '../../../common/enums/database-type.enum';
 
 interface AdminQueryDto {
@@ -37,26 +39,30 @@ export class AdminUsersService {
 
     const skip = (page - 1) * limit;
 
-    // Build filter
-    const filter: any = {};
+    // Build filter for MongoDB-specific operations
+    const mongoFilter: MongoQuery<User> = {};
+    // Build filter for standard operations
+    const countFilter: Partial<User> = {};
 
     if (status) {
-      filter.active = status;
+      mongoFilter.active = status as ActiveStatus;
+      countFilter.active = status as ActiveStatus;
     }
 
     if (search) {
-      // This would need to be implemented differently for MongoDB vs Postgres
-      // For now, implementing a basic email search
-      filter.email = { $regex: search, $options: 'i' }; // MongoDB syntax
+      // MongoDB-specific search
+      mongoFilter.email = { $regex: search, $options: 'i' };
+      // Basic search for counting
+      countFilter.email = search;
     }
 
     // Build sort options
-    const sort = {
+    const sort: Record<string, 1 | -1> = {
       [sortBy]: sortOrder === 'desc' ? -1 : 1,
     };
 
     const [users, totalCount] = await Promise.all([
-      this.userRepository.findMany(filter, {
+      this.userRepository.findMany(mongoFilter, {
         skip,
         limit,
         sort,
@@ -73,7 +79,7 @@ export class AdminUsersService {
           'updatedAt',
         ],
       }),
-      this.userRepository.count(filter),
+      this.userRepository.count(countFilter),
     ]);
 
     return {
@@ -125,8 +131,11 @@ export class AdminUsersService {
     }
 
     // Remove sensitive data for admin view
-    const { password, twoFactorSecretKey, ...userWithoutSensitiveData } =
-      user as any;
+    const {
+      password: _p,
+      twoFactorSecretKey: _t,
+      ...userWithoutSensitiveData
+    } = user;
 
     return {
       message: 'User retrieved successfully',
@@ -145,8 +154,11 @@ export class AdminUsersService {
     });
 
     // Remove sensitive data
-    const { password, twoFactorSecretKey, ...userWithoutSensitiveData } =
-      updatedUser as any;
+    const {
+      password: _p2,
+      twoFactorSecretKey: _t2,
+      ...userWithoutSensitiveData
+    } = updatedUser;
 
     return {
       message: `User status updated to ${status} successfully`,
@@ -188,17 +200,20 @@ export class AdminUsersService {
 
   async exportUsers(query: AdminQueryDto) {
     // Get all users based on filters (without pagination)
-    const filter: any = {};
+    const mongoFilter: MongoQuery<User> = {};
+    const countFilter: Partial<User> = {};
 
     if (query.status) {
-      filter.active = query.status;
+      mongoFilter.active = query.status as ActiveStatus;
+      countFilter.active = query.status as ActiveStatus;
     }
 
     if (query.search) {
-      filter.email = { $regex: query.search, $options: 'i' };
+      mongoFilter.email = { $regex: query.search, $options: 'i' };
+      countFilter.email = query.search;
     }
 
-    const users = await this.userRepository.findMany(filter, {
+    const users = await this.userRepository.findMany(mongoFilter, {
       select: [
         'id',
         'firstName',
