@@ -3,9 +3,14 @@ import {
   BadRequestException,
   UnauthorizedException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  IUserRepository,
+  USER_REPOSITORY,
+} from '../../database/repositories/user/user.repository.interface';
+import { ResponseHandler } from '../../common/utils/response.handler';
 // import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
@@ -21,7 +26,7 @@ import {
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
+    @Inject(USER_REPOSITORY) private userRepository: IUserRepository,
     private jwtService: JwtService
     // private emailService: EmailService
   ) {}
@@ -30,10 +35,7 @@ export class AuthService {
     const { email, password, firstName, lastName, ...rest } = registerDto;
 
     // Check if user already exists
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
+    const existingUser = await this.userRepository.getDetail({ email });
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');
     }
@@ -53,8 +55,8 @@ export class AuthService {
       .update(activationToken)
       .digest('hex');
 
-    // Create user
-    const createData: any = {
+    // Prepare user data
+    const userData: any = {
       firstName,
       lastName,
       email,
@@ -62,29 +64,15 @@ export class AuthService {
       slug,
       signupIpAddress: ipAddress,
       accountActivationToken: hashedActivationToken,
+      ...rest,
     };
 
-    // Add optional fields only if they exist
-    if (rest.phoneNumber) createData.phoneNumber = rest.phoneNumber;
-    if (rest.userLocation) createData.userLocation = rest.userLocation;
-    if (rest.zipcode) createData.zipcode = rest.zipcode;
-    if (rest.aboutYourself) createData.aboutYourself = rest.aboutYourself;
-    if (rest.userTypeId) createData.userTypeId = rest.userTypeId;
-    if (rest.outsideLinks)
-      createData.outsideLinks = JSON.stringify(rest.outsideLinks);
+    // Handle outsideLinks for different databases
+    if (rest.outsideLinks) {
+      userData.outsideLinks = rest.outsideLinks;
+    }
 
-    const user = await this.prisma.user.create({
-      data: createData,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        slug: true,
-        active: true,
-        createdAt: true,
-      },
-    });
+    const user = await this.userRepository.insert(userData);
 
     // Send activation email
     /* try {
@@ -95,28 +83,26 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Failed to send activation email:', error);
-      // Don't throw error here, user is already created
     } */
 
-    return {
-      message:
-        'Registration successful. Please check your email to activate your account.',
-      user,
-    };
+    // Remove sensitive data from response
+    const {
+      password: userPassword,
+      accountActivationToken,
+      ...userResponse
+    } = user as any;
+
+    return ResponseHandler.created(
+      'Registration successful. Please check your email to activate your account.',
+      userResponse
+    );
   }
 
   async login(loginDto: LoginDto, ipAddress: string) {
     const { email, password } = loginDto;
 
     // Find user with password
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: {
-        userType: true,
-        notificationLanguage: true,
-      },
-    });
-
+    const user = await this.userRepository.getDetail({ email });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -135,9 +121,8 @@ export class AuthService {
     }
 
     // Update login IP address
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { loginIpAddress: ipAddress },
+    await this.userRepository.updateById(user.id, {
+      loginIpAddress: ipAddress,
     });
 
     // Generate JWT token
@@ -145,13 +130,12 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     // Remove password from response
-    const { password: userPassword, ...userWithoutPassword } = user;
+    const { password: userPassword, ...userWithoutPassword } = user as any;
 
-    return {
-      message: 'Login successful',
+    return ResponseHandler.success('Login successful', 200, {
       user: userWithoutPassword,
       token,
-    };
+    });
   }
 
   async activateAccount(activateAccountDto: ActivateAccountDto) {
@@ -161,38 +145,23 @@ export class AuthService {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     // Find user with this activation token
-    const user = await this.prisma.user.findFirst({
-      where: {
-        accountActivationToken: hashedToken,
-        active: 'PENDING',
-      },
-    });
-
+    const user = await this.userRepository.findByActivationToken(hashedToken);
     if (!user) {
       throw new BadRequestException('Invalid or expired activation token');
     }
 
     // Activate user account
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        active: 'ACTIVE',
-        accountActivationToken: null,
-      },
-    });
+    await this.userRepository.activateUser(user.id);
 
-    return {
-      message: 'Account activated successfully. You can now login.',
-    };
+    return ResponseHandler.success(
+      'Account activated successfully. You can now login.'
+    );
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const { email } = forgotPasswordDto;
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
+    const user = await this.userRepository.getDetail({ email });
     if (!user) {
       throw new NotFoundException('User with this email does not exist');
     }
@@ -208,12 +177,9 @@ export class AuthService {
     const resetTokenExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     // Update user with reset token
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        passwordResetToken: hashedResetToken,
-        passwordResetExpires: resetTokenExpiry,
-      },
+    await this.userRepository.updateById(user.id, {
+      passwordResetToken: hashedResetToken,
+      passwordResetExpires: resetTokenExpiry,
     });
 
     // Send reset email
@@ -228,9 +194,7 @@ export class AuthService {
       throw new BadRequestException('Failed to send password reset email');
     } */
 
-    return {
-      message: 'Password reset email sent successfully',
-    };
+    return ResponseHandler.success('Password reset email sent successfully');
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -240,15 +204,7 @@ export class AuthService {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     // Find user with this reset token
-    const user = await this.prisma.user.findFirst({
-      where: {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: {
-          gt: new Date(),
-        },
-      },
-    });
-
+    const user = await this.userRepository.findByResetToken(hashedToken);
     if (!user) {
       throw new BadRequestException('Invalid or expired reset token');
     }
@@ -257,28 +213,15 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Update user password and clear reset token
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        passwordResetToken: null,
-        passwordResetExpires: null,
-        passwordChangedAt: new Date(),
-      },
-    });
+    await this.userRepository.updatePassword(user.id, hashedPassword);
 
-    return {
-      message: 'Password reset successfully',
-    };
+    return ResponseHandler.success('Password reset successfully');
   }
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
+    const user = await this.userRepository.getDetail({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: userPassword, ...result } = user;
+      const { password: userPassword, ...result } = user as any;
       return result;
     }
     return null;

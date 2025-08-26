@@ -23,7 +23,7 @@ export class EmailService {
     token: string,
     firstName: string
   ) {
-    const activationUrl = `${this.configService.get('APP_URL')}/auth/activate?token=${token}`;
+    const activationUrl = `${this.configService.get('API_URL')}/auth/activate?token=${token}`;
 
     const mailOptions = {
       from: this.configService.get('EMAIL_FROM'),
@@ -52,7 +52,7 @@ export class EmailService {
     token: string,
     firstName: string
   ) {
-    const resetUrl = `${this.configService.get('APP_URL')}/auth/reset-password?token=${token}`;
+    const resetUrl = `${this.configService.get('API_URL')}/auth/reset-password?token=${token}`;
 
     const mailOptions = {
       from: this.configService.get('EMAIL_FROM'),

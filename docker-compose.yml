@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # Main Service
+  main-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: main
+    ports:
+      - '${MAIN_PORT:-3000}:3000'
+    environment:
+      - DATABASE_TYPE=${DATABASE_TYPE}
+      - DATABASE_URL=${DATABASE_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Admin Service
+  admin-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: admin
+    ports:
+      - '${ADMIN_PORT:-3001}:3001'
+    environment:
+      - DATABASE_TYPE=${DATABASE_TYPE}
+      - DATABASE_URL=${DATABASE_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Campaign Service
+  campaign-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: campaign
+    ports:
+      - '${CAMPAIGN_PORT:-3002}:3002'
+    environment:
+      - DATABASE_TYPE=${DATABASE_TYPE}
+      - DATABASE_URL=${DATABASE_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Investment Service
+  investment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: investment
+    ports:
+      - '${INVESTMENT_PORT:-3003}:3003'
+    environment:
+      - DATABASE_TYPE=${DATABASE_TYPE}
+      - DATABASE_URL=${DATABASE_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-nestjs_app}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7-jammy
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-mongo}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
+      - MONGO_INITDB_DATABASE=${MONGO_DB:-nestjs_app}
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - '27017:27017'
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Nginx Load Balancer/Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - main-service
+      - admin-service
+      - campaign-service
+      - investment-service
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

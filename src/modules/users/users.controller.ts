@@ -9,7 +9,7 @@ import {
   Req,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UpdateProfileDto, ChangePasswordDto } from './dto/user.dto';
 

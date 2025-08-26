@@ -1,11 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app.module';
+import { UnifiedAppModule } from './microservices/main/main.module';
+import { corsOptions } from './common/config/cors.config';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Get configuration first
+  const tempApp = await NestFactory.create(UnifiedAppModule);
+  const configService = tempApp.get(ConfigService);
+  const enableMicroservices = configService.get<boolean>(
+    'app.enableMicroservices'
+  );
+  await tempApp.close();
+
+  // Create the actual app with the correct module configuration
+  const app = await NestFactory.create<NestExpressApplication>(
+    UnifiedAppModule.forRoot(enableMicroservices).module
+  );
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -16,22 +28,29 @@ async function bootstrap() {
     })
   );
 
-  // Enable CORS
-  app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
+  // Enable CORS with custom origins
+  app.enableCors(corsOptions);
 
   // Trust proxy for correct IP detection
   app.set('trust proxy', true);
 
-  const configService = app.get(ConfigService);
-  const port: number = configService.get('PORT') || 3000;
+  const port: number = configService.get('app.ports.main') || 3000;
 
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+
+  if (enableMicroservices) {
+    console.log(
+      `Main Service (Microservices Mode) is running on: http://localhost:${port}`
+    );
+    console.log('Other services should be started separately');
+  } else {
+    console.log(
+      `Unified Application (Single Port Mode) is running on: http://localhost:${port}`
+    );
+    console.log('All APIs are available on this single port');
+  }
 }
+
 bootstrap().catch((err) => {
-  console.error('Error during bootstrap:', err);
+  console.error('Error starting application:', err);
 });
