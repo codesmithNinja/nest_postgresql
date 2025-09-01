@@ -57,6 +57,10 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   userTypeId?: string;
+
+  slug: string;
+  signupIpAddress: string;
+  accountActivationToken: string;
 }
 
 export class OutsideLinkDto {

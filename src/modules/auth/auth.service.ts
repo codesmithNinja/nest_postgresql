@@ -22,6 +22,9 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
+import { ActiveStatus } from '../../common/enums/database-type.enum';
+import { ValidatedUser } from './interfaces/validated-user.interface';
+import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +38,7 @@ export class AuthService {
     const { email, password, firstName, lastName, ...rest } = registerDto;
 
     // Check if user already exists
-    const existingUser = await this.userRepository.getDetail({ email });
+    const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');
     }
@@ -50,13 +53,14 @@ export class AuthService {
 
     // Generate activation token
     const activationToken = crypto.randomBytes(32).toString('hex');
+    console.log(activationToken);
     const hashedActivationToken = crypto
       .createHash('sha256')
       .update(activationToken)
       .digest('hex');
 
     // Prepare user data
-    const userData: any = {
+    const userData: RegisterDto = {
       firstName,
       lastName,
       email,
@@ -86,15 +90,12 @@ export class AuthService {
     } */
 
     // Remove sensitive data from response
-    const {
-      password: userPassword,
-      accountActivationToken,
-      ...userResponse
-    } = user as any;
+    delete user.password;
+    delete user.accountActivationToken;
 
     return ResponseHandler.created(
       'Registration successful. Please check your email to activate your account.',
-      userResponse
+      user
     );
   }
 
@@ -102,7 +103,7 @@ export class AuthService {
     const { email, password } = loginDto;
 
     // Find user with password
-    const user = await this.userRepository.getDetail({ email });
+    const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -114,7 +115,7 @@ export class AuthService {
     }
 
     // Check if account is active
-    if (user.active !== 'ACTIVE') {
+    if (user.active !== ActiveStatus.ACTIVE) {
       throw new UnauthorizedException(
         'Account is not active. Please activate your account first.'
       );
@@ -130,10 +131,10 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     // Remove password from response
-    const { password: userPassword, ...userWithoutPassword } = user as any;
+    delete user.password;
 
     return ResponseHandler.success('Login successful', 200, {
-      user: userWithoutPassword,
+      user,
       token,
     });
   }
@@ -218,10 +219,14 @@ export class AuthService {
     return ResponseHandler.success('Password reset successfully');
   }
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    password: string
+  ): Promise<ValidatedUser | null> {
     const user = await this.userRepository.getDetail({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: userPassword, ...result } = user as any;
+      const { password: _p, ...result } = user;
+      DiscardUnderscores(_p);
       return result;
     }
     return null;

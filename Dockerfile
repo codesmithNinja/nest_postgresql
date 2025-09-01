@@ -61,18 +61,3 @@ USER nestjs
 FROM production-base AS main
 EXPOSE 3000
 CMD ["dumb-init", "node", "dist/main.js"]
-
-# Admin service
-FROM production-base AS admin
-EXPOSE 3001
-CMD ["dumb-init", "node", "dist/main-admin.js"]
-
-# Campaign service
-FROM production-base AS campaign
-EXPOSE 3002
-CMD ["dumb-init", "node", "dist/main-campaign.js"]
-
-# Investment service
-FROM production-base AS investment
-EXPOSE 3003
-CMD ["dumb-init", "node", "dist/main-investment.js"]

@@ -2,6 +2,7 @@ import {
   ActiveStatus,
   NotificationStatus,
 } from '../../common/enums/database-type.enum';
+import { NotificationLanguage, UserType } from '../../common/types/user.types';
 
 export interface OutsideLink {
   title: string;
@@ -25,7 +26,7 @@ export interface User {
   aboutYourself?: string;
   outsideLinks?: OutsideLink[];
   userTypeId?: string;
-  userType?: any;
+  userType?: UserType;
   active: ActiveStatus;
   enableTwoFactorAuth: string;
   appliedBytwoFactorAuth: string;
@@ -55,7 +56,7 @@ export interface User {
   globalSocketId?: string;
   enableNotification: NotificationStatus;
   notificationLanguageId?: string;
-  notificationLanguage?: any;
+  notificationLanguage?: NotificationLanguage;
   walletAddress?: string;
   createdAt: Date;
   updatedAt: Date;

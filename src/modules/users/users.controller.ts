@@ -12,6 +12,7 @@ import {
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UpdateProfileDto, ChangePasswordDto } from './dto/user.dto';
+import { RequestWithUser } from '../../common/types/user.types';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -19,13 +20,13 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('profile')
-  async getProfile(@Req() req: any) {
+  async getProfile(@Req() req: RequestWithUser) {
     return this.usersService.getProfile(req.user.id);
   }
 
   @Patch('profile')
   async updateProfile(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Body(ValidationPipe) updateProfileDto: UpdateProfileDto
   ) {
     return this.usersService.updateProfile(req.user.id, updateProfileDto);
@@ -33,19 +34,19 @@ export class UsersController {
 
   @Patch('change-password')
   async changePassword(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Body(ValidationPipe) changePasswordDto: ChangePasswordDto
   ) {
     return this.usersService.changePassword(req.user.id, changePasswordDto);
   }
 
   @Get('slug/:slug')
-  async getUserBySlug(@Param('slug') slug: string, @Req() req: any) {
+  async getUserBySlug(@Param('slug') slug: string) {
     return this.usersService.getUserBySlug(slug);
   }
 
   @Delete('deactivate')
-  async deactivateAccount(@Req() req: any) {
+  async deactivateAccount(@Req() req: RequestWithUser) {
     return this.usersService.deactivateAccount(req.user.id);
   }
 }

@@ -1,6 +1,8 @@
-import { IRepository } from '../../../common/interfaces/repository.interface';
+import {
+  IRepository,
+  QueryOptions,
+} from '../../../common/interfaces/repository.interface';
 import { User } from '../../entities/user.entity';
-import { QueryOptions } from '../../../common/interfaces/repository.interface';
 
 // MongoDB specific filter type that allows regex operators
 export type MongoQuery<T> = {

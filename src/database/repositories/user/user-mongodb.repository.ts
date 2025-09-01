@@ -146,9 +146,9 @@ export class UserMongoRepository implements IUserRepository {
   ): T {
     if (!options) return query;
 
-    if (options.sort) query = query.sort(options.sort) as T;
-    if (options.skip !== undefined) query = query.skip(options.skip) as T;
-    if (options.limit !== undefined) query = query.limit(options.limit) as T;
+    if (options.sort) query = query.sort(options.sort);
+    if (options.skip !== undefined) query = query.skip(options.skip);
+    if (options.limit !== undefined) query = query.limit(options.limit);
     if (options.select) query = query.select(options.select.join(' ')) as T;
     if (options.populate) {
       options.populate.forEach((path) => {
@@ -214,7 +214,7 @@ export class UserMongoRepository implements IUserRepository {
   ): Promise<UserEntity[]> {
     const query = this.model.find(this.toDocument(filter || {}));
     const docs = await this.applyOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc)!);
+    return docs.map((doc) => this.toEntity(doc));
   }
 
   async getDetailById(
@@ -237,19 +237,19 @@ export class UserMongoRepository implements IUserRepository {
 
   async insert(data: Partial<UserEntity>): Promise<UserEntity> {
     const doc = await this.model.create(this.toDocument(data));
-    return this.toEntity(doc)!;
+    return this.toEntity(doc);
   }
 
   async updateById(id: string, data: Partial<UserEntity>): Promise<UserEntity> {
     const doc = await this.model
-      .findByIdAndUpdate(id, { $set: this.toDocument(data) }, { new: true })
+      .findByIdAndUpdate(id, { $set: data }, { new: true })
       .exec();
 
     if (!doc) {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc)!;
+    return this.toEntity(doc);
   }
 
   async updateMany(
@@ -264,7 +264,7 @@ export class UserMongoRepository implements IUserRepository {
 
     return {
       count: updateResult.modifiedCount || 0,
-      updated: updatedDocs.map((doc) => this.toEntity(doc)!),
+      updated: updatedDocs.map((doc) => this.toEntity(doc)),
     };
   }
 
@@ -281,7 +281,7 @@ export class UserMongoRepository implements IUserRepository {
 
     return {
       count: result.deletedCount || 0,
-      deleted: toDelete.map((doc) => this.toEntity(doc)!),
+      deleted: toDelete.map((doc) => this.toEntity(doc)),
     };
   }
 
@@ -333,7 +333,7 @@ export class UserMongoRepository implements IUserRepository {
   ): Promise<UserEntity[]> {
     const query = this.model.find(this.toDocument(filter || {}));
     const docs = await this.applyOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc)!);
+    return docs.map((doc) => this.toEntity(doc));
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -360,14 +360,18 @@ export class UserMongoRepository implements IUserRepository {
 
   async activateUser(id: string): Promise<UserEntity> {
     const doc = await this.model
-      .findByIdAndUpdate(id, { active: ActiveStatus.ACTIVE }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        { active: ActiveStatus.ACTIVE, accountActivationToken: '' },
+        { new: true }
+      )
       .exec();
 
     if (!doc) {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc)!;
+    return this.toEntity(doc);
   }
 
   async deactivateUser(id: string): Promise<UserEntity> {
@@ -379,7 +383,7 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc)!;
+    return this.toEntity(doc);
   }
 
   async updatePassword(
@@ -403,7 +407,7 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc)!;
+    return this.toEntity(doc);
   }
 
   async update(id: string, data: Partial<UserEntity>): Promise<UserEntity> {
@@ -415,6 +419,6 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc)!;
+    return this.toEntity(doc);
   }
 }

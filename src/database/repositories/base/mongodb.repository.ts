@@ -22,9 +22,9 @@ export abstract class MongoRepository<T extends Document, E = any>
   ): Q {
     if (!options) return query;
 
-    if (options.sort) query = query.sort(options.sort) as Q;
-    if (options.skip !== undefined) query = query.skip(options.skip) as Q;
-    if (options.limit !== undefined) query = query.limit(options.limit) as Q;
+    if (options.sort) query = query.sort(options.sort);
+    if (options.skip !== undefined) query = query.skip(options.skip);
+    if (options.limit !== undefined) query = query.limit(options.limit);
     if (options.select) query = query.select(options.select.join(' ')) as Q;
     if (options.populate) {
       options.populate.forEach((path) => {
@@ -35,8 +35,8 @@ export abstract class MongoRepository<T extends Document, E = any>
     return query;
   }
 
-  async getAll(filter?: Partial<E>, options?: QueryOptions): Promise<E[]> {
-    const query = this.model.find(this.toDocument(filter || {}));
+  async getAll(filter: object = {}, options?: QueryOptions): Promise<E[]> {
+    const query = this.model.find(filter);
     const docs = await this.applyQueryOptions(query, options).exec();
     return docs.map((doc) => this.toEntity(doc));
   }
@@ -47,8 +47,8 @@ export abstract class MongoRepository<T extends Document, E = any>
     return doc ? this.toEntity(doc) : null;
   }
 
-  async getDetail(filter: Partial<E>, options?: QueryOptions): Promise<E | null> {
-    const query = this.model.findOne(this.toDocument(filter));
+  async getDetail(filter: object, options?: QueryOptions): Promise<E | null> {
+    const query = this.model.findOne(filter);
     const doc = await this.applyQueryOptions(query, options).exec();
     return doc ? this.toEntity(doc) : null;
   }
@@ -58,9 +58,9 @@ export abstract class MongoRepository<T extends Document, E = any>
     return this.toEntity(doc);
   }
 
-  async updateById(id: string, data: Partial<E>): Promise<E> {
+  async updateById(id: string, data: object): Promise<E> {
     const doc = await this.model
-      .findByIdAndUpdate(id, { $set: this.toDocument(data) }, { new: true })
+      .findByIdAndUpdate(id, data, { new: true })
       .exec();
 
     if (!doc) {
@@ -71,14 +71,12 @@ export abstract class MongoRepository<T extends Document, E = any>
   }
 
   async updateMany(
-    filter: Partial<E>,
-    data: Partial<E>
+    filter: object,
+    data: object
   ): Promise<{ count: number; updated: E[] }> {
-    const updateResult = await this.model
-      .updateMany(this.toDocument(filter), { $set: this.toDocument(data) })
-      .exec();
+    const updateResult = await this.model.updateMany(filter, data).exec();
 
-    const updatedDocs = await this.model.find(this.toDocument(filter)).exec();
+    const updatedDocs = await this.model.find(filter).exec();
 
     return {
       count: updateResult.modifiedCount || 0,
@@ -91,9 +89,9 @@ export abstract class MongoRepository<T extends Document, E = any>
     return !!result;
   }
 
-  async deleteMany(filter: Partial<E>): Promise<{ count: number; deleted: E[] }> {
-    const toDelete = await this.model.find(this.toDocument(filter)).exec();
-    const result = await this.model.deleteMany(this.toDocument(filter)).exec();
+  async deleteMany(filter: object): Promise<{ count: number; deleted: E[] }> {
+    const toDelete = await this.model.find(filter).exec();
+    const result = await this.model.deleteMany(filter).exec();
 
     return {
       count: result.deletedCount || 0,
@@ -101,17 +99,17 @@ export abstract class MongoRepository<T extends Document, E = any>
     };
   }
 
-  async count(filter?: Partial<E>): Promise<number> {
-    return this.model.countDocuments(this.toDocument(filter || {})).exec();
+  async count(filter: object = {}): Promise<number> {
+    return this.model.countDocuments(filter).exec();
   }
 
-  async exists(filter: Partial<E>): Promise<boolean> {
-    const doc = await this.model.exists(this.toDocument(filter));
+  async exists(filter: object): Promise<boolean> {
+    const doc = await this.model.exists(filter);
     return !!doc;
   }
 
   async findWithPagination(
-    filter?: Partial<E>,
+    filter?: object,
     options?: PaginationOptions
   ): Promise<PaginatedResult<E>> {
     const { page = 1, limit = 10, ...queryOptions } = options || {};

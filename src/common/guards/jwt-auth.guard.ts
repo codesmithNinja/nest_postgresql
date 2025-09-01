@@ -1,6 +1,13 @@
-import { Injectable, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
+import { User } from '../../database/entities/user.entity';
+import { RequestWithUser } from '../types/user.types';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -22,16 +29,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+  handleRequest<TUser = any>(
+    err: Error | null,
+    user: Pick<User, 'id' | 'email' | 'firstName' | 'lastName'> | false,
+    info: unknown,
+    context: ExecutionContext
+  ): TUser {
     if (err || !user) {
-      throw err || new Error('Unauthorized');
+      throw err || new UnauthorizedException('Unauthorized');
     }
 
     // Add additional context to user object
-    const request = context.switchToHttp().getRequest();
-    user.ip = request.ip;
-    user.userAgent = request.get('User-Agent');
-
-    return user;
+    const request = context.switchToHttp().getRequest<Request>();
+    return {
+      ...user,
+      ip: request.socket.remoteAddress || '',
+      userAgent: request.headers['user-agent'] || '',
+    } as TUser;
   }
 }
