@@ -8,7 +8,7 @@ import {
 } from '../../../common/interfaces/repository.interface';
 
 @Injectable()
-export abstract class MongoRepository<T extends Document, E = any>
+export abstract class MongoRepository<T extends Document, E = unknown>
   implements IRepository<E>
 {
   constructor(protected readonly model: Model<T>) {}
@@ -16,7 +16,7 @@ export abstract class MongoRepository<T extends Document, E = any>
   protected abstract toEntity(doc: T): E;
   protected abstract toDocument(entity: Partial<E>): Record<string, unknown>;
 
-  protected applyQueryOptions<Q extends Query<any, any>>(
+  protected applyQueryOptions<Q extends Query<unknown, unknown>>(
     query: Q,
     options?: QueryOptions
   ): Q {

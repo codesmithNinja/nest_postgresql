@@ -26,7 +26,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string }) {
+  async validate(payload: {
+    sub: string;
+    email: string;
+  }): Promise<Record<string, unknown>> {
     const user = await this.userRepository.findById(payload.sub);
 
     if (!user || user.active !== ActiveStatus.ACTIVE) {
@@ -34,14 +37,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     // Remove sensitive data before returning
-    const {
-      password,
-      accountActivationToken,
-      passwordResetToken,
-      twoFactorSecretKey,
-      ...userWithoutSensitiveData
-    } = user as any;
 
-    return userWithoutSensitiveData;
+    const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      password: _password,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      accountActivationToken: _accountActivationToken,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      passwordResetToken: _passwordResetToken,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      twoFactorSecretKey: _twoFactorSecretKey,
+      ...userWithoutSensitiveData
+    } = user;
+
+    return userWithoutSensitiveData as Record<string, unknown>;
   }
 }

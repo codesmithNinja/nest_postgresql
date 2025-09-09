@@ -101,6 +101,7 @@ export class UsersService {
     // Remove sensitive data by picking non-sensitive fields
     const userResponse: UserProfileResponse = {
       id: updatedUser.id,
+      publicId: updatedUser.publicId,
       firstName: updatedUser.firstName,
       lastName: updatedUser.lastName,
       email: updatedUser.email,
@@ -193,6 +194,7 @@ export class UsersService {
     // Remove sensitive data
     const userResponse: UserProfileResponse = {
       id: user.id,
+      publicId: user.publicId,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,

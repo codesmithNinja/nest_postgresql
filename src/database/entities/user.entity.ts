@@ -11,6 +11,7 @@ export interface OutsideLink {
 
 export interface User {
   id: string;
+  publicId: string;
   firstName: string;
   lastName: string;
   slug?: string;

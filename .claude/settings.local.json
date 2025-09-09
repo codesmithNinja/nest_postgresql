@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma migrate:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run:*)",
+      "Bash(npm start)",
+      "Bash(npx prisma:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd //c taskkill:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

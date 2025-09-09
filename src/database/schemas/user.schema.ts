@@ -13,23 +13,17 @@ export type UserDocument = User & Document;
   // ✅ ADD JSON TRANSFORM TO CONVERT _id TO id
   toJSON: {
     transform: function (
-      _doc: Document,
-      ret: Record<string, any> & { _id: unknown; __v?: number }
-    ): Record<string, any> & { id: string } {
-      const id =
-        typeof ret._id === 'object' && ret._id && 'toString' in ret._id
-          ? ret._id.toString()
-          : String(ret._id);
-
-      const result = {
-        ...ret,
-        id,
-      };
-
-      delete result._id;
-      delete result.__v;
-
-      return result;
+      _doc: unknown,
+      ret: Record<string, unknown>
+    ): Record<string, unknown> {
+      if (ret._id) {
+        ret.id = (ret._id as { toString: () => string }).toString();
+        delete ret._id;
+      }
+      if (ret.__v !== undefined) {
+        delete ret.__v;
+      }
+      return ret;
     },
   },
 })

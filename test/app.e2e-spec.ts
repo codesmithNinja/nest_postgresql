@@ -4,8 +4,8 @@ import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
   let app: INestApplication;
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -15,8 +15,14 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
+  afterEach(async () => {
+    if (app) {
+      await app.close();
+    }
+  });
+
   it('/ (GET)', async () => {
-    await request(app.getHttpServer())
+    await request(app.getHttpServer() as Parameters<typeof request>[0])
       .get('/')
       .expect(200)
       .expect('Hello World!');

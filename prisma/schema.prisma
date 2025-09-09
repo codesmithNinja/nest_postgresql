@@ -34,6 +34,7 @@ model Language {
 
 model User {
   id                            String      @id @default(cuid())
+  publicId                      String      @unique @default(cuid()) // For public API access
   firstName                     String
   lastName                      String
   slug                          String?     @unique
@@ -81,6 +82,7 @@ model User {
   notificationLanguageId        String?
   notificationLanguage          Language?   @relation(fields: [notificationLanguageId], references: [id])
   walletAddress                 String?
+  equityCampaigns               Equity[]
   createdAt                     DateTime    @default(now())
   updatedAt                     DateTime    @updatedAt
 
@@ -91,6 +93,7 @@ model User {
   @@index([lastName])
   @@index([signupIpAddress])
   @@index([userTypeId])
+  @@index([publicId])
   @@index([active, id])
   @@index([firstName, lastName, email, signupIpAddress, id])
   @@map("users")
@@ -106,4 +109,217 @@ enum ActiveStatus {
 enum NotificationStatus {
   YES
   NO
+}
+
+enum CampaignStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  REJECT
+  SUCCESSFUL
+  UNSUCCESSFUL
+  HIDDEN
+  INACTIVE
+}
+
+enum UploadType {
+  Image
+  Video
+}
+
+enum AccountType {
+  CURRENT_ACCOUNT
+  SAVING_ACCOUNT
+}
+
+enum TermSlug {
+  EQUITY_DIVIDEND
+  EQUITY
+  DEBT
+}
+
+// Equity Campaign Model
+model Equity {
+  id                      String         @id @default(cuid())
+  publicId               String         @unique @default(cuid()) // For public API access
+  
+  // Step 1: Company Information
+  companyLogo            String
+  companyName            String
+  companyTagline         String
+  companyEmail           String
+  companyPhoneNumber     String
+  companyAddress         String
+  yearFounded            Int
+  website                String?
+  companyCategory        String
+  companyIndustry        String
+  companyDescription     String         @db.Text
+  userId                 String
+  user                   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status                 CampaignStatus @default(DRAFT)
+
+  // Step 2: Fundraising Details
+  isUpcomingCampaign     Boolean
+  projectTimezone        String?
+  startDate              DateTime?
+  startTime              String?
+  actualStartDateTime    DateTime?
+  currencyId             String
+  goal                   Decimal        @db.Decimal(15,2)
+  closingDate            DateTime
+  minimumRaise           Decimal        @db.Decimal(15,2)
+  maximumRaise           Decimal        @db.Decimal(15,2)
+  campaignStage          String
+  industry               String
+  previouslyRaised       Decimal?       @db.Decimal(15,2)
+  estimatedRevenue       Decimal?       @db.Decimal(15,2)
+  hasLeadInvestor        Boolean
+  termId                 String
+  termslug               TermSlug
+
+  // Term-specific fields
+  availableShares        Int?
+  pricePerShare          Decimal?       @db.Decimal(10,2)
+  preMoneyValuation      Decimal?       @db.Decimal(15,2)
+  maturityDate           DateTime?
+  investFrequency        String?
+  IRR                    Decimal?       @db.Decimal(5,2)
+  equityAvailable        Decimal?       @db.Decimal(5,2)
+  interestRate           Decimal?       @db.Decimal(5,2)
+  termLength             Int?
+
+  // Step 3: Project Story
+  uploadType             UploadType?
+  campaignImageURL       String?
+  campaignVideoURL       String?
+  campaignStory          String?        @db.Text
+
+  // Step 5: Extras
+  googleAnalyticsID      String?
+  additionalLinks        Json?          // Array of {linkTitle, linkUrl}
+
+  // Step 6: Investment Info
+  bankName               String?
+  accountType            AccountType?
+  accountHolderName      String?
+  accountNumber          String?
+  confirmAccountNumber   String?
+  routingNumber          String?
+
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+
+  // Relations
+  leadInvestors          LeadInvestor[]
+  teamMembers            TeamMember[]
+  campaignFaqs           CampaignFaq[]
+  extrasVideos           ExtrasVideo[]
+  extrasImages           ExtrasImage[]
+  extrasDocuments        ExtrasDocument[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([publicId])
+  @@index([userId, status])
+  @@map("equity_campaigns")
+}
+
+// Lead Investor Model
+model LeadInvestor {
+  id              String   @id @default(cuid())
+  publicId        String   @unique @default(cuid())
+  investorPhoto   String
+  name            String
+  investorType    String
+  bio             String   @db.Text
+  equityId        String
+  equity          Equity   @relation(fields: [equityId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([equityId])
+  @@map("lead_investors")
+}
+
+// Team Member Model
+model TeamMember {
+  id           String   @id @default(cuid())
+  publicId     String   @unique @default(cuid())
+  memberPhoto  String
+  name         String
+  role         String
+  email        String
+  bio          String   @db.Text
+  equityId     String
+  equity       Equity   @relation(fields: [equityId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([equityId])
+  @@map("team_members")
+}
+
+// Campaign FAQ Model
+model CampaignFaq {
+  id                String   @id @default(cuid())
+  publicId          String   @unique @default(cuid())
+  questionID        String?  // Foreign key to Faqs module
+  answer            String?  @db.Text
+  customQuestion    String?  @db.Text
+  customAnswer      String?  @db.Text
+  equityId          String
+  equity            Equity   @relation(fields: [equityId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([equityId])
+  @@map("campaign_faqs")
+}
+
+// Extras Video Model
+model ExtrasVideo {
+  id                String   @id @default(cuid())
+  publicId          String   @unique @default(cuid())
+  videoUrl          String
+  videoTitle        String
+  videoDescription  String   @db.Text
+  equityId          String
+  equity            Equity   @relation(fields: [equityId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([equityId])
+  @@map("extras_videos")
+}
+
+// Extras Image Model
+model ExtrasImage {
+  id                String   @id @default(cuid())
+  publicId          String   @unique @default(cuid())
+  imageUrl          String
+  imageTitle        String
+  imageDescription  String   @db.Text
+  equityId          String
+  equity            Equity   @relation(fields: [equityId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([equityId])
+  @@map("extras_images")
+}
+
+// Extras Document Model
+model ExtrasDocument {
+  id             String   @id @default(cuid())
+  publicId       String   @unique @default(cuid())
+  documentUrl    String
+  documentTitle  String
+  equityId       String
+  equity         Equity   @relation(fields: [equityId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([equityId])
+  @@map("extras_documents")
 }

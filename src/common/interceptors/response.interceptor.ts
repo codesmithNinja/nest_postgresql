@@ -6,15 +6,16 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { Response } from 'express';
 import { ResponseHandler } from '../utils/response.handler';
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) => {
-        const response = context.switchToHttp().getResponse();
-        const statusCode = response.statusCode;
+      map((data: unknown) => {
+        const response = context.switchToHttp().getResponse<Response>();
+        const statusCode: number = response?.statusCode || 200;
 
         // If the response is already formatted (contains success property), return as is
         if (data && typeof data === 'object' && 'success' in data) {
@@ -28,10 +29,11 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
 
         // If it has message and data properties
         if (data && typeof data === 'object' && 'message' in data) {
+          const messageData = data as { message: string; data?: unknown };
           return ResponseHandler.success(
-            data.message,
+            messageData.message,
             statusCode,
-            data.data || data
+            messageData.data || data
           );
         }
 

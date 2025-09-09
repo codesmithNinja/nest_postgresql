@@ -1,0 +1,12 @@
+{
+  "env": {
+    "ANTHROPIC_MODEL": "claude-sonnet-4-20250514",
+    "ANTHROPIC_SMALL_FAST_MODEL": "claude-3-5-haiku-20241022"
+  },
+  "allow": [
+    "Bash(cat:*)",
+    "Bash(ls:*)",
+    "Bash(find:*)",
+    "Bash(npm:list,test,run)"
+  ]
+}

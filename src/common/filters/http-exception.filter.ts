@@ -27,11 +27,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const exceptionResponse = exception.getResponse();
 
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-        const responseObj = exceptionResponse as any;
-        message = responseObj.message || exception.message;
+        const responseObj = exceptionResponse as Record<string, unknown>;
+        message = (responseObj.message as string) || exception.message;
         error = Array.isArray(responseObj.message)
-          ? responseObj.message.join(', ')
-          : responseObj.error;
+          ? (responseObj.message as string[]).join(', ')
+          : (responseObj.error as string);
       } else {
         message = exceptionResponse as string;
       }
@@ -39,13 +39,23 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Internal server error';
       error =
-        exception instanceof Error ? exception.message : String(exception);
+        exception instanceof Error
+          ? exception.message
+          : typeof exception === 'string'
+            ? exception
+            : 'Unknown error';
     }
 
     // Log the error
+    const errorDetails =
+      exception instanceof Error
+        ? exception.stack
+        : typeof exception === 'string'
+          ? exception
+          : 'Unknown error';
     this.logger.error(
       `${request.method} ${request.url} - ${status} - ${message}`,
-      exception instanceof Error ? exception.stack : undefined
+      errorDetails
     );
 
     // Send formatted error response

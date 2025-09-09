@@ -1,0 +1,1440 @@
+{
+  "info": {
+    "name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
+    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{FRONT_JWT}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "FRONT_JWT",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "equityId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ACTIVATION_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "RESET_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_slug",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "investor_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "member_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "faq_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "video_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "image_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "document_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "description": "User authentication endpoints including registration, login, account activation, and password management. All endpoints are rate-limited for security.",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"phoneNumber\": \"+1234567890\",\n  \"userLocation\": \"New York, NY\",\n  \"zipcode\": \"10001\",\n  \"aboutYourself\": \"Experienced entrepreneur and investor\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johndoe\"\n    },\n    {\n      \"title\": \"Portfolio\",\n      \"url\": \"https://johndoe.com\"\n    }\n  ],\n  \"userTypeId\": \"investor\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account. Rate limited to 5 requests per minute. Returns account activation token via email."
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password. Rate limited to 10 requests per minute. Returns JWT token for authentication."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.token) {",
+                  "        pm.collectionVariables.set('FRONT_JWT', response.data.token);",
+                  "        pm.collectionVariables.set('userId', response.data.user.id);",
+                  "        console.log('JWT token and user ID saved to collection variables');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activate Account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/activate?token={{ACTIVATION_TOKEN}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "activate"],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{ACTIVATION_TOKEN}}",
+                  "description": "Account activation token received via email"
+                }
+              ]
+            },
+            "description": "Activate user account using token received via email after registration."
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/forgot-password",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "forgot-password"]
+            },
+            "description": "Request password reset token. Rate limited to 3 requests per minute. Sends reset token via email."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{RESET_TOKEN}}\",\n  \"password\": \"NewSecurePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/reset-password",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "Reset password using token received via email. Rate limited to 5 requests per minute."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 User Management",
+      "description": "User profile management endpoints for authenticated users. Includes profile viewing, updating, password changes, and account management.",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/users/profile",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "profile"]
+            },
+            "description": "Get authenticated user's profile information including personal details and settings."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/profile",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "profile"]
+            },
+            "description": "Update authenticated user's profile information. All fields are optional."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/change-password",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "change-password"]
+            },
+            "description": "Change user password. Requires current password verification."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by Slug",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/users/slug/{{user_slug}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "slug", "{{user_slug}}"]
+            },
+            "description": "Get user profile by their unique slug identifier."
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Account",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/users/deactivate",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "deactivate"]
+            },
+            "description": "Deactivate user account. This sets the account status to inactive without permanent deletion."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏢 Equity Campaigns",
+      "description": "Core campaign management functionality for equity crowdfunding. Includes campaign CRUD operations, public listings, and file uploads for campaign assets.",
+      "item": [
+        {
+          "name": "Get User Campaigns",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/equity?page=1&limit=10&search=&sortBy=createdAt&sortOrder=desc",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            },
+            "description": "Get all campaigns owned by the authenticated user with pagination and filtering options."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Public Campaigns",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/equity/front?page=1&limit=20&search=&sortBy=createdAt&sortOrder=desc",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "front"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            },
+            "description": "Get all active campaigns available to the public (no authentication required)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Campaign by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/equity/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "{{equityId}}"]
+            },
+            "description": "Get detailed campaign information with all relations (team, investors, FAQs, etc.). Requires campaign ownership."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('equityId', response.data.id);",
+                  "        console.log('Campaign ID saved to collection variables');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Campaign (Step 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"TechStartup Inc.\",\n  \"fundingGoal\": 500000,\n  \"minimumInvestment\": 1000,\n  \"maximumInvestment\": 50000,\n  \"equityPercentage\": 15.0,\n  \"campaignDuration\": 60,\n  \"campaignDescription\": \"Revolutionary tech solution for modern businesses\",\n  \"companyDescription\": \"We are building the future of business automation\",\n  \"riskFactors\": \"Market competition, regulatory changes, technology risks\",\n  \"businessModel\": \"SaaS subscription model with tiered pricing\",\n  \"marketAnalysis\": \"Growing market with $10B potential by 2025\",\n  \"financialProjections\": \"Expected 300% growth in next 3 years\",\n  \"useOfFunds\": \"Product development (60%), Marketing (25%), Operations (15%)\",\n  \"companyLogo\": \"https://example.com/logo.jpg\",\n  \"campaignImage\": \"https://example.com/campaign.jpg\",\n  \"campaignVideo\": \"https://example.com/video.mp4\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/equity",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity"]
+            },
+            "description": "Create a new equity crowdfunding campaign. This is Step 1 of the campaign creation process."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.collectionVariables.set('equityId', response.data.id);",
+                  "        console.log('New campaign ID saved to collection variables');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Campaign (Steps 2-6)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"TechStartup Inc. Updated\",\n  \"fundingGoal\": 750000,\n  \"campaignDescription\": \"Updated campaign description with more details\",\n  \"currentStep\": 2,\n  \"status\": \"DRAFT\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/equity/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "{{equityId}}"]
+            },
+            "description": "Update existing campaign (Steps 2-6). Only accessible for campaigns in DRAFT or PENDING status."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Campaign",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/equity/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "{{equityId}}"]
+            },
+            "description": "Delete campaign (only DRAFT/PENDING campaigns can be deleted). Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Company Logo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "logo",
+                  "type": "file",
+                  "src": "",
+                  "description": "Company logo image file (PNG, JPG, JPEG)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/equity/upload/logo",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "upload", "logo"]
+            },
+            "description": "Upload company logo image. Accepts PNG, JPG, JPEG formats. Max file size configured in multer settings."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Campaign Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Campaign image file (PNG, JPG, JPEG)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/equity/upload/image",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "upload", "image"]
+            },
+            "description": "Upload campaign promotional image. Accepts PNG, JPG, JPEG formats."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Campaign Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": "",
+                  "description": "Campaign video file (MP4, AVI, MOV)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/equity/upload/video",
+              "host": ["{{BASE_URL}}"],
+              "path": ["equity", "upload", "video"]
+            },
+            "description": "Upload campaign promotional video. Accepts MP4, AVI, MOV formats."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💰 Lead Investors",
+      "description": "Management of lead investors for equity campaigns. Includes investor profiles, contact information, and investment commitments with photo uploads.",
+      "item": [
+        {
+          "name": "Get Lead Investors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leadInvestor", "{{equityId}}"]
+            },
+            "description": "Get all lead investors for a specific campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Lead Investor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Johnson\",\n  \"title\": \"Senior Investment Partner\",\n  \"company\": \"Venture Capital Partners\",\n  \"bio\": \"15+ years experience in tech investments with successful exits in SaaS and fintech\",\n  \"linkedIn\": \"https://linkedin.com/in/sarahjohnson\",\n  \"email\": \"sarah.johnson@vcpartners.com\",\n  \"phone\": \"+1-555-0123\",\n  \"investmentAmount\": 100000,\n  \"investmentDate\": \"2024-01-15\",\n  \"photo\": \"https://example.com/sarah-photo.jpg\",\n  \"isPublic\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leadInvestor", "{{equityId}}"]
+            },
+            "description": "Add a new lead investor to a campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lead Investor",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sarah Johnson Updated\",\n  \"investmentAmount\": 150000,\n  \"bio\": \"Updated bio with recent achievements and portfolio companies\",\n  \"isPublic\": false\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}/{{investor_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leadInvestor", "{{equityId}}", "{{investor_id}}"]
+            },
+            "description": "Update lead investor information. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lead Investor",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}/{{investor_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leadInvestor", "{{equityId}}", "{{investor_id}}"]
+            },
+            "description": "Remove lead investor from campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Investor Photo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "",
+                  "description": "Investor photo (PNG, JPG, JPEG)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leadInvestor/upload/photo",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leadInvestor", "upload", "photo"]
+            },
+            "description": "Upload investor profile photo. Use returned URL in investor creation/update."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Team Members",
+      "description": "Management of campaign team members including founders, executives, and key personnel. Supports detailed profiles with roles, experience, and photo uploads.",
+      "item": [
+        {
+          "name": "Get Team Members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/teamMember/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["teamMember", "{{equityId}}"]
+            },
+            "description": "Get all team members for a specific campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Team Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Michael Chen\",\n  \"title\": \"Chief Technology Officer\",\n  \"bio\": \"Former senior engineer at Google with 12 years of experience in scalable systems\",\n  \"linkedIn\": \"https://linkedin.com/in/michaelchen\",\n  \"email\": \"michael.chen@company.com\",\n  \"phone\": \"+1-555-0456\",\n  \"experience\": \"12 years\",\n  \"education\": \"MS Computer Science, Stanford University\",\n  \"previousCompanies\": \"Google, Microsoft, Amazon\",\n  \"photo\": \"https://example.com/michael-photo.jpg\",\n  \"isFounder\": false,\n  \"equityPercentage\": 5.0,\n  \"displayOrder\": 2\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/teamMember/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["teamMember", "{{equityId}}"]
+            },
+            "description": "Add a new team member to a campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Team Member",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chief Technology Officer & Co-Founder\",\n  \"bio\": \"Updated bio with recent achievements and new role\",\n  \"isFounder\": true,\n  \"equityPercentage\": 8.0,\n  \"displayOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/teamMember/{{equityId}}/{{member_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["teamMember", "{{equityId}}", "{{member_id}}"]
+            },
+            "description": "Update team member information. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Team Member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/teamMember/{{equityId}}/{{member_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["teamMember", "{{equityId}}", "{{member_id}}"]
+            },
+            "description": "Remove team member from campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Member Photo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "",
+                  "description": "Team member photo (PNG, JPG, JPEG)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/teamMember/upload/photo",
+              "host": ["{{BASE_URL}}"],
+              "path": ["teamMember", "upload", "photo"]
+            },
+            "description": "Upload team member profile photo. Use returned URL in member creation/update."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "❓ Campaign FAQs",
+      "description": "Frequently Asked Questions management for campaigns. Helps address common investor queries and provide detailed campaign information.",
+      "item": [
+        {
+          "name": "Get Campaign FAQs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["campaignFaq", "{{equityId}}"]
+            },
+            "description": "Get all FAQs for a specific campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Campaign FAQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What is the minimum investment amount?\",\n  \"answer\": \"The minimum investment amount is $1,000. This allows smaller investors to participate in our equity crowdfunding campaign while keeping administrative costs manageable.\",\n  \"category\": \"Investment Terms\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["campaignFaq", "{{equityId}}"]
+            },
+            "description": "Add a new FAQ to a campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Campaign FAQ",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"What is the minimum investment amount for early investors?\",\n  \"answer\": \"Updated answer with early bird discount information: The minimum investment amount is $1,000, but early investors (first 30 days) can invest with a minimum of $500.\",\n  \"displayOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}/{{faq_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["campaignFaq", "{{equityId}}", "{{faq_id}}"]
+            },
+            "description": "Update FAQ information. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Campaign FAQ",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}/{{faq_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["campaignFaq", "{{equityId}}", "{{faq_id}}"]
+            },
+            "description": "Remove FAQ from campaign. Requires campaign ownership."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎥 Extras Videos",
+      "description": "Additional video content management for campaigns. Supports promotional videos, product demos, team introductions, and other marketing materials.",
+      "item": [
+        {
+          "name": "Get Extras Videos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasVideo", "{{equityId}}"]
+            },
+            "description": "Get all extras videos for a specific campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Extras Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Product Demo - Core Features\",\n  \"description\": \"Comprehensive demonstration of our platform's key features and user interface\",\n  \"videoUrl\": \"https://example.com/videos/product-demo.mp4\",\n  \"thumbnailUrl\": \"https://example.com/thumbnails/product-demo.jpg\",\n  \"duration\": 180,\n  \"category\": \"Product Demo\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasVideo", "{{equityId}}"]
+            },
+            "description": "Add a new extras video to a campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Extras Video",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Product Demo - Updated Features\",\n  \"description\": \"Updated demo showcasing new features released in v2.0\",\n  \"displayOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}/{{video_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasVideo", "{{equityId}}", "{{video_id}}"]
+            },
+            "description": "Update extras video information. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Extras Video",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}/{{video_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasVideo", "{{equityId}}", "{{video_id}}"]
+            },
+            "description": "Remove extras video from campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Extras Video",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": "",
+                  "description": "Video file (MP4, AVI, MOV)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasVideo/upload/video",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasVideo", "upload", "video"]
+            },
+            "description": "Upload extras video file. Use returned URL in video creation/update."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🖼️ Extras Images",
+      "description": "Additional image content management for campaigns. Supports product screenshots, company photos, infographics, and other visual marketing materials.",
+      "item": [
+        {
+          "name": "Get Extras Images",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/extrasImage/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasImage", "{{equityId}}"]
+            },
+            "description": "Get all extras images for a specific campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Extras Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Product Interface Screenshot\",\n  \"description\": \"Main dashboard showing key metrics and analytics features\",\n  \"imageUrl\": \"https://example.com/images/dashboard-screenshot.jpg\",\n  \"altText\": \"Product dashboard interface with analytics charts\",\n  \"category\": \"Product Screenshots\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasImage/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasImage", "{{equityId}}"]
+            },
+            "description": "Add a new extras image to a campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Extras Image",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Product Interface\",\n  \"description\": \"Updated dashboard with new v2.0 features and improved UX\",\n  \"displayOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasImage/{{equityId}}/{{image_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasImage", "{{equityId}}", "{{image_id}}"]
+            },
+            "description": "Update extras image information. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Extras Image",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/extrasImage/{{equityId}}/{{image_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasImage", "{{equityId}}", "{{image_id}}"]
+            },
+            "description": "Remove extras image from campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Extras Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Image file (PNG, JPG, JPEG)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasImage/upload/image",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasImage", "upload", "image"]
+            },
+            "description": "Upload extras image file. Use returned URL in image creation/update."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📄 Extras Documents",
+      "description": "Additional document management for campaigns. Supports financial reports, legal documents, business plans, and other important campaign materials.",
+      "item": [
+        {
+          "name": "Get Extras Documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasDocument", "{{equityId}}"]
+            },
+            "description": "Get all extras documents for a specific campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Extras Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Financial Projections 2024-2027\",\n  \"description\": \"Detailed financial projections including revenue forecasts, expense breakdowns, and profitability timeline\",\n  \"documentUrl\": \"https://example.com/documents/financial-projections.pdf\",\n  \"fileType\": \"PDF\",\n  \"fileSize\": 2048000,\n  \"category\": \"Financial Documents\",\n  \"displayOrder\": 1,\n  \"isPublic\": true,\n  \"requiresAccess\": false\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasDocument", "{{equityId}}"]
+            },
+            "description": "Add a new extras document to a campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Extras Document",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Financial Projections 2024-2027\",\n  \"description\": \"Revised financial projections with Q1 2024 actual results incorporated\",\n  \"isPublic\": false,\n  \"requiresAccess\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}/{{document_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasDocument", "{{equityId}}", "{{document_id}}"]
+            },
+            "description": "Update extras document information. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Extras Document",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}/{{document_id}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasDocument", "{{equityId}}", "{{document_id}}"]
+            },
+            "description": "Remove extras document from campaign. Requires campaign ownership."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Extras Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{FRONT_JWT}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "",
+                  "description": "Document file (PDF, DOC, DOCX, XLS, XLSX)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/extrasDocument/upload/document",
+              "host": ["{{BASE_URL}}"],
+              "path": ["extrasDocument", "upload", "document"]
+            },
+            "description": "Upload extras document file. Use returned URL in document creation/update."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🩺 Health Check",
+      "description": "System health monitoring endpoint to check the status of databases and external services. Useful for monitoring and debugging.",
+      "item": [
+        {
+          "name": "System Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            },
+            "description": "Check system health including PostgreSQL, MongoDB, and Redis connectivity. No authentication required."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set base URL if not already set",
+          "if (!pm.collectionVariables.get('BASE_URL')) {",
+          "    pm.collectionVariables.set('BASE_URL', 'http://localhost:3000');",
+          "}",
+          "",
+          "// Add timestamp for requests",
+          "pm.globals.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test to log response time and status",
+          "console.log(`Request: ${pm.info.requestName}`);",
+          "console.log(`Status: ${pm.response.code} ${pm.response.status}`);",
+          "console.log(`Response Time: ${pm.response.responseTime}ms`);",
+          "",
+          "// Check for common error patterns",
+          "if (pm.response.code >= 400) {",
+          "    const response = pm.response.json();",
+          "    console.error('Error Response:', response);",
+          "    ",
+          "    if (pm.response.code === 401) {",
+          "        console.log('Authentication required - please login first');",
+          "    }",
+          "    if (pm.response.code === 403) {",
+          "        console.log('Access denied - check permissions');",
+          "    }",
+          "    if (pm.response.code === 429) {",
+          "        console.log('Rate limited - please wait before retrying');",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

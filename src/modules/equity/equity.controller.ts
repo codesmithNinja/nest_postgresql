@@ -1,0 +1,154 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
+import { CampaignModificationGuard } from '../../common/guards/campaign-modification.guard';
+import { Public } from '../../common/decorators/public.decorator';
+import { RequestWithUser } from '../../common/types/user.types';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { EquityService } from './equity.service';
+import {
+  CreateEquityDto,
+  UpdateEquityDto,
+  EquityResponseDto,
+  EquityWithRelationsResponseDto,
+} from './dto/equity.dto';
+import { FileUploadResponseDto } from '../../common/dto/file-upload.dto';
+import { multerConfig } from '../../common/config/multer.config';
+
+@ApiTags('Equity Campaigns')
+@Controller('equity')
+export class EquityController {
+  constructor(private readonly equityService: EquityService) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all campaigns of logged-in user' })
+  @ApiResponse({ type: [EquityResponseDto] })
+  async getUserCampaigns(
+    @Req() req: RequestWithUser,
+    @Query() paginationDto: PaginationDto
+  ) {
+    return await this.equityService.getUserCampaigns(
+      req.user.id,
+      paginationDto
+    );
+  }
+
+  @Get('front')
+  @Public()
+  @ApiOperation({ summary: 'Get all active campaigns (public)' })
+  @ApiResponse({ type: [EquityResponseDto] })
+  async getPublicCampaigns(@Query() paginationDto: PaginationDto) {
+    return await this.equityService.getPublicCampaigns(paginationDto);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, CampaignOwnershipGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get single campaign with relations' })
+  @ApiResponse({ type: EquityWithRelationsResponseDto })
+  async getCampaignById(@Param('id') id: string) {
+    return await this.equityService.getCampaignWithRelations(id);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create new campaign (Step 1)' })
+  @ApiResponse({ type: EquityResponseDto, status: 201 })
+  async createCampaign(
+    @Req() req: RequestWithUser,
+    @Body() createEquityDto: CreateEquityDto
+  ) {
+    return await this.equityService.createCampaign(
+      req.user.id,
+      createEquityDto
+    );
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, CampaignModificationGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update campaign (Steps 2-6)' })
+  @ApiResponse({ type: EquityResponseDto })
+  async updateCampaign(
+    @Param('id') id: string,
+    @Body() updateEquityDto: UpdateEquityDto
+  ) {
+    return await this.equityService.updateCampaign(id, updateEquityDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, CampaignModificationGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete campaign (DRAFT/PENDING only)' })
+  @ApiResponse({ status: 200, description: 'Campaign deleted successfully' })
+  async deleteCampaign(@Param('id') id: string) {
+    return await this.equityService.deleteCampaign(id);
+  }
+
+  @Post('upload/logo')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('logo', multerConfig.imageUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload company logo' })
+  @ApiResponse({ type: FileUploadResponseDto })
+  async uploadLogo(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Logo file is required');
+    }
+    return await this.equityService.uploadFile(file, 'logo');
+  }
+
+  @Post('upload/image')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('image', multerConfig.imageUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload campaign image' })
+  @ApiResponse({ type: FileUploadResponseDto })
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+    return await this.equityService.uploadFile(file, 'campaign-image');
+  }
+
+  @Post('upload/video')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('video', multerConfig.videoUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload campaign video' })
+  @ApiResponse({ type: FileUploadResponseDto })
+  async uploadVideo(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Video file is required');
+    }
+    return await this.equityService.uploadFile(file, 'campaign-video');
+  }
+}

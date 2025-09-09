@@ -17,11 +17,13 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
+import { Public } from '../../common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('register')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
   async register(
@@ -32,6 +34,7 @@ export class AuthController {
     return this.authService.register(registerDto, ipAddress);
   }
 
+  @Public()
   @Post('login')
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   async login(@Body(ValidationPipe) loginDto: LoginDto, @Req() req: Request) {
@@ -39,6 +42,7 @@ export class AuthController {
     return this.authService.login(loginDto, ipAddress);
   }
 
+  @Public()
   @Get('activate')
   async activateAccount(
     @Query(ValidationPipe) activateAccountDto: ActivateAccountDto
@@ -46,6 +50,7 @@ export class AuthController {
     return this.authService.activateAccount(activateAccountDto);
   }
 
+  @Public()
   @Post('forgot-password')
   @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute
   async forgotPassword(
@@ -54,6 +59,7 @@ export class AuthController {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
+  @Public()
   @Post('reset-password')
   @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
   async resetPassword(

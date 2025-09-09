@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Query } from 'mongoose';
-import { MongoRepository } from '../base/mongodb.repository';
 import { IUserRepository } from './user.repository.interface';
 import { User, UserDocument } from '../../schemas/user.schema';
 import { User as UserEntity, OutsideLink } from '../../entities/user.entity';
@@ -24,9 +23,13 @@ export class UserMongoRepository implements IUserRepository {
   protected toEntity(doc: UserDocument | null): UserEntity | null {
     if (!doc) return null;
 
-    const obj = doc.toObject();
+    const obj = doc.toObject() as Record<string, unknown>;
     return {
-      id: obj._id.toString(),
+      id: (obj._id as { toString: () => string })?.toString() || '',
+      publicId:
+        this.getString(obj.publicId) ||
+        (obj._id as { toString: () => string })?.toString() ||
+        '',
       firstName: this.getString(obj.firstName),
       lastName: this.getString(obj.lastName),
       email: this.getString(obj.email),
@@ -73,8 +76,8 @@ export class UserMongoRepository implements IUserRepository {
       notificationLanguageId: this.getString(obj.notificationLanguageId),
       walletAddress: this.getString(obj.walletAddress),
       userTypeId: this.getString(obj.userTypeId),
-      createdAt: obj.createdAt || new Date(),
-      updatedAt: obj.updatedAt || new Date(),
+      createdAt: (obj.createdAt as Date) || new Date(),
+      updatedAt: (obj.updatedAt as Date) || new Date(),
     };
   }
 
@@ -140,7 +143,7 @@ export class UserMongoRepository implements IUserRepository {
     return doc;
   }
 
-  protected applyOptions<T extends Query<any, any>>(
+  protected applyOptions<T extends Query<unknown, unknown>>(
     query: T,
     options?: QueryOptions
   ): T {

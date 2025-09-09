@@ -1,30 +1,34 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseType } from '../../common/enums/database-type.enum';
+import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { User, UserSchema } from '../schemas/user.schema';
 
 @Module({})
 export class MongoDBModule {
   static forRoot(): DynamicModule {
-    const imports = [];
-    const providers = [];
+    const imports: DynamicModule[] = [];
+    const providers: Provider[] = [];
 
-    imports.push(
-      MongooseModule.forRootAsync({
-        useFactory: (configService: ConfigService) => ({
-          uri: configService.get<string>('database.mongodb.uri'),
-        }),
-        inject: [ConfigService],
+    const mongooseRootModule = MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService): MongooseModuleOptions => ({
+        uri:
+          configService.get<string>('database.mongodb.uri') ||
+          'mongodb://localhost:27017/defaultdb',
       }),
-      MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
-    );
+      inject: [ConfigService],
+    });
+
+    const mongooseFeatureModule = MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+    ]);
+
+    imports.push(mongooseRootModule, mongooseFeatureModule);
 
     return {
       module: MongoDBModule,
       imports,
       providers,
-      exports: [...imports],
+      exports: [mongooseFeatureModule],
     };
   }
 }

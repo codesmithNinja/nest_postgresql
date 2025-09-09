@@ -22,17 +22,20 @@ export class EmailService {
     email: string,
     token: string,
     firstName: string
-  ) {
+  ): Promise<nodemailer.SentMessageInfo> {
     const activationUrl = `${this.configService.get('API_URL')}/auth/activate?token=${token}`;
 
-    const mailOptions = {
-      from: this.configService.get('EMAIL_FROM'),
+    const mailOptions: nodemailer.SendMailOptions = {
+      from:
+        this.configService.get<string>('EMAIL_FROM') || 'noreply@example.com',
       to: email,
-      subject: 'Account Activation - ' + this.configService.get('APP_NAME'),
+      subject:
+        'Account Activation - ' +
+        (this.configService.get<string>('APP_NAME') || 'App'),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Welcome ${firstName}!</h2>
-          <p>Thank you for registering with ${this.configService.get('APP_NAME')}.</p>
+          <p>Thank you for registering with ${this.configService.get<string>('APP_NAME') || 'our app'}.</p>
           <p>Please click the button below to activate your account:</p>
           <a href="${activationUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
             Activate Account
@@ -51,13 +54,16 @@ export class EmailService {
     email: string,
     token: string,
     firstName: string
-  ) {
+  ): Promise<nodemailer.SentMessageInfo> {
     const resetUrl = `${this.configService.get('API_URL')}/auth/reset-password?token=${token}`;
 
-    const mailOptions = {
-      from: this.configService.get('EMAIL_FROM'),
+    const mailOptions: nodemailer.SendMailOptions = {
+      from:
+        this.configService.get<string>('EMAIL_FROM') || 'noreply@example.com',
       to: email,
-      subject: 'Password Reset - ' + this.configService.get('APP_NAME'),
+      subject:
+        'Password Reset - ' +
+        (this.configService.get<string>('APP_NAME') || 'App'),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Password Reset Request</h2>

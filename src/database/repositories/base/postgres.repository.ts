@@ -3,18 +3,36 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from './base.repository';
 import { QueryOptions } from '../../../common/interfaces/repository.interface';
 
+type PrismaModelDelegate = {
+  findMany: (args?: Record<string, unknown>) => Promise<unknown[]>;
+  findUnique: (args?: Record<string, unknown>) => Promise<unknown>;
+  findFirst: (args?: Record<string, unknown>) => Promise<unknown>;
+  create: (args?: Record<string, unknown>) => Promise<unknown>;
+  update: (args?: Record<string, unknown>) => Promise<unknown>;
+  updateMany: (args?: Record<string, unknown>) => Promise<{ count: number }>;
+  delete: (args?: Record<string, unknown>) => Promise<unknown>;
+  deleteMany: (args?: Record<string, unknown>) => Promise<{ count: number }>;
+  count: (args?: Record<string, unknown>) => Promise<number>;
+};
+
 @Injectable()
 export abstract class PostgresRepository<T> extends BaseRepository<T> {
   protected abstract modelName: string;
-  protected abstract selectFields: any;
+  protected abstract selectFields: Record<string, boolean | object>;
 
   constructor(protected prisma: PrismaService) {
     super();
   }
 
   async getAll(filter?: Partial<T>, options?: QueryOptions): Promise<T[]> {
-    const queryOptions: any = {
-      where: filter || {},
+    const queryOptions: {
+      where?: Record<string, any>;
+      select?: Record<string, boolean | object>;
+      skip?: number;
+      take?: number;
+      orderBy?: Array<Record<string, 'asc' | 'desc'>>;
+    } = {
+      where: filter ? this.convertFilterToPrisma(filter) : {},
       select: this.selectFields,
     };
 
@@ -28,74 +46,94 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
       );
     }
 
-    return await this.prisma[this.modelName].findMany(queryOptions);
+    const delegate = this.getModelDelegate();
+    return (await delegate.findMany(queryOptions)) as T[];
   }
 
   async getDetailById(id: string, options?: QueryOptions): Promise<T | null> {
-    const queryOptions: any = {
+    const queryOptions: {
+      where: { id: string };
+      select?: Record<string, boolean | object>;
+    } = {
       where: { id },
       select: this.selectFields,
     };
 
     if (options?.select) {
-      queryOptions.select = options.select.reduce((acc, field) => {
-        acc[field] = true;
-        return acc;
-      }, {});
+      queryOptions.select = options.select.reduce(
+        (acc: Record<string, boolean>, field: string) => {
+          acc[field] = true;
+          return acc;
+        },
+        {}
+      );
     }
 
-    return this.prisma[this.modelName].findUnique(queryOptions);
+    const delegate = this.getModelDelegate();
+    return (await delegate.findUnique(queryOptions)) as T | null;
   }
 
   async getDetail(
     filter: Partial<T>,
     options?: QueryOptions
   ): Promise<T | null> {
-    const queryOptions: any = {
-      where: filter,
+    const queryOptions: {
+      where?: Record<string, any>;
+      select?: Record<string, boolean | object>;
+    } = {
+      where: this.convertFilterToPrisma(filter),
       select: this.selectFields,
     };
 
     if (options?.select) {
-      queryOptions.select = options.select.reduce((acc, field) => {
-        acc[field] = true;
-        return acc;
-      }, {});
+      queryOptions.select = options.select.reduce(
+        (acc: Record<string, boolean>, field: string) => {
+          acc[field] = true;
+          return acc;
+        },
+        {}
+      );
     }
 
-    return this.prisma[this.modelName].findFirst(queryOptions);
+    const delegate = this.getModelDelegate();
+    return (await delegate.findFirst(queryOptions)) as T | null;
   }
 
   async insert(data: Partial<T>): Promise<T> {
-    return this.prisma[this.modelName].create({
-      data,
+    const delegate = this.getModelDelegate();
+    return (await delegate.create({
+      data: this.convertDataToPrisma(data),
       select: this.selectFields,
-    });
+    })) as T;
   }
 
   async updateById(id: string, data: Partial<T>): Promise<T> {
-    return this.prisma[this.modelName].update({
+    const delegate = this.getModelDelegate();
+    return (await delegate.update({
       where: { id },
-      data,
+      data: this.convertDataToPrisma(data),
       select: this.selectFields,
-    });
+    })) as T;
   }
 
   async updateMany(
     filter: Partial<T>,
     data: Partial<T>
   ): Promise<{ count: number; updated: T[] }> {
+    const delegate = this.getModelDelegate();
+    const whereClause = this.convertFilterToPrisma(filter);
+
     // First update the records
-    const updateResult = await this.prisma[this.modelName].updateMany({
-      where: filter,
-      data,
+    const updateResult = await delegate.updateMany({
+      where: whereClause,
+      data: this.convertDataToPrisma(data),
     });
 
     // Then fetch the updated records
-    const updated = await this.prisma[this.modelName].findMany({
-      where: filter,
+    const updated = (await delegate.findMany({
+      where: whereClause,
       select: this.selectFields,
-    });
+    })) as T[];
 
     return {
       count: updateResult.count,
@@ -105,11 +143,12 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
 
   async deleteById(id: string): Promise<boolean> {
     try {
-      await this.prisma[this.modelName].delete({
+      const delegate = this.getModelDelegate();
+      await delegate.delete({
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -117,15 +156,18 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
   async deleteMany(
     filter: Partial<T>
   ): Promise<{ count: number; deleted: T[] }> {
+    const delegate = this.getModelDelegate();
+    const whereClause = this.convertFilterToPrisma(filter);
+
     // First fetch the records to be deleted
-    const toDelete = await this.prisma[this.modelName].findMany({
-      where: filter,
+    const toDelete = (await delegate.findMany({
+      where: whereClause,
       select: this.selectFields,
-    });
+    })) as T[];
 
     // Then delete them
-    const deleteResult = await this.prisma[this.modelName].deleteMany({
-      where: filter,
+    const deleteResult = await delegate.deleteMany({
+      where: whereClause,
     });
 
     return {
@@ -135,8 +177,31 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
   }
 
   async count(filter?: Partial<T>): Promise<number> {
-    return this.prisma[this.modelName].count({
-      where: filter || {},
+    const delegate = this.getModelDelegate();
+    return await delegate.count({
+      where: filter ? this.convertFilterToPrisma(filter) : {},
     });
+  }
+
+  protected getModelDelegate(): PrismaModelDelegate {
+    const delegate = (this.prisma as unknown as Record<string, unknown>)[
+      this.modelName
+    ] as PrismaModelDelegate;
+    if (!delegate) {
+      throw new Error(
+        `Model '${String(this.modelName)}' not found in Prisma client`
+      );
+    }
+    return delegate;
+  }
+
+  protected convertFilterToPrisma(filter: Partial<T>): Record<string, any> {
+    // Default implementation - subclasses can override for custom filtering
+    return filter as Record<string, any>;
+  }
+
+  protected convertDataToPrisma(data: Partial<T>): Record<string, any> {
+    // Default implementation - subclasses can override for custom data mapping
+    return data as Record<string, any>;
   }
 }
