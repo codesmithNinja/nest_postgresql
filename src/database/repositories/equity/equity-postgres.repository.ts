@@ -96,24 +96,24 @@ export class EquityPostgresRepository
         | 'equityAvailable'
         | 'interestRate'
       >),
-      goal: data.goal ? Number(data.goal) : null,
-      minimumRaise: data.minimumRaise ? Number(data.minimumRaise) : null,
-      maximumRaise: data.maximumRaise ? Number(data.maximumRaise) : null,
+      goal: data.goal ? Number(data.goal) : 0,
+      minimumRaise: data.minimumRaise ? Number(data.minimumRaise) : 0,
+      maximumRaise: data.maximumRaise ? Number(data.maximumRaise) : 0,
       previouslyRaised: data.previouslyRaised
         ? Number(data.previouslyRaised)
-        : null,
+        : undefined,
       estimatedRevenue: data.estimatedRevenue
         ? Number(data.estimatedRevenue)
-        : null,
-      pricePerShare: data.pricePerShare ? Number(data.pricePerShare) : null,
+        : undefined,
+      pricePerShare: data.pricePerShare ? Number(data.pricePerShare) : undefined,
       preMoneyValuation: data.preMoneyValuation
         ? Number(data.preMoneyValuation)
-        : null,
-      IRR: data.IRR ? Number(data.IRR) : null,
+        : undefined,
+      IRR: data.IRR ? Number(data.IRR) : undefined,
       equityAvailable: data.equityAvailable
         ? Number(data.equityAvailable)
-        : null,
-      interestRate: data.interestRate ? Number(data.interestRate) : null,
+        : undefined,
+      interestRate: data.interestRate ? Number(data.interestRate) : undefined,
     };
   }
 

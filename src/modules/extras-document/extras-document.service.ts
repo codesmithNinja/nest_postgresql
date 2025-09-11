@@ -3,8 +3,8 @@ import {
   IExtrasDocumentRepository,
   EXTRAS_DOCUMENT_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
 import {
   CreateExtrasDocumentDto,
@@ -21,7 +21,8 @@ export class ExtrasDocumentService {
 
   constructor(
     @Inject(EXTRAS_DOCUMENT_REPOSITORY)
-    private readonly extrasDocumentRepository: IExtrasDocumentRepository
+    private readonly extrasDocumentRepository: IExtrasDocumentRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getExtrasDocumentsByEquityId(equityId: string) {
@@ -39,9 +40,8 @@ export class ExtrasDocumentService {
       const extrasDocuments =
         await this.extrasDocumentRepository.findByEquityId(equityId);
 
-      const response = ResponseHandler.success(
-        'Extras documents retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'extras_document.retrieved',
         extrasDocuments
       );
 
@@ -74,8 +74,8 @@ export class ExtrasDocumentService {
         `Extras document created successfully: ${extrasDocument.id}`
       );
 
-      return ResponseHandler.created(
-        'Extras document created successfully',
+      return this.i18nResponse.created(
+        'extras_document.created',
         extrasDocument
       );
     } catch (error) {
@@ -99,7 +99,7 @@ export class ExtrasDocumentService {
         );
 
       if (!extrasDocument) {
-        throw new NotFoundException('Extras document not found');
+        throw new NotFoundException();
       }
 
       const updatedExtrasDocument =
@@ -112,9 +112,8 @@ export class ExtrasDocumentService {
 
       this.logger.log(`Extras document updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Extras document updated successfully',
-        200,
+      return this.i18nResponse.success(
+        'extras_document.updated',
         updatedExtrasDocument
       );
     } catch (error) {
@@ -134,7 +133,7 @@ export class ExtrasDocumentService {
         );
 
       if (!extrasDocument) {
-        throw new NotFoundException('Extras document not found');
+        throw new NotFoundException();
       }
 
       await this.extrasDocumentRepository.deleteById(extrasDocument.id);
@@ -143,7 +142,7 @@ export class ExtrasDocumentService {
 
       this.logger.log(`Extras document deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Extras document deleted successfully');
+      return this.i18nResponse.success('extras_document.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -169,7 +168,7 @@ export class ExtrasDocumentService {
 
       const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
 
-      return ResponseHandler.success('File uploaded successfully', 201, {
+      return this.i18nResponse.success('common.file_uploaded', {
         filename,
         url: fileUrl,
         mimetype: file.mimetype,

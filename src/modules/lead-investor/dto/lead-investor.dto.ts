@@ -10,22 +10,22 @@ export class CreateLeadInvestorDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
-  investorPhoto: string;
+  investorPhoto!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  investorType: string;
+  investorType!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(50, 2000)
-  bio: string;
+  bio!: string;
 }
 
 export class UpdateLeadInvestorDto {
@@ -51,13 +51,13 @@ export class UpdateLeadInvestorDto {
 }
 
 export class LeadInvestorResponseDto {
-  id: string;
-  publicId: string;
-  investorPhoto: string;
-  name: string;
-  investorType: string;
-  bio: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id!: string;
+  publicId!: string;
+  investorPhoto!: string;
+  name!: string;
+  investorType!: string;
+  bio!: string;
+  equityId!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

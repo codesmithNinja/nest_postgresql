@@ -27,7 +27,7 @@ const getStorage = () => {
 const imageFileFilter = (
   req: Request,
   file: Express.Multer.File,
-  callback: (error: Error | null, acceptFile?: boolean) => void
+  callback: (error: Error | null, acceptFile: boolean) => void
 ) => {
   const options = FileUploadUtil.getImageUploadOptions();
   try {
@@ -43,7 +43,7 @@ const imageFileFilter = (
 const videoFileFilter = (
   req: Request,
   file: Express.Multer.File,
-  callback: (error: Error | null, acceptFile?: boolean) => void
+  callback: (error: Error | null, acceptFile: boolean) => void
 ) => {
   const options = FileUploadUtil.getVideoUploadOptions();
   try {
@@ -59,7 +59,7 @@ const videoFileFilter = (
 const documentFileFilter = (
   req: Request,
   file: Express.Multer.File,
-  callback: (error: Error | null, acceptFile?: boolean) => void
+  callback: (error: Error | null, acceptFile: boolean) => void
 ) => {
   const options = FileUploadUtil.getDocumentUploadOptions();
   try {

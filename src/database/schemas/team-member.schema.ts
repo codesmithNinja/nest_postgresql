@@ -29,25 +29,25 @@ export class TeamMember {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId!: string;
 
   @Prop({ required: true })
-  memberPhoto: string;
+  memberPhoto!: string;
 
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true })
-  role: string;
+  role!: string;
 
   @Prop({ required: true })
-  email: string;
+  email!: string;
 
   @Prop({ required: true })
-  bio: string;
+  bio!: string;
 
   @Prop({ required: true })
-  equityId: string;
+  equityId!: string;
 
   createdAt?: Date;
   updatedAt?: Date;

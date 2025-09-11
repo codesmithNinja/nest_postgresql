@@ -31,11 +31,14 @@ export class User {
   // ✅ ADD ID PROPERTY FOR TYPE COMPATIBILITY
   id?: string;
 
-  @Prop({ required: true })
-  firstName: string;
+  @Prop({ required: true, unique: true })
+  publicId!: string;
 
   @Prop({ required: true })
-  lastName: string;
+  firstName!: string;
+
+  @Prop({ required: true })
+  lastName!: string;
 
   @Prop({ unique: true, sparse: true })
   slug?: string;
@@ -47,10 +50,10 @@ export class User {
   coverPhoto?: string;
 
   @Prop({ required: true, unique: true })
-  email: string;
+  email!: string;
 
   @Prop({ required: true })
-  password: string;
+  password!: string;
 
   @Prop()
   phoneNumber?: string;
@@ -77,16 +80,16 @@ export class User {
   userTypeId?: string;
 
   @Prop({ enum: ActiveStatus, default: ActiveStatus.PENDING })
-  active: ActiveStatus;
+  active!: ActiveStatus;
 
   @Prop({ default: 'no' })
-  enableTwoFactorAuth: string;
+  enableTwoFactorAuth!: string;
 
   @Prop({ default: 'no' })
-  appliedBytwoFactorAuth: string;
+  appliedBytwoFactorAuth!: string;
 
   @Prop({ default: 'yes' })
-  twoFactorAuthVerified: string;
+  twoFactorAuthVerified!: string;
 
   @Prop()
   twoFactorSecretKey?: string;
@@ -158,7 +161,7 @@ export class User {
   globalSocketId?: string;
 
   @Prop({ enum: NotificationStatus, default: NotificationStatus.YES })
-  enableNotification: NotificationStatus;
+  enableNotification!: NotificationStatus;
 
   @Prop()
   notificationLanguageId?: string;

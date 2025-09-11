@@ -66,7 +66,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
     Q extends {
       skip: (value: number) => Q;
       limit: (value: number) => Q;
-      sort: (value: any) => Q;
+      sort: (value: Record<string, 1 | -1>) => Q;
       select: (value: string) => Q;
       populate: (value: string) => Q;
     },

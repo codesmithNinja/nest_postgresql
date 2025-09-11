@@ -1,0 +1,126 @@
+{
+  "auth": {
+    "login_success": "Inicio de sesión exitoso",
+    "logout_success": "Cierre de sesión exitoso",
+    "register_success": "Registro exitoso",
+    "register_success_check_email": "Registro exitoso. Por favor revisa tu email para activar tu cuenta.",
+    "invalid_credentials": "Email o contraseña inválidos",
+    "email_already_exists": "El email ya existe",
+    "account_not_activated": "Cuenta no activada",
+    "account_not_active_activate": "La cuenta no está activa. Por favor activa tu cuenta primero.",
+    "token_expired": "El token ha expirado",
+    "token_invalid": "Token inválido",
+    "invalid_activation_token": "Token de activación inválido o expirado",
+    "user_email_not_found": "No existe un usuario con este email",
+    "password_reset_sent": "Enlace de restablecimiento enviado a tu email",
+    "password_reset_email_sent": "Email de restablecimiento enviado exitosamente",
+    "password_reset_email_failed": "Error al enviar el email de restablecimiento",
+    "password_reset_success": "Contraseña restablecida exitosamente",
+    "account_activated": "Cuenta activada exitosamente",
+    "account_activated_login": "Cuenta activada exitosamente. Ya puedes iniciar sesión.",
+    "invalid_reset_token": "Token de restablecimiento inválido o expirado",
+    "unauthorized": "Acceso no autorizado",
+    "forbidden": "Acceso prohibido"
+  },
+  "user": {
+    "profile_updated": "Perfil actualizado exitosamente",
+    "profile_retrieved": "Perfil obtenido exitosamente",
+    "password_changed": "Contraseña cambiada exitosamente",
+    "user_not_found": "Usuario no encontrado",
+    "user_retrieved": "Usuario obtenido exitosamente",
+    "account_deactivated": "Cuenta desactivada exitosamente",
+    "invalid_current_password": "La contraseña actual es incorrecta",
+    "email_already_taken": "El email ya está en uso",
+    "user_created": "Usuario creado exitosamente",
+    "user_deleted": "Usuario eliminado exitosamente"
+  },
+  "validation": {
+    "required_field": "{{field}} es requerido",
+    "invalid_email": "Formato de email inválido",
+    "password_min_length": "La contraseña debe tener al menos 8 caracteres",
+    "invalid_format": "Formato de {{field}} inválido",
+    "field_too_long": "{{field}} es muy largo",
+    "field_too_short": "{{field}} es muy corto"
+  },
+  "common": {
+    "success": "Operación exitosa",
+    "error": "Ocurrió un error",
+    "not_found": "Recurso no encontrado",
+    "internal_error": "Error interno del servidor",
+    "bad_request": "Solicitud incorrecta",
+    "created": "Recurso creado exitosamente",
+    "updated": "Recurso actualizado exitosamente",
+    "deleted": "Recurso eliminado exitosamente",
+    "conflict": "El recurso ya existe",
+    "file_uploaded": "Archivo subido exitosamente"
+  },
+  "campaign": {
+    "created": "Campaña creada exitosamente",
+    "updated": "Campaña actualizada exitosamente",
+    "deleted": "Campaña eliminada exitosamente",
+    "not_found": "Campaña no encontrada",
+    "access_denied": "Acceso denegado a esta campaña",
+    "status_updated": "Estado de la campaña actualizado exitosamente"
+  },
+  "equity": {
+    "logo_file_required": "Se requiere el archivo de logo",
+    "image_file_required": "Se requiere el archivo de imagen",
+    "video_file_required": "Se requiere el archivo de video",
+    "user_campaigns_retrieved": "Campañas del usuario obtenidas exitosamente",
+    "public_campaigns_retrieved": "Campañas públicas obtenidas exitosamente",
+    "campaign_not_found": "Campaña no encontrada",
+    "campaign_relations_retrieved": "Campaña con relaciones obtenida exitosamente",
+    "account_numbers_must_match": "Los números de cuenta deben coincidir",
+    "only_draft_pending_can_delete": "Solo las campañas con estado BORRADOR o PENDIENTE pueden eliminarse",
+    "missing_required_fields": "Faltan campos requeridos para {{termslug}}: {{fields}}"
+  },
+  "campaign_faq": {
+    "retrieved": "FAQs de la campaña obtenidas exitosamente",
+    "either_standard_or_custom": "Proporciona questionID con respuesta, o customQuestion con customAnswer",
+    "cannot_provide_both": "No se pueden proporcionar datos de FAQ estándar y personalizada a la vez",
+    "created": "FAQ de campaña creada exitosamente",
+    "not_found": "FAQ de campaña no encontrada",
+    "updated": "FAQ de campaña actualizada exitosamente",
+    "deleted": "FAQ de campaña eliminada exitosamente"
+  },
+  "extras_document": {
+    "document_file_required": "Se requiere el archivo de documento",
+    "retrieved": "Documentos adicionales obtenidos exitosamente",
+    "created": "Documento adicional creado exitosamente",
+    "not_found": "Documento adicional no encontrado",
+    "updated": "Documento adicional actualizado exitosamente",
+    "deleted": "Documento adicional eliminado exitosamente"
+  },
+  "extras_image": {
+    "image_file_required": "Se requiere el archivo de imagen",
+    "retrieved": "Imágenes adicionales obtenidas exitosamente",
+    "created": "Imagen adicional creada exitosamente",
+    "not_found": "Imagen adicional no encontrada",
+    "updated": "Imagen adicional actualizada exitosamente",
+    "deleted": "Imagen adicional eliminada exitosamente"
+  },
+  "extras_video": {
+    "video_file_required": "Se requiere el archivo de video",
+    "retrieved": "Videos adicionales obtenidos exitosamente",
+    "created": "Video adicional creado exitosamente",
+    "not_found": "Video adicional no encontrado",
+    "updated": "Video adicional actualizado exitosamente",
+    "deleted": "Video adicional eliminado exitosamente"
+  },
+  "lead_investor": {
+    "photo_file_required": "Se requiere el archivo de foto",
+    "retrieved": "Inversores principales obtenidos exitosamente",
+    "created": "Inversor principal creado exitosamente",
+    "not_found": "Inversor principal no encontrado",
+    "updated": "Inversor principal actualizado exitosamente",
+    "deleted": "Inversor principal eliminado exitosamente"
+  },
+  "team_member": {
+    "photo_file_required": "Se requiere el archivo de foto",
+    "retrieved": "Miembros del equipo obtenidos exitosamente",
+    "created": "Miembro del equipo creado exitosamente",
+    "not_found": "Miembro del equipo no encontrado",
+    "updated": "Miembro del equipo actualizado exitosamente",
+    "deleted": "Miembro del equipo eliminado exitosamente"
+  }
+}

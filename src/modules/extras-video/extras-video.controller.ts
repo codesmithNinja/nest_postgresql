@@ -9,7 +9,6 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -94,7 +93,12 @@ export class ExtrasVideoController {
   @ApiOperation({ summary: 'Upload extras video file' })
   async uploadVideo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Video file is required');
+      return {
+        success: false,
+        message: 'Video file is required',
+        statusCode: 400,
+        timestamp: new Date().toISOString(),
+      };
     }
     return this.extrasVideoService.uploadFile(file, 'extras-video');
   }

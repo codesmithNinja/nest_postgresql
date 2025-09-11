@@ -11,26 +11,26 @@ export class CreateTeamMemberDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
-  memberPhoto: string;
+  memberPhoto!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  role: string;
+  role!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(50, 2000)
-  bio: string;
+  bio!: string;
 }
 
 export class UpdateTeamMemberDto {
@@ -60,14 +60,14 @@ export class UpdateTeamMemberDto {
 }
 
 export class TeamMemberResponseDto {
-  id: string;
-  publicId: string;
-  memberPhoto: string;
-  name: string;
-  role: string;
-  email: string;
-  bio: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id!: string;
+  publicId!: string;
+  memberPhoto!: string;
+  name!: string;
+  role!: string;
+  email!: string;
+  bio!: string;
+  equityId!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

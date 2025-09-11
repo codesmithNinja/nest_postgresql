@@ -27,12 +27,12 @@ type PrismaUserResult = {
   kycReferenceId: string | null;
   aboutYourself: string | null;
   outsideLinks: string | null;
-  userTypeId: string;
+  userTypeId: string | null;
   userType: {
     id: string;
     name: string;
     description: string | null;
-  };
+  } | null;
   active: $Enums.ActiveStatus;
   enableTwoFactorAuth: string;
   appliedBytwoFactorAuth: string;
@@ -240,10 +240,11 @@ export class UserPostgresRepository
     const result = await this.prisma.user.findFirst({
       where: {
         accountActivationToken: token,
-        active: ActiveStatus.PENDING,
+        active: $Enums.ActiveStatus.PENDING,
       },
       select: this.selectFields,
     });
+
     return result ? this.mapToUser(result) : null;
   }
 
@@ -264,7 +265,7 @@ export class UserPostgresRepository
     const result = await this.prisma.user.update({
       where: { id },
       data: {
-        active: ActiveStatus.ACTIVE,
+        active: $Enums.ActiveStatus.ACTIVE,
         accountActivationToken: null,
       },
       select: this.selectFields,
@@ -314,7 +315,7 @@ export class UserPostgresRepository
   protected convertDataToPrisma(
     data: Partial<User>
   ): Prisma.UserUpdateInput | Prisma.UserCreateInput {
-    const prismaData: Record<string, any> = {};
+    const prismaData: Prisma.UserUpdateInput = {};
     if (data.firstName !== undefined) prismaData.firstName = data.firstName;
     if (data.lastName !== undefined) prismaData.lastName = data.lastName;
     if (data.slug !== undefined) prismaData.slug = data.slug;
@@ -335,6 +336,13 @@ export class UserPostgresRepository
           ? data.outsideLinks
           : JSON.stringify(data.outsideLinks);
     }
+    if (data.accountActivationToken !== undefined) {
+      prismaData.accountActivationToken = data.accountActivationToken;
+    }
+    if (data.signupIpAddress !== undefined) {
+      prismaData.signupIpAddress = data.signupIpAddress;
+    }
+
     return prismaData;
   }
 
@@ -361,8 +369,8 @@ export class UserPostgresRepository
       kycReferenceId: this.safeOptionalString(prismaUser.kycReferenceId),
       aboutYourself: this.safeOptionalString(prismaUser.aboutYourself),
       outsideLinks: this.safeParseOutsideLinks(prismaUser.outsideLinks),
-      userTypeId: this.safeString(prismaUser.userTypeId, ''),
-      userType: this.safeUserType(prismaUser.userType),
+      userTypeId: this.safeOptionalString(prismaUser.userTypeId),
+      userType: this.safeUserType(prismaUser.userType) || undefined,
       active: this.safeActiveStatus(prismaUser.active),
       enableTwoFactorAuth: this.safeBooleanToString(
         prismaUser.enableTwoFactorAuth
@@ -420,7 +428,7 @@ export class UserPostgresRepository
       ),
       notificationLanguage: this.safeNotificationLanguage(
         prismaUser.notificationLanguage
-      ),
+      ) || undefined,
       walletAddress: this.safeOptionalString(prismaUser.walletAddress),
       createdAt: this.safeDate(prismaUser.createdAt, new Date()),
       updatedAt: this.safeDate(prismaUser.updatedAt, new Date()),

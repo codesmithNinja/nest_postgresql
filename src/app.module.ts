@@ -7,10 +7,13 @@ import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CampaignModule } from './modules/campaign/campaign.module';
+import { DatabaseModule } from './database/database.module';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
 import { MetricsModule } from './metrics/metrics.module';
+import { I18nModule } from './i18n/i18n.module';
+import { TestI18nModule } from './examples/test-i18n.module';
 
 // Import configurations
 import databaseConfig from './common/config/database.config';
@@ -21,6 +24,8 @@ import securityConfig from './common/config/security.config';
 // Import interceptors and filters
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { ErrorLoggingInterceptor } from './common/interceptors/error-logging.interceptor';
+// import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor';
+import { LanguagePersistenceInterceptor } from './common/interceptors/language-persistence.interceptor';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
@@ -36,6 +41,8 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
         limit: 50, // Moderate limit for all operations
       },
     ]),
+    I18nModule,
+    DatabaseModule.forRoot(),
     PrismaModule,
     EmailModule,
     AuthModule,
@@ -43,6 +50,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     CampaignModule, // Add campaign system
     HealthModule,
     MetricsModule,
+    TestI18nModule, // Test module for i18n
   ],
   controllers: [],
   providers: [
@@ -56,8 +64,16 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     },
     {
       provide: APP_INTERCEPTOR,
+      useClass: LanguagePersistenceInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: I18nResponseInterceptor,
+    // },
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorLoggingInterceptor,

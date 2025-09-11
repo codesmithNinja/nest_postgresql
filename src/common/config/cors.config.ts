@@ -1,4 +1,4 @@
-export const allowedOrigins = [
+export const allowedOrigins: (string | undefined)[] = [
   'http://localhost:3000',
   'http://localhost:5000',
   process.env.API_URL,
@@ -10,7 +10,7 @@ export const allowedOrigins = [
 
 export const corsOptions = {
   origin: (
-    origin: string,
+    origin: string | undefined,
     callback: (err: Error | null, allow?: boolean) => void
   ) => {
     // Allow requests with no origin (like mobile apps or curl requests)

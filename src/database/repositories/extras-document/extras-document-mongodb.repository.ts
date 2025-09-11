@@ -21,10 +21,7 @@ export class ExtrasDocumentMongoRepository
     super(model);
   }
 
-  protected toEntity(
-    doc: ExtrasDocumentDocument | null
-  ): ExtrasDocumentEntity | null {
-    if (!doc) return null;
+  protected toEntity(doc: ExtrasDocumentDocument): ExtrasDocumentEntity {
     const obj = doc.toObject() as Record<string, unknown>;
     return {
       id:
@@ -65,6 +62,6 @@ export class ExtrasDocumentMongoRepository
     publicId: string
   ): Promise<ExtrasDocumentEntity | null> {
     const doc = await this.model.findOne({ equityId, publicId }).exec();
-    return this.toEntity(doc);
+    return doc ? this.toEntity(doc) : null;
   }
 }

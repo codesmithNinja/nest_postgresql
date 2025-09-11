@@ -86,6 +86,7 @@ export class UserMongoRepository implements IUserRepository {
 
     const doc: Record<string, unknown> = {
       ...(entity.id && { _id: entity.id }),
+      ...(entity.publicId && { publicId: this.getString(entity.publicId) }),
       firstName: this.getString(entity.firstName),
       lastName: this.getString(entity.lastName),
       email: this.getString(entity.email),
@@ -217,7 +218,7 @@ export class UserMongoRepository implements IUserRepository {
   ): Promise<UserEntity[]> {
     const query = this.model.find(this.toDocument(filter || {}));
     const docs = await this.applyOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc));
+    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null);
   }
 
   async getDetailById(
@@ -240,7 +241,11 @@ export class UserMongoRepository implements IUserRepository {
 
   async insert(data: Partial<UserEntity>): Promise<UserEntity> {
     const doc = await this.model.create(this.toDocument(data));
-    return this.toEntity(doc);
+    const entity = this.toEntity(doc);
+    if (!entity) {
+      throw new Error('Failed to create user entity');
+    }
+    return entity;
   }
 
   async updateById(id: string, data: Partial<UserEntity>): Promise<UserEntity> {
@@ -252,7 +257,11 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc);
+    const entity = this.toEntity(doc);
+    if (!entity) {
+      throw new Error('Failed to convert document to entity');
+    }
+    return entity;
   }
 
   async updateMany(
@@ -267,7 +276,7 @@ export class UserMongoRepository implements IUserRepository {
 
     return {
       count: updateResult.modifiedCount || 0,
-      updated: updatedDocs.map((doc) => this.toEntity(doc)),
+      updated: updatedDocs.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null),
     };
   }
 
@@ -284,7 +293,7 @@ export class UserMongoRepository implements IUserRepository {
 
     return {
       count: result.deletedCount || 0,
-      deleted: toDelete.map((doc) => this.toEntity(doc)),
+      deleted: toDelete.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null),
     };
   }
 
@@ -336,7 +345,7 @@ export class UserMongoRepository implements IUserRepository {
   ): Promise<UserEntity[]> {
     const query = this.model.find(this.toDocument(filter || {}));
     const docs = await this.applyOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc));
+    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -374,7 +383,11 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc);
+    const entity = this.toEntity(doc);
+    if (!entity) {
+      throw new Error('Failed to convert document to entity');
+    }
+    return entity;
   }
 
   async deactivateUser(id: string): Promise<UserEntity> {
@@ -386,7 +399,11 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc);
+    const entity = this.toEntity(doc);
+    if (!entity) {
+      throw new Error('Failed to convert document to entity');
+    }
+    return entity;
   }
 
   async updatePassword(
@@ -410,7 +427,11 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc);
+    const entity = this.toEntity(doc);
+    if (!entity) {
+      throw new Error('Failed to convert document to entity');
+    }
+    return entity;
   }
 
   async update(id: string, data: Partial<UserEntity>): Promise<UserEntity> {
@@ -422,6 +443,10 @@ export class UserMongoRepository implements IUserRepository {
       throw new Error(`User with id ${id} not found`);
     }
 
-    return this.toEntity(doc);
+    const entity = this.toEntity(doc);
+    if (!entity) {
+      throw new Error('Failed to convert document to entity');
+    }
+    return entity;
   }
 }

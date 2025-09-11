@@ -9,7 +9,6 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -94,7 +93,12 @@ export class LeadInvestorController {
   @ApiOperation({ summary: 'Upload investor photo' })
   async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Photo file is required');
+      return {
+        success: false,
+        message: 'Photo file is required',
+        statusCode: 400,
+        timestamp: new Date().toISOString(),
+      };
     }
     return this.leadInvestorService.uploadFile(file, 'investor-photo');
   }

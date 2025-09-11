@@ -33,7 +33,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           ? (responseObj.message as string[]).join(', ')
           : (responseObj.error as string);
       } else {
-        message = exceptionResponse as string;
+        message = exceptionResponse;
       }
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;

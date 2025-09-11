@@ -3,9 +3,9 @@ import {
   IExtrasVideoRepository,
   EXTRAS_VIDEO_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   CreateExtrasVideoDto,
   UpdateExtrasVideoDto,
@@ -21,7 +21,8 @@ export class ExtrasVideoService {
 
   constructor(
     @Inject(EXTRAS_VIDEO_REPOSITORY)
-    private readonly extrasVideoRepository: IExtrasVideoRepository
+    private readonly extrasVideoRepository: IExtrasVideoRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getExtrasVideosByEquityId(equityId: string) {
@@ -39,9 +40,8 @@ export class ExtrasVideoService {
       const extrasVideos =
         await this.extrasVideoRepository.findByEquityId(equityId);
 
-      const response = ResponseHandler.success(
-        'Extras videos retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'extras_video.retrieved',
         extrasVideos
       );
 
@@ -72,10 +72,7 @@ export class ExtrasVideoService {
 
       this.logger.log(`Extras video created successfully: ${extrasVideo.id}`);
 
-      return ResponseHandler.created(
-        'Extras video created successfully',
-        extrasVideo
-      );
+      return this.i18nResponse.created('extras_video.created', extrasVideo);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -97,7 +94,7 @@ export class ExtrasVideoService {
         );
 
       if (!extrasVideo) {
-        throw new NotFoundException('Extras video not found');
+        throw new NotFoundException();
       }
 
       const updatedExtrasVideo = await this.extrasVideoRepository.updateById(
@@ -109,9 +106,8 @@ export class ExtrasVideoService {
 
       this.logger.log(`Extras video updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Extras video updated successfully',
-        200,
+      return this.i18nResponse.success(
+        'extras_video.updated',
         updatedExtrasVideo
       );
     } catch (error) {
@@ -131,7 +127,7 @@ export class ExtrasVideoService {
         );
 
       if (!extrasVideo) {
-        throw new NotFoundException('Extras video not found');
+        throw new NotFoundException();
       }
 
       await this.extrasVideoRepository.deleteById(extrasVideo.id);
@@ -140,7 +136,7 @@ export class ExtrasVideoService {
 
       this.logger.log(`Extras video deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Extras video deleted successfully');
+      return this.i18nResponse.success('extras_video.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -166,7 +162,7 @@ export class ExtrasVideoService {
 
       const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
 
-      return ResponseHandler.success('File uploaded successfully', 201, {
+      return this.i18nResponse.success('common.file_uploaded', {
         filename,
         url: fileUrl,
         mimetype: file.mimetype,

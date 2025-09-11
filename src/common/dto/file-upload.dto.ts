@@ -3,16 +3,16 @@ import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 export class FileUploadResponseDto {
   @IsString()
   @IsNotEmpty()
-  filename: string;
+  filename!: string;
 
   @IsString()
   @IsNotEmpty()
-  url: string;
+  url!: string;
 
   @IsString()
   @IsNotEmpty()
-  mimetype: string;
+  mimetype!: string;
 
   @IsNumber()
-  size: number;
+  size!: number;
 }

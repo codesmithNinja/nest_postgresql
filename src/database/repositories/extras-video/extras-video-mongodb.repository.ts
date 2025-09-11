@@ -21,10 +21,7 @@ export class ExtrasVideoMongoRepository
     super(model);
   }
 
-  protected toEntity(
-    doc: ExtrasVideoDocument | null
-  ): ExtrasVideoEntity | null {
-    if (!doc) return null;
+  protected toEntity(doc: ExtrasVideoDocument): ExtrasVideoEntity {
     const obj = doc.toObject() as Record<string, unknown>;
     return {
       id:
@@ -66,6 +63,6 @@ export class ExtrasVideoMongoRepository
     publicId: string
   ): Promise<ExtrasVideoEntity | null> {
     const doc = await this.model.findOne({ equityId, publicId }).exec();
-    return this.toEntity(doc);
+    return doc ? this.toEntity(doc) : null;
   }
 }

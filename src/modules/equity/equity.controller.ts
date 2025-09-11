@@ -11,7 +11,6 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -27,6 +26,7 @@ import { CampaignModificationGuard } from '../../common/guards/campaign-modifica
 import { Public } from '../../common/decorators/public.decorator';
 import { RequestWithUser } from '../../common/types/user.types';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import { EquityService } from './equity.service';
 import {
   CreateEquityDto,
@@ -40,7 +40,10 @@ import { multerConfig } from '../../common/config/multer.config';
 @ApiTags('Equity Campaigns')
 @Controller('equity')
 export class EquityController {
-  constructor(private readonly equityService: EquityService) {}
+  constructor(
+    private readonly equityService: EquityService,
+    private i18nResponse: I18nResponseService
+  ) {}
 
   @Get()
   @UseGuards(JwtAuthGuard)
@@ -119,7 +122,7 @@ export class EquityController {
   @ApiResponse({ type: FileUploadResponseDto })
   async uploadLogo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Logo file is required');
+      return this.i18nResponse.badRequest('equity.logo_file_required');
     }
     return await this.equityService.uploadFile(file, 'logo');
   }
@@ -133,7 +136,7 @@ export class EquityController {
   @ApiResponse({ type: FileUploadResponseDto })
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Image file is required');
+      return this.i18nResponse.badRequest('equity.image_file_required');
     }
     return await this.equityService.uploadFile(file, 'campaign-image');
   }
@@ -147,7 +150,7 @@ export class EquityController {
   @ApiResponse({ type: FileUploadResponseDto })
   async uploadVideo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Video file is required');
+      return this.i18nResponse.badRequest('equity.video_file_required');
     }
     return await this.equityService.uploadFile(file, 'campaign-video');
   }

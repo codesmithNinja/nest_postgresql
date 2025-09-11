@@ -56,51 +56,51 @@ export class Equity {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId!: string;
 
   // Step 1: Company Information
   @Prop({ required: true })
-  companyLogo: string;
+  companyLogo!: string;
 
   @Prop({ required: true })
-  companyName: string;
+  companyName!: string;
 
   @Prop({ required: true })
-  companyTagline: string;
+  companyTagline!: string;
 
   @Prop({ required: true })
-  companyEmail: string;
+  companyEmail!: string;
 
   @Prop({ required: true })
-  companyPhoneNumber: string;
+  companyPhoneNumber!: string;
 
   @Prop({ required: true })
-  companyAddress: string;
+  companyAddress!: string;
 
   @Prop({ required: true })
-  yearFounded: number;
+  yearFounded!: number;
 
   @Prop()
   website?: string;
 
   @Prop({ required: true })
-  companyCategory: string;
+  companyCategory!: string;
 
   @Prop({ required: true })
-  companyIndustry: string;
+  companyIndustry!: string;
 
   @Prop({ required: true })
-  companyDescription: string;
+  companyDescription!: string;
 
   @Prop({ required: true })
-  userId: string;
+  userId!: string;
 
   @Prop({ enum: CampaignStatus, default: CampaignStatus.DRAFT })
-  status: CampaignStatus;
+  status!: CampaignStatus;
 
   // Step 2: Fundraising Details
   @Prop({ required: true })
-  isUpcomingCampaign: boolean;
+  isUpcomingCampaign!: boolean;
 
   @Prop()
   projectTimezone?: string;
@@ -115,25 +115,25 @@ export class Equity {
   actualStartDateTime?: Date;
 
   @Prop({ required: true })
-  currencyId: string;
+  currencyId!: string;
 
   @Prop({ required: true })
-  goal: number;
+  goal!: number;
 
   @Prop({ required: true })
-  closingDate: Date;
+  closingDate!: Date;
 
   @Prop({ required: true })
-  minimumRaise: number;
+  minimumRaise!: number;
 
   @Prop({ required: true })
-  maximumRaise: number;
+  maximumRaise!: number;
 
   @Prop({ required: true })
-  campaignStage: string;
+  campaignStage!: string;
 
   @Prop({ required: true })
-  industry: string;
+  industry!: string;
 
   @Prop()
   previouslyRaised?: number;
@@ -142,13 +142,13 @@ export class Equity {
   estimatedRevenue?: number;
 
   @Prop({ required: true })
-  hasLeadInvestor: boolean;
+  hasLeadInvestor!: boolean;
 
   @Prop({ required: true })
-  termId: string;
+  termId!: string;
 
   @Prop({ enum: TermSlug, required: true })
-  termslug: TermSlug;
+  termslug!: TermSlug;
 
   // Term-specific fields
   @Prop()
@@ -226,5 +226,4 @@ export const EquitySchema = SchemaFactory.createForClass(Equity);
 // Indexes
 EquitySchema.index({ userId: 1 });
 EquitySchema.index({ status: 1 });
-EquitySchema.index({ publicId: 1 });
 EquitySchema.index({ userId: 1, status: 1 });

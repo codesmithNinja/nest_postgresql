@@ -1,16 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Inject,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   ICampaignFaqRepository,
   CAMPAIGN_FAQ_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   CreateCampaignFaqDto,
   UpdateCampaignFaqDto,
@@ -23,7 +17,8 @@ export class CampaignFaqService {
 
   constructor(
     @Inject(CAMPAIGN_FAQ_REPOSITORY)
-    private readonly campaignFaqRepository: ICampaignFaqRepository
+    private readonly campaignFaqRepository: ICampaignFaqRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getCampaignFaqsByEquityId(equityId: string) {
@@ -41,9 +36,8 @@ export class CampaignFaqService {
       const campaignFaqs =
         await this.campaignFaqRepository.findByEquityId(equityId);
 
-      const response = ResponseHandler.success(
-        'Campaign FAQs retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'campaign_faq.retrieved',
         campaignFaqs
       );
 
@@ -70,15 +64,13 @@ export class CampaignFaqService {
         createCampaignFaqDto.customAnswer;
 
       if (!hasStandardFaq && !hasCustomFaq) {
-        throw new BadRequestException(
-          'Either provide questionID with answer, or customQuestion with customAnswer'
+        return this.i18nResponse.badRequest(
+          'campaign_faq.either_standard_or_custom'
         );
       }
 
       if (hasStandardFaq && hasCustomFaq) {
-        throw new BadRequestException(
-          'Cannot provide both standard and custom FAQ data'
-        );
+        return this.i18nResponse.badRequest('campaign_faq.cannot_provide_both');
       }
 
       const campaignFaqData: Partial<CampaignFaq> = {
@@ -93,10 +85,7 @@ export class CampaignFaqService {
 
       this.logger.log(`Campaign FAQ created successfully: ${campaignFaq.id}`);
 
-      return ResponseHandler.created(
-        'Campaign FAQ created successfully',
-        campaignFaq
-      );
+      return this.i18nResponse.created('campaign_faq.created', campaignFaq);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -118,7 +107,7 @@ export class CampaignFaqService {
         );
 
       if (!campaignFaq) {
-        throw new NotFoundException('Campaign FAQ not found');
+        throw new NotFoundException();
       }
 
       const updatedCampaignFaq = await this.campaignFaqRepository.updateById(
@@ -130,9 +119,8 @@ export class CampaignFaqService {
 
       this.logger.log(`Campaign FAQ updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Campaign FAQ updated successfully',
-        200,
+      return this.i18nResponse.success(
+        'campaign_faq.updated',
         updatedCampaignFaq
       );
     } catch (error) {
@@ -152,7 +140,7 @@ export class CampaignFaqService {
         );
 
       if (!campaignFaq) {
-        throw new NotFoundException('Campaign FAQ not found');
+        throw new NotFoundException();
       }
 
       await this.campaignFaqRepository.deleteById(campaignFaq.id);
@@ -161,7 +149,7 @@ export class CampaignFaqService {
 
       this.logger.log(`Campaign FAQ deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Campaign FAQ deleted successfully');
+      return this.i18nResponse.success('campaign_faq.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';

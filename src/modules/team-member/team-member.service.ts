@@ -3,9 +3,9 @@ import {
   ITeamMemberRepository,
   TEAM_MEMBER_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   CreateTeamMemberDto,
   UpdateTeamMemberDto,
@@ -21,7 +21,8 @@ export class TeamMemberService {
 
   constructor(
     @Inject(TEAM_MEMBER_REPOSITORY)
-    private readonly teamMemberRepository: ITeamMemberRepository
+    private readonly teamMemberRepository: ITeamMemberRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getTeamMembersByEquityId(equityId: string) {
@@ -39,9 +40,8 @@ export class TeamMemberService {
       const teamMembers =
         await this.teamMemberRepository.findByEquityId(equityId);
 
-      const response = ResponseHandler.success(
-        'Team members retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'team_member.retrieved',
         teamMembers
       );
 
@@ -71,10 +71,7 @@ export class TeamMemberService {
 
       this.logger.log(`Team member created successfully: ${teamMember.id}`);
 
-      return ResponseHandler.created(
-        'Team member created successfully',
-        teamMember
-      );
+      return this.i18nResponse.created('team_member.created', teamMember);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -93,7 +90,7 @@ export class TeamMemberService {
         await this.teamMemberRepository.findByEquityIdAndPublicId(equityId, id);
 
       if (!teamMember) {
-        throw new NotFoundException('Team member not found');
+        throw new NotFoundException();
       }
 
       const updatedTeamMember = await this.teamMemberRepository.updateById(
@@ -105,9 +102,8 @@ export class TeamMemberService {
 
       this.logger.log(`Team member updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Team member updated successfully',
-        200,
+      return this.i18nResponse.success(
+        'team_member.updated',
         updatedTeamMember
       );
     } catch (error) {
@@ -124,7 +120,7 @@ export class TeamMemberService {
         await this.teamMemberRepository.findByEquityIdAndPublicId(equityId, id);
 
       if (!teamMember) {
-        throw new NotFoundException('Team member not found');
+        throw new NotFoundException();
       }
 
       await this.teamMemberRepository.deleteById(teamMember.id);
@@ -133,7 +129,7 @@ export class TeamMemberService {
 
       this.logger.log(`Team member deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Team member deleted successfully');
+      return this.i18nResponse.success('team_member.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -159,7 +155,7 @@ export class TeamMemberService {
 
       const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
 
-      return ResponseHandler.success('File uploaded successfully', 201, {
+      return this.i18nResponse.success('common.file_uploaded', {
         filename,
         url: fileUrl,
         mimetype: file.mimetype,

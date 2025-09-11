@@ -47,11 +47,21 @@ export class FileUploadUtil {
 
   static {
     if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
+      const region = process.env.AWS_REGION;
+      const accessKeyId = process.env.AWS_ID;
+      const secretAccessKey = process.env.AWS_SECRET;
+
+      if (!region || !accessKeyId || !secretAccessKey) {
+        throw new Error(
+          'AWS configuration is missing. Please set AWS_REGION, AWS_ID, and AWS_SECRET environment variables.'
+        );
+      }
+
       this.s3Client = new S3Client({
-        region: process.env.AWS_REGION,
+        region,
         credentials: {
-          accessKeyId: process.env.AWS_ID,
-          secretAccessKey: process.env.AWS_SECRET,
+          accessKeyId,
+          secretAccessKey,
         },
       });
     }

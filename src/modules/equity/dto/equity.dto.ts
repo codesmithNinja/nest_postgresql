@@ -22,16 +22,22 @@ import {
   AccountType,
   TermSlug,
 } from '../../../database/entities/equity.entity';
+import { LeadInvestor } from '../../../database/entities/lead-investor.entity';
+import { TeamMember } from '../../../database/entities/team-member.entity';
+import { CampaignFaq } from '../../../database/entities/campaign-faq.entity';
+import { ExtrasVideo } from '../../../database/entities/extras-video.entity';
+import { ExtrasImage } from '../../../database/entities/extras-image.entity';
+import { ExtrasDocument } from '../../../database/entities/extras-document.entity';
 
 export class AdditionalLinkDto {
   @IsString()
   @IsNotEmpty()
   @Length(1, 100)
-  linkTitle: string;
+  linkTitle!: string;
 
   @IsUrl()
   @IsNotEmpty()
-  linkUrl: string;
+  linkUrl!: string;
 }
 
 // Step 1: Company Information DTO
@@ -39,31 +45,31 @@ export class CreateEquityDto {
   @IsString()
   @IsNotEmpty()
   @Length(1, 500)
-  companyLogo: string;
+  companyLogo!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  companyName: string;
+  companyName!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(10, 200)
-  companyTagline: string;
+  companyTagline!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  companyEmail: string;
+  companyEmail!: string;
 
   @IsString()
   @IsNotEmpty()
   @Matches(/^[+]?[1-9][\d]{0,15}$/, { message: 'Invalid phone number format' })
-  companyPhoneNumber: string;
+  companyPhoneNumber!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(10, 500)
-  companyAddress: string;
+  companyAddress!: string;
 
   @IsNumber()
   @Min(1800)
@@ -71,7 +77,7 @@ export class CreateEquityDto {
   @Transform(({ value }) =>
     typeof value === 'string' ? parseInt(value, 10) : Number(value)
   )
-  yearFounded: number;
+  yearFounded!: number;
 
   @IsOptional()
   @IsUrl()
@@ -80,17 +86,17 @@ export class CreateEquityDto {
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  companyCategory: string;
+  companyCategory!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  companyIndustry: string;
+  companyIndustry!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(50, 5000)
-  companyDescription: string;
+  companyDescription!: string;
 
   @IsOptional()
   @IsEnum(CampaignStatus)
@@ -100,7 +106,7 @@ export class CreateEquityDto {
 // Step 2: Fundraising Details DTO
 export class UpdateFundraisingDetailsDto {
   @IsBoolean()
-  isUpcomingCampaign: boolean;
+  isUpcomingCampaign!: boolean;
 
   @IsOptional()
   @IsString()
@@ -120,41 +126,41 @@ export class UpdateFundraisingDetailsDto {
 
   @IsString()
   @IsNotEmpty()
-  currencyId: string;
+  currencyId!: string;
 
   @IsNumber()
   @Min(1000)
   @Transform(({ value }) =>
     typeof value === 'string' ? parseFloat(value) : Number(value)
   )
-  goal: number;
+  goal!: number;
 
   @IsDateString()
-  closingDate: string;
+  closingDate!: string;
 
   @IsNumber()
   @Min(500)
   @Transform(({ value }) =>
     typeof value === 'string' ? parseFloat(value) : Number(value)
   )
-  minimumRaise: number;
+  minimumRaise!: number;
 
   @IsNumber()
   @Min(1000)
   @Transform(({ value }) =>
     typeof value === 'string' ? parseFloat(value) : Number(value)
   )
-  maximumRaise: number;
+  maximumRaise!: number;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  campaignStage: string;
+  campaignStage!: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
-  industry: string;
+  industry!: string;
 
   @IsOptional()
   @IsNumber()
@@ -181,14 +187,14 @@ export class UpdateFundraisingDetailsDto {
   estimatedRevenue?: number;
 
   @IsBoolean()
-  hasLeadInvestor: boolean;
+  hasLeadInvestor!: boolean;
 
   @IsString()
   @IsNotEmpty()
-  termId: string;
+  termId!: string;
 
   @IsEnum(TermSlug)
-  termslug: TermSlug;
+  termslug!: TermSlug;
 
   // Term-specific fields (conditional validation handled in service)
   @IsOptional()
@@ -388,38 +394,38 @@ export class UpdateEquityDto {
 
 // Response DTOs
 export class EquityResponseDto {
-  id: string;
-  publicId: string;
-  companyLogo: string;
-  companyName: string;
-  companyTagline: string;
-  companyEmail: string;
-  companyPhoneNumber: string;
-  companyAddress: string;
-  yearFounded: number;
+  id!: string;
+  publicId!: string;
+  companyLogo!: string;
+  companyName!: string;
+  companyTagline!: string;
+  companyEmail!: string;
+  companyPhoneNumber!: string;
+  companyAddress!: string;
+  yearFounded!: number;
   website?: string;
-  companyCategory: string;
-  companyIndustry: string;
-  companyDescription: string;
-  userId: string;
-  status: CampaignStatus;
-  isUpcomingCampaign: boolean;
+  companyCategory!: string;
+  companyIndustry!: string;
+  companyDescription!: string;
+  userId!: string;
+  status!: CampaignStatus;
+  isUpcomingCampaign!: boolean;
   projectTimezone?: string;
   startDate?: Date;
   startTime?: string;
   actualStartDateTime?: Date;
-  currencyId: string;
-  goal: number;
-  closingDate: Date;
-  minimumRaise: number;
-  maximumRaise: number;
-  campaignStage: string;
-  industry: string;
+  currencyId!: string;
+  goal!: number;
+  closingDate!: Date;
+  minimumRaise!: number;
+  maximumRaise!: number;
+  campaignStage!: string;
+  industry!: string;
   previouslyRaised?: number;
   estimatedRevenue?: number;
-  hasLeadInvestor: boolean;
-  termId: string;
-  termslug: TermSlug;
+  hasLeadInvestor!: boolean;
+  termId!: string;
+  termslug!: TermSlug;
   availableShares?: number;
   pricePerShare?: number;
   preMoneyValuation?: number;
@@ -441,15 +447,15 @@ export class EquityResponseDto {
   accountNumber?: string;
   confirmAccountNumber?: string;
   routingNumber?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export class EquityWithRelationsResponseDto extends EquityResponseDto {
-  leadInvestors?: any[];
-  teamMembers?: any[];
-  campaignFaqs?: any[];
-  extrasVideos?: any[];
-  extrasImages?: any[];
-  extrasDocuments?: any[];
+  leadInvestors?: LeadInvestor[];
+  teamMembers?: TeamMember[];
+  campaignFaqs?: CampaignFaq[];
+  extrasVideos?: ExtrasVideo[];
+  extrasImages?: ExtrasImage[];
+  extrasDocuments?: ExtrasDocument[];
 }

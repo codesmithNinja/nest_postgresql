@@ -15,7 +15,14 @@
       "Bash(npx prisma:*)",
       "Bash(taskkill:*)",
       "Bash(cmd //c taskkill:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(timeout 10 npm start)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(npx prettier:*)",
+      "Bash(netstat:*)",
+      "Bash(set PORT=3001)",
+      "Bash(npx ts-node:*)"
     ],
     "deny": [],
     "ask": []

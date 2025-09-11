@@ -10,17 +10,17 @@ export class CreateExtrasImageDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
-  imageUrl: string;
+  imageUrl?: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 200)
-  imageTitle: string;
+  imageTitle?: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(10, 1000)
-  imageDescription: string;
+  imageDescription?: string;
 }
 
 export class UpdateExtrasImageDto {

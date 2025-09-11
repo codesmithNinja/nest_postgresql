@@ -10,12 +10,12 @@ export class CreateExtrasDocumentDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
-  documentUrl: string;
+  documentUrl?: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 200)
-  documentTitle: string;
+  documentTitle?: string;
 }
 
 export class UpdateExtrasDocumentDto {

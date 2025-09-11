@@ -13,7 +13,7 @@ import { Request } from 'express';
 export class ErrorLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger(ErrorLoggingInterceptor.name);
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context
       .switchToHttp()
       .getRequest<Request & { user?: { id?: string; email?: string } }>();
@@ -21,7 +21,8 @@ export class ErrorLoggingInterceptor implements NestInterceptor {
     const url: string = request?.url || '';
     const user: { id?: string; email?: string } | undefined = request?.user;
     const ip: string = request?.ip || '';
-    const headers: Record<string, string | string[]> = request?.headers || {};
+    const headers: Record<string, string | string[] | undefined> =
+      request?.headers || {};
 
     return next.handle().pipe(
       catchError((error: unknown) => {

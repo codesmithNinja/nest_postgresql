@@ -9,7 +9,6 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -28,13 +27,17 @@ import {
   ExtrasDocumentResponseDto,
 } from './dto/extras-document.dto';
 import { multerConfig } from '../../common/config/multer.config';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Extras Documents')
 @Controller('extrasDocument')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ExtrasDocumentController {
-  constructor(private readonly extrasDocumentService: ExtrasDocumentService) {}
+  constructor(
+    private readonly extrasDocumentService: ExtrasDocumentService,
+    private i18nResponse: I18nResponseService
+  ) {}
 
   @Get(':equityId')
   @UseGuards(CampaignOwnershipGuard)
@@ -94,7 +97,9 @@ export class ExtrasDocumentController {
   @ApiOperation({ summary: 'Upload extras document file' })
   async uploadDocument(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Document file is required');
+      return this.i18nResponse.badRequest(
+        'extras_document.document_file_required'
+      );
     }
     return this.extrasDocumentService.uploadFile(file, 'extras-document');
   }

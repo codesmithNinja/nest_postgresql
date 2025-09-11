@@ -1,0 +1,126 @@
+{
+  "auth": {
+    "login_success": "Connexion réussie",
+    "logout_success": "Déconnexion réussie",
+    "register_success": "Inscription réussie",
+    "register_success_check_email": "Inscription réussie. Veuillez vérifier votre email pour activer votre compte.",
+    "invalid_credentials": "Email ou mot de passe invalide",
+    "email_already_exists": "L'email existe déjà",
+    "account_not_activated": "Compte non activé",
+    "account_not_active_activate": "Le compte n'est pas actif. Veuillez d'abord activer votre compte.",
+    "token_expired": "Le jeton a expiré",
+    "token_invalid": "Jeton invalide",
+    "invalid_activation_token": "Jeton d'activation invalide ou expiré",
+    "user_email_not_found": "Aucun utilisateur avec cet email n'existe",
+    "password_reset_sent": "Lien de réinitialisation envoyé à votre email",
+    "password_reset_email_sent": "Email de réinitialisation envoyé avec succès",
+    "password_reset_email_failed": "Échec de l'envoi de l'email de réinitialisation",
+    "password_reset_success": "Mot de passe réinitialisé avec succès",
+    "account_activated": "Compte activé avec succès",
+    "account_activated_login": "Compte activé avec succès. Vous pouvez maintenant vous connecter.",
+    "invalid_reset_token": "Jeton de réinitialisation invalide ou expiré",
+    "unauthorized": "Accès non autorisé",
+    "forbidden": "Accès interdit"
+  },
+  "user": {
+    "profile_updated": "Profil mis à jour avec succès",
+    "profile_retrieved": "Profil récupéré avec succès",
+    "password_changed": "Mot de passe modifié avec succès",
+    "user_not_found": "Utilisateur non trouvé",
+    "user_retrieved": "Utilisateur récupéré avec succès",
+    "account_deactivated": "Compte désactivé avec succès",
+    "invalid_current_password": "Le mot de passe actuel est incorrect",
+    "email_already_taken": "L'email est déjà utilisé",
+    "user_created": "Utilisateur créé avec succès",
+    "user_deleted": "Utilisateur supprimé avec succès"
+  },
+  "validation": {
+    "required_field": "{{field}} est requis",
+    "invalid_email": "Format d'email invalide",
+    "password_min_length": "Le mot de passe doit contenir au moins 8 caractères",
+    "invalid_format": "Format de {{field}} invalide",
+    "field_too_long": "{{field}} est trop long",
+    "field_too_short": "{{field}} est trop court"
+  },
+  "common": {
+    "success": "Opération réussie",
+    "error": "Une erreur s'est produite",
+    "not_found": "Ressource non trouvée",
+    "internal_error": "Erreur interne du serveur",
+    "bad_request": "Mauvaise demande",
+    "created": "Ressource créée avec succès",
+    "updated": "Ressource mise à jour avec succès",
+    "deleted": "Ressource supprimée avec succès",
+    "conflict": "La ressource existe déjà",
+    "file_uploaded": "Fichier téléchargé avec succès"
+  },
+  "campaign": {
+    "created": "Campagne créée avec succès",
+    "updated": "Campagne mise à jour avec succès",
+    "deleted": "Campagne supprimée avec succès",
+    "not_found": "Campagne non trouvée",
+    "access_denied": "Accès refusé à cette campagne",
+    "status_updated": "Statut de la campagne mis à jour avec succès"
+  },
+  "equity": {
+    "logo_file_required": "Le fichier logo est requis",
+    "image_file_required": "Le fichier image est requis",
+    "video_file_required": "Le fichier vidéo est requis",
+    "user_campaigns_retrieved": "Campagnes utilisateur récupérées avec succès",
+    "public_campaigns_retrieved": "Campagnes publiques récupérées avec succès",
+    "campaign_not_found": "Campagne non trouvée",
+    "campaign_relations_retrieved": "Campagne avec relations récupérée avec succès",
+    "account_numbers_must_match": "Les numéros de compte doivent correspondre",
+    "only_draft_pending_can_delete": "Seules les campagnes avec le statut BROUILLON ou EN ATTENTE peuvent être supprimées",
+    "missing_required_fields": "Champs requis manquants pour {{termslug}} : {{fields}}"
+  },
+  "campaign_faq": {
+    "retrieved": "FAQ de campagne récupérées avec succès",
+    "either_standard_or_custom": "Fournissez soit questionID avec réponse, soit customQuestion avec customAnswer",
+    "cannot_provide_both": "Impossible de fournir à la fois des données de FAQ standard et personnalisées",
+    "created": "FAQ de campagne créée avec succès",
+    "not_found": "FAQ de campagne non trouvée",
+    "updated": "FAQ de campagne mise à jour avec succès",
+    "deleted": "FAQ de campagne supprimée avec succès"
+  },
+  "extras_document": {
+    "document_file_required": "Le fichier document est requis",
+    "retrieved": "Documents supplémentaires récupérés avec succès",
+    "created": "Document supplémentaire créé avec succès",
+    "not_found": "Document supplémentaire non trouvé",
+    "updated": "Document supplémentaire mis à jour avec succès",
+    "deleted": "Document supplémentaire supprimé avec succès"
+  },
+  "extras_image": {
+    "image_file_required": "Le fichier image est requis",
+    "retrieved": "Images supplémentaires récupérées avec succès",
+    "created": "Image supplémentaire créée avec succès",
+    "not_found": "Image supplémentaire non trouvée",
+    "updated": "Image supplémentaire mise à jour avec succès",
+    "deleted": "Image supplémentaire supprimée avec succès"
+  },
+  "extras_video": {
+    "video_file_required": "Le fichier vidéo est requis",
+    "retrieved": "Vidéos supplémentaires récupérées avec succès",
+    "created": "Vidéo supplémentaire créée avec succès",
+    "not_found": "Vidéo supplémentaire non trouvée",
+    "updated": "Vidéo supplémentaire mise à jour avec succès",
+    "deleted": "Vidéo supplémentaire supprimée avec succès"
+  },
+  "lead_investor": {
+    "photo_file_required": "Le fichier photo est requis",
+    "retrieved": "Investisseurs principaux récupérés avec succès",
+    "created": "Investisseur principal créé avec succès",
+    "not_found": "Investisseur principal non trouvé",
+    "updated": "Investisseur principal mis à jour avec succès",
+    "deleted": "Investisseur principal supprimé avec succès"
+  },
+  "team_member": {
+    "photo_file_required": "Le fichier photo est requis",
+    "retrieved": "Membres de l'équipe récupérés avec succès",
+    "created": "Membre de l'équipe créé avec succès",
+    "not_found": "Membre de l'équipe non trouvé",
+    "updated": "Membre de l'équipe mis à jour avec succès",
+    "deleted": "Membre de l'équipe supprimé avec succès"
+  }
+}

@@ -3,9 +3,9 @@ import {
   IExtrasImageRepository,
   EXTRAS_IMAGE_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileManagementService } from '../../common/services/file-management.service';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   CreateExtrasImageDto,
   UpdateExtrasImageDto,
@@ -19,7 +19,8 @@ export class ExtrasImageService {
   constructor(
     @Inject(EXTRAS_IMAGE_REPOSITORY)
     private readonly extrasImageRepository: IExtrasImageRepository,
-    private readonly fileManagementService: FileManagementService
+    private readonly fileManagementService: FileManagementService,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getExtrasImagesByEquityId(equityId: string) {
@@ -37,9 +38,8 @@ export class ExtrasImageService {
       const extrasImages =
         await this.extrasImageRepository.findByEquityId(equityId);
 
-      const response = ResponseHandler.success(
-        'Extras images retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'extras_image.retrieved',
         extrasImages
       );
 
@@ -70,10 +70,7 @@ export class ExtrasImageService {
 
       this.logger.log(`Extras image created successfully: ${extrasImage.id}`);
 
-      return ResponseHandler.created(
-        'Extras image created successfully',
-        extrasImage
-      );
+      return this.i18nResponse.created('extras_image.created', extrasImage);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -95,7 +92,7 @@ export class ExtrasImageService {
         );
 
       if (!extrasImage) {
-        throw new NotFoundException('Extras image not found');
+        throw new NotFoundException();
       }
 
       const updatedExtrasImage = await this.extrasImageRepository.updateById(
@@ -107,9 +104,8 @@ export class ExtrasImageService {
 
       this.logger.log(`Extras image updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Extras image updated successfully',
-        200,
+      return this.i18nResponse.success(
+        'extras_image.updated',
         updatedExtrasImage
       );
     } catch (error) {
@@ -129,7 +125,7 @@ export class ExtrasImageService {
         );
 
       if (!extrasImage) {
-        throw new NotFoundException('Extras image not found');
+        throw new NotFoundException();
       }
 
       await this.extrasImageRepository.deleteById(extrasImage.id);
@@ -138,7 +134,7 @@ export class ExtrasImageService {
 
       this.logger.log(`Extras image deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Extras image deleted successfully');
+      return this.i18nResponse.success('extras_image.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -156,7 +152,7 @@ export class ExtrasImageService {
         `Extra image uploaded successfully: ${uploadResult.filePath}`
       );
 
-      return ResponseHandler.success('File uploaded successfully', 201, {
+      return this.i18nResponse.success('common.file_uploaded', {
         filename: uploadResult.filePath,
         url:
           uploadResult.url ||

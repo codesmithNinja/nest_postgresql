@@ -21,6 +21,9 @@ export class TeamMemberMongoRepository
     super(model);
   }
 
+  // Method overloads to handle both nullable and non-nullable cases
+  protected toEntity(doc: TeamMemberDocument): TeamMemberEntity;
+  protected toEntity(doc: TeamMemberDocument | null): TeamMemberEntity | null;
   protected toEntity(doc: TeamMemberDocument | null): TeamMemberEntity | null {
     if (!doc) return null;
     const obj = doc.toObject() as Record<string, unknown>;
@@ -58,7 +61,7 @@ export class TeamMemberMongoRepository
       .find({ equityId })
       .sort({ createdAt: -1 })
       .exec();
-    return docs.map((doc) => this.toEntity(doc)).filter(Boolean);
+    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is TeamMemberEntity => entity !== null);
   }
 
   async findByEquityIdAndPublicId(

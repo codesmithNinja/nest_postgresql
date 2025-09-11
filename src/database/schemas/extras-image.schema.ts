@@ -29,19 +29,19 @@ export class ExtrasImage {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId?: string;
 
   @Prop({ required: true })
-  imageUrl: string;
+  imageUrl?: string;
 
   @Prop({ required: true })
-  imageTitle: string;
+  imageTitle?: string;
 
   @Prop({ required: true })
-  imageDescription: string;
+  imageDescription?: string;
 
   @Prop({ required: true })
-  equityId: string;
+  equityId?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

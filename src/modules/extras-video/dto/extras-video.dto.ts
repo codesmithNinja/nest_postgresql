@@ -10,17 +10,17 @@ export class CreateExtrasVideoDto {
   @IsString()
   @IsNotEmpty()
   @IsUrl()
-  videoUrl: string;
+  videoUrl?: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(2, 200)
-  videoTitle: string;
+  videoTitle?: string;
 
   @IsString()
   @IsNotEmpty()
   @Length(10, 1000)
-  videoDescription: string;
+  videoDescription?: string;
 }
 
 export class UpdateExtrasVideoDto {
@@ -41,12 +41,12 @@ export class UpdateExtrasVideoDto {
 }
 
 export class ExtrasVideoResponseDto {
-  id: string;
-  publicId: string;
-  videoUrl: string;
-  videoTitle: string;
-  videoDescription: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  publicId?: string;
+  videoUrl?: string;
+  videoTitle?: string;
+  videoDescription?: string;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

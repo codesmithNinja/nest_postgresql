@@ -1,16 +1,14 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-  Inject,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   IEquityRepository,
   EQUITY_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import {
+  ErrorResponse,
+  ApiResponse,
+} from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import { DateUtil } from '../../common/utils/date.util';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -30,7 +28,8 @@ export class EquityService {
 
   constructor(
     @Inject(EQUITY_REPOSITORY)
-    private readonly equityRepository: IEquityRepository
+    private readonly equityRepository: IEquityRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   /**
@@ -53,10 +52,12 @@ export class EquityService {
         { page, limit, sort: { createdAt: -1 } }
       );
 
-      const response = ResponseHandler.paginated(
-        'User campaigns retrieved successfully',
-        result.items,
-        result.pagination
+      const response = this.i18nResponse.success(
+        'equity.user_campaigns_retrieved',
+        {
+          data: result.items,
+          pagination: result.pagination,
+        }
       );
 
       // Cache the result
@@ -96,14 +97,16 @@ export class EquityService {
       });
       const totalPages = Math.ceil(totalCount / limit);
 
-      const response = ResponseHandler.paginated(
-        'Public campaigns retrieved successfully',
-        campaigns,
+      const response = this.i18nResponse.success(
+        'equity.public_campaigns_retrieved',
         {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          limit,
+          data: campaigns,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalCount,
+            limit,
+          },
         }
       );
 
@@ -136,12 +139,11 @@ export class EquityService {
       const campaign = await this.equityRepository.findWithRelations(id);
 
       if (!campaign) {
-        throw new NotFoundException('Campaign not found');
+        throw new NotFoundException();
       }
 
-      const response = ResponseHandler.success(
-        'Campaign with relations retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'equity.campaign_relations_retrieved',
         campaign
       );
 
@@ -177,7 +179,7 @@ export class EquityService {
 
       this.logger.log(`Campaign created successfully: ${campaign.id}`);
 
-      return ResponseHandler.created('Campaign created successfully', campaign);
+      return this.i18nResponse.created('campaign.created', campaign);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -189,12 +191,15 @@ export class EquityService {
   /**
    * Update campaign (Steps 2-6)
    */
-  async updateCampaign(id: string, updateEquityDto: UpdateEquityDto) {
+  async updateCampaign(
+    id: string,
+    updateEquityDto: UpdateEquityDto
+  ): Promise<ApiResponse<Equity> | ErrorResponse> {
     try {
       const existingCampaign = await this.equityRepository.getDetailById(id);
 
       if (!existingCampaign) {
-        throw new NotFoundException('Campaign not found');
+        throw new NotFoundException();
       }
 
       // Validate and prepare update data
@@ -204,10 +209,13 @@ export class EquityService {
         const fundraising = updateEquityDto.fundraisingDetails;
 
         // Validate term-specific fields
-        this.validateTermSpecificFields(
+        const validationResult = this.validateTermSpecificFields(
           fundraising.termslug,
           fundraising as unknown as Record<string, unknown>
         );
+        if (validationResult) {
+          return validationResult;
+        }
 
         // Calculate actual start date time if upcoming campaign
         if (
@@ -246,7 +254,9 @@ export class EquityService {
           if (
             investmentInfo.accountNumber !== investmentInfo.confirmAccountNumber
           ) {
-            throw new BadRequestException('Account numbers must match');
+            return this.i18nResponse.badRequest(
+              'equity.account_numbers_must_match'
+            );
           }
         }
         Object.assign(updateData, investmentInfo);
@@ -263,11 +273,7 @@ export class EquityService {
 
       this.logger.log(`Campaign updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Campaign updated successfully',
-        200,
-        updatedCampaign
-      );
+      return this.i18nResponse.success('campaign.updated', updatedCampaign);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -279,18 +285,18 @@ export class EquityService {
   /**
    * Delete campaign (only DRAFT/PENDING allowed)
    */
-  async deleteCampaign(id: string) {
+  async deleteCampaign(id: string): Promise<ApiResponse | ErrorResponse> {
     try {
       const campaign = await this.equityRepository.getDetailById(id);
 
       if (!campaign) {
-        throw new NotFoundException('Campaign not found');
+        throw new NotFoundException();
       }
 
       const allowedStatuses = [CampaignStatus.DRAFT, CampaignStatus.PENDING];
       if (!allowedStatuses.includes(campaign.status)) {
-        throw new BadRequestException(
-          'Only campaigns with DRAFT or PENDING status can be deleted'
+        return this.i18nResponse.badRequest(
+          'equity.only_draft_pending_can_delete'
         );
       }
 
@@ -302,7 +308,7 @@ export class EquityService {
 
       this.logger.log(`Campaign deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Campaign deleted successfully');
+      return this.i18nResponse.success('campaign.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -334,7 +340,7 @@ export class EquityService {
 
       this.logger.log(`File uploaded successfully: ${filename}`);
 
-      return ResponseHandler.success('File uploaded successfully', 201, {
+      return this.i18nResponse.success('common.file_uploaded', {
         filename,
         url: fileUrl,
         mimetype: file.mimetype,
@@ -354,7 +360,7 @@ export class EquityService {
   private validateTermSpecificFields(
     termslug: TermSlug,
     data: Record<string, unknown>
-  ): void {
+  ): void | ErrorResponse {
     if (!termslug) return;
 
     const requiredFields: Record<TermSlug, string[]> = {
@@ -385,8 +391,9 @@ export class EquityService {
     const missing = required.filter((field) => !data[field]);
 
     if (missing.length > 0) {
-      throw new BadRequestException(
-        `Missing required fields for ${termslug}: ${missing.join(', ')}`
+      return this.i18nResponse.badRequest(
+        'equity.missing_required_fields',
+        undefined
       );
     }
   }

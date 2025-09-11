@@ -11,10 +11,10 @@ import { Type } from 'class-transformer';
 
 export class OutsideLinkDto {
   @IsString()
-  title: string;
+  title!: string;
 
   @IsString()
-  url: string;
+  url!: string;
 }
 
 export class UpdateProfileDto {
@@ -75,9 +75,9 @@ export class UpdateProfileDto {
 
 export class ChangePasswordDto {
   @IsString()
-  currentPassword: string;
+  currentPassword!: string;
 
   @IsString()
   @MinLength(8)
-  newPassword: string;
+  newPassword!: string;
 }

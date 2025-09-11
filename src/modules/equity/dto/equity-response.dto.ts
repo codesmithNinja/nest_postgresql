@@ -7,38 +7,38 @@ import {
 import { AdditionalLinkDto } from './equity.dto';
 
 export class EquityResponseDto {
-  id: string;
-  publicId: string;
-  companyLogo: string;
-  companyName: string;
-  companyTagline: string;
-  companyEmail: string;
-  companyPhoneNumber: string;
-  companyAddress: string;
-  yearFounded: number;
+  id?: string;
+  publicId?: string;
+  companyLogo?: string;
+  companyName?: string;
+  companyTagline?: string;
+  companyEmail?: string;
+  companyPhoneNumber?: string;
+  companyAddress?: string;
+  yearFounded?: number;
   website?: string;
-  companyCategory: string;
-  companyIndustry: string;
-  companyDescription: string;
-  userId: string;
-  status: CampaignStatus;
-  isUpcomingCampaign: boolean;
+  companyCategory?: string;
+  companyIndustry?: string;
+  companyDescription?: string;
+  userId?: string;
+  status?: CampaignStatus;
+  isUpcomingCampaign?: boolean;
   projectTimezone?: string;
   startDate?: Date;
   startTime?: string;
   actualStartDateTime?: Date;
-  currencyId: string;
-  goal: number;
-  closingDate: Date;
-  minimumRaise: number;
-  maximumRaise: number;
-  campaignStage: string;
-  industry: string;
+  currencyId?: string;
+  goal?: number;
+  closingDate?: Date;
+  minimumRaise?: number;
+  maximumRaise?: number;
+  campaignStage?: string;
+  industry?: string;
   previouslyRaised?: number;
   estimatedRevenue?: number;
-  hasLeadInvestor: boolean;
-  termId: string;
-  termslug: TermSlug;
+  hasLeadInvestor?: boolean;
+  termId?: string;
+  termslug?: TermSlug;
   availableShares?: number;
   pricePerShare?: number;
   preMoneyValuation?: number;
@@ -60,8 +60,8 @@ export class EquityResponseDto {
   accountNumber?: string;
   confirmAccountNumber?: string;
   routingNumber?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class EquityWithRelationsResponseDto extends EquityResponseDto {
@@ -74,70 +74,70 @@ export class EquityWithRelationsResponseDto extends EquityResponseDto {
 }
 
 export class LeadInvestorResponseDto {
-  id: string;
-  publicId: string;
-  investorPhoto: string;
-  name: string;
-  investorType: string;
-  bio: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  publicId?: string;
+  investorPhoto?: string;
+  name?: string;
+  investorType?: string;
+  bio?: string;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class TeamMemberResponseDto {
-  id: string;
-  publicId: string;
-  memberPhoto: string;
-  name: string;
-  role: string;
-  email: string;
-  bio: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  publicId?: string;
+  memberPhoto?: string;
+  name?: string;
+  role?: string;
+  email?: string;
+  bio?: string;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class CampaignFaqResponseDto {
-  id: string;
-  publicId: string;
+  id?: string;
+  publicId?: string;
   questionID?: string;
   answer?: string;
   customQuestion?: string;
   customAnswer?: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class ExtrasVideoResponseDto {
-  id: string;
-  publicId: string;
-  videoUrl: string;
-  videoTitle: string;
-  videoDescription: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  publicId?: string;
+  videoUrl?: string;
+  videoTitle?: string;
+  videoDescription?: string;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class ExtrasImageResponseDto {
-  id: string;
-  publicId: string;
-  imageUrl: string;
-  imageTitle: string;
-  imageDescription: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  publicId?: string;
+  imageUrl?: string;
+  imageTitle?: string;
+  imageDescription?: string;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class ExtrasDocumentResponseDto {
-  id: string;
-  publicId: string;
-  documentUrl: string;
-  documentTitle: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  publicId?: string;
+  documentUrl?: string;
+  documentTitle?: string;
+  equityId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

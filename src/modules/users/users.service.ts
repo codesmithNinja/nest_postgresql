@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   UnauthorizedException,
   Inject,
 } from '@nestjs/common';
@@ -18,18 +17,19 @@ import {
 } from './interfaces/user-response.interface';
 import { User } from '../../database/entities/user.entity';
 import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject(USER_REPOSITORY) private userRepository: IUserRepository
+    @Inject(USER_REPOSITORY) private userRepository: IUserRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getProfile(userId: string): Promise<UserResponse> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException();
     }
 
     // Remove sensitive data
@@ -47,11 +47,7 @@ export class UsersService {
     DiscardUnderscores(_prt);
     DiscardUnderscores(_tfsk);
 
-    return ResponseHandler.success(
-      'Profile retrieved successfully',
-      200,
-      userProfile
-    );
+    return this.i18nResponse.success('user.profile_retrieved', userProfile);
   }
 
   async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
@@ -60,14 +56,14 @@ export class UsersService {
     // Check if user exists
     const existingUser = await this.userRepository.findById(userId);
     if (!existingUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException();
     }
 
     // If email is being updated, check if it's already taken
     if (email && email !== existingUser.email) {
       const emailExists = await this.userRepository.findByEmail(email);
       if (emailExists) {
-        throw new BadRequestException('Email is already taken');
+        return this.i18nResponse.badRequest('user.email_already_taken');
       }
     }
 
@@ -147,11 +143,7 @@ export class UsersService {
       updatedAt: updatedUser.updatedAt,
     };
 
-    return ResponseHandler.success(
-      'Profile updated successfully',
-      200,
-      userResponse
-    );
+    return this.i18nResponse.success('user.profile_updated', userResponse);
   }
 
   async changePassword(
@@ -163,7 +155,7 @@ export class UsersService {
     // Get user with password
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException();
     }
 
     // Verify current password
@@ -173,7 +165,7 @@ export class UsersService {
     );
 
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedException('Current password is incorrect');
+      throw new UnauthorizedException();
     }
 
     // Hash new password
@@ -182,13 +174,13 @@ export class UsersService {
     // Update password
     await this.userRepository.updatePassword(userId, hashedNewPassword);
 
-    return ResponseHandler.success('Password changed successfully', 200);
+    return this.i18nResponse.success('user.password_changed');
   }
 
   async getUserBySlug(slug: string): Promise<UserResponse> {
     const user = await this.userRepository.findBySlug(slug);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException();
     }
 
     // Remove sensitive data
@@ -240,21 +232,17 @@ export class UsersService {
       updatedAt: user.updatedAt,
     };
 
-    return ResponseHandler.success(
-      'User retrieved successfully',
-      200,
-      userResponse
-    );
+    return this.i18nResponse.success('user.user_retrieved', userResponse);
   }
 
   async deactivateAccount(userId: string): Promise<{ message: string }> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException();
     }
 
     await this.userRepository.deactivateUser(userId);
 
-    return ResponseHandler.success('Account deactivated successfully', 200);
+    return this.i18nResponse.success('user.account_deactivated');
   }
 }

@@ -3,9 +3,9 @@ import {
   ILeadInvestorRepository,
   LEAD_INVESTOR_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   CreateLeadInvestorDto,
   UpdateLeadInvestorDto,
@@ -21,7 +21,8 @@ export class LeadInvestorService {
 
   constructor(
     @Inject(LEAD_INVESTOR_REPOSITORY)
-    private readonly leadInvestorRepository: ILeadInvestorRepository
+    private readonly leadInvestorRepository: ILeadInvestorRepository,
+    private i18nResponse: I18nResponseService
   ) {}
 
   async getLeadInvestorsByEquityId(equityId: string) {
@@ -39,9 +40,8 @@ export class LeadInvestorService {
       const leadInvestors =
         await this.leadInvestorRepository.findByEquityId(equityId);
 
-      const response = ResponseHandler.success(
-        'Lead investors retrieved successfully',
-        200,
+      const response = this.i18nResponse.success(
+        'lead_investor.retrieved',
         leadInvestors
       );
 
@@ -73,10 +73,7 @@ export class LeadInvestorService {
 
       this.logger.log(`Lead investor created successfully: ${leadInvestor.id}`);
 
-      return ResponseHandler.created(
-        'Lead investor created successfully',
-        leadInvestor
-      );
+      return this.i18nResponse.created('lead_investor.created', leadInvestor);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -98,7 +95,7 @@ export class LeadInvestorService {
         );
 
       if (!leadInvestor) {
-        throw new NotFoundException('Lead investor not found');
+        throw new NotFoundException();
       }
 
       const updatedLeadInvestor = await this.leadInvestorRepository.updateById(
@@ -111,9 +108,8 @@ export class LeadInvestorService {
 
       this.logger.log(`Lead investor updated successfully: ${id}`);
 
-      return ResponseHandler.success(
-        'Lead investor updated successfully',
-        200,
+      return this.i18nResponse.success(
+        'lead_investor.updated',
         updatedLeadInvestor
       );
     } catch (error) {
@@ -133,7 +129,7 @@ export class LeadInvestorService {
         );
 
       if (!leadInvestor) {
-        throw new NotFoundException('Lead investor not found');
+        throw new NotFoundException();
       }
 
       await this.leadInvestorRepository.deleteById(leadInvestor.id);
@@ -143,7 +139,7 @@ export class LeadInvestorService {
 
       this.logger.log(`Lead investor deleted successfully: ${id}`);
 
-      return ResponseHandler.success('Lead investor deleted successfully');
+      return this.i18nResponse.success('lead_investor.deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -169,7 +165,7 @@ export class LeadInvestorService {
 
       const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
 
-      return ResponseHandler.success('File uploaded successfully', 201, {
+      return this.i18nResponse.success('common.file_uploaded', {
         filename,
         url: fileUrl,
         mimetype: file.mimetype,

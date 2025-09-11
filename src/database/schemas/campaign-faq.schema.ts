@@ -30,7 +30,7 @@ export class CampaignFaq {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId?: string;
 
   @Prop()
   questionID?: string;
@@ -45,7 +45,7 @@ export class CampaignFaq {
   customAnswer?: string;
 
   @Prop({ required: true })
-  equityId: string;
+  equityId?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

@@ -29,22 +29,22 @@ export class LeadInvestor {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId!: string;
 
   @Prop({ required: true })
-  investorPhoto: string;
+  investorPhoto!: string;
 
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true })
-  investorType: string;
+  investorType!: string;
 
   @Prop({ required: true })
-  bio: string;
+  bio!: string;
 
   @Prop({ required: true })
-  equityId: string;
+  equityId!: string;
 
   createdAt?: Date;
   updatedAt?: Date;

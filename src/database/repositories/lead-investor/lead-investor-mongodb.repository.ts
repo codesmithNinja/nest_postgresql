@@ -21,6 +21,8 @@ export class LeadInvestorMongoRepository
     super(model);
   }
 
+  protected toEntity(doc: LeadInvestorDocument): LeadInvestorEntity;
+  protected toEntity(doc: LeadInvestorDocument | null): LeadInvestorEntity | null;
   protected toEntity(
     doc: LeadInvestorDocument | null
   ): LeadInvestorEntity | null {
@@ -59,7 +61,7 @@ export class LeadInvestorMongoRepository
       .find({ equityId })
       .sort({ createdAt: -1 })
       .exec();
-    return docs.map((doc) => this.toEntity(doc)).filter(Boolean);
+    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is LeadInvestorEntity => entity !== null);
   }
 
   async findByEquityIdAndPublicId(

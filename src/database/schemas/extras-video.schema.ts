@@ -29,19 +29,19 @@ export class ExtrasVideo {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId?: string;
 
   @Prop({ required: true })
-  videoUrl: string;
+  videoUrl?: string;
 
   @Prop({ required: true })
-  videoTitle: string;
+  videoTitle?: string;
 
   @Prop({ required: true })
-  videoDescription: string;
+  videoDescription?: string;
 
   @Prop({ required: true })
-  equityId: string;
+  equityId?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

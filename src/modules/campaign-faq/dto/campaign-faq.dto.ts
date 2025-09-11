@@ -44,13 +44,13 @@ export class UpdateCampaignFaqDto {
 }
 
 export class CampaignFaqResponseDto {
-  id: string;
-  publicId: string;
+  id!: string;
+  publicId!: string;
   questionID?: string;
   answer?: string;
   customQuestion?: string;
   customAnswer?: string;
-  equityId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  equityId!: string;
+  createdAt!: Date;
+  updatedAt!: Date;
 }

@@ -15,22 +15,22 @@ export class RegisterDto {
   @IsString()
   @MinLength(2)
   @MaxLength(50)
-  firstName: string;
+  firstName!: string;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(2)
   @MaxLength(50)
-  lastName: string;
+  lastName!: string;
 
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 
   @IsOptional()
   @IsString()
@@ -58,50 +58,50 @@ export class RegisterDto {
   @IsString()
   userTypeId?: string;
 
-  slug: string;
-  signupIpAddress: string;
-  accountActivationToken: string;
+  slug!: string;
+  signupIpAddress!: string;
+  accountActivationToken!: string;
 }
 
 export class OutsideLinkDto {
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  url: string;
+  url!: string;
 }
 
 export class LoginDto {
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @IsNotEmpty()
   @IsString()
-  password: string;
+  password!: string;
 }
 
 export class ActivateAccountDto {
   @IsNotEmpty()
   @IsString()
-  token: string;
+  token!: string;
 }
 
 export class ForgotPasswordDto {
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 }
 
 export class ResetPasswordDto {
   @IsNotEmpty()
   @IsString()
-  token: string;
+  token!: string;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
-  password: string;
+  password!: string;
 }

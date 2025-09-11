@@ -29,16 +29,16 @@ export class ExtrasDocument {
     unique: true,
     default: () => new Types.ObjectId().toString(),
   })
-  publicId: string;
+  publicId?: string;
 
   @Prop({ required: true })
-  documentUrl: string;
+  documentUrl?: string;
 
   @Prop({ required: true })
-  documentTitle: string;
+  documentTitle?: string;
 
   @Prop({ required: true })
-  equityId: string;
+  equityId?: string;
 
   createdAt?: Date;
   updatedAt?: Date;

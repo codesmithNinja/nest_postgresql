@@ -21,10 +21,7 @@ export class CampaignFaqMongoRepository
     super(model);
   }
 
-  protected toEntity(
-    doc: CampaignFaqDocument | null
-  ): CampaignFaqEntity | null {
-    if (!doc) return null;
+  protected toEntity(doc: CampaignFaqDocument): CampaignFaqEntity {
     const obj = doc.toObject() as Record<string, unknown>;
     return {
       id:
@@ -67,6 +64,6 @@ export class CampaignFaqMongoRepository
     publicId: string
   ): Promise<CampaignFaqEntity | null> {
     const doc = await this.model.findOne({ equityId, publicId }).exec();
-    return this.toEntity(doc);
+    return doc ? this.toEntity(doc) : null;
   }
 }

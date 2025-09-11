@@ -1,16 +1,16 @@
 import {
   Injectable,
-  BadRequestException,
   UnauthorizedException,
   NotFoundException,
   Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { v4 as uuidv4 } from 'uuid';
 import {
   IUserRepository,
   USER_REPOSITORY,
 } from '../../database/repositories/user/user.repository.interface';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 // import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
@@ -30,7 +30,8 @@ import { DiscardUnderscores } from '../../common/utils/discard-underscores.util'
 export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY) private userRepository: IUserRepository,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private i18nResponse: I18nResponseService
     // private emailService: EmailService
   ) {}
 
@@ -40,7 +41,7 @@ export class AuthService {
     // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new BadRequestException('User with this email already exists');
+      return this.i18nResponse.badRequest('auth.email_already_exists');
     }
 
     // Hash password
@@ -59,8 +60,10 @@ export class AuthService {
       .update(activationToken)
       .digest('hex');
 
-    // Prepare user data
-    const userData: RegisterDto = {
+    const publicId = uuidv4();
+    // Prepare user data - ensure userTypeId is not included if null
+    const baseUserData = {
+      publicId,
       firstName,
       lastName,
       email,
@@ -68,12 +71,17 @@ export class AuthService {
       slug,
       signupIpAddress: ipAddress,
       accountActivationToken: hashedActivationToken,
-      ...rest,
+      active: ActiveStatus.PENDING, // Explicitly set the status
     };
 
-    // Handle outsideLinks for different databases
-    if (rest.outsideLinks) {
-      userData.outsideLinks = rest.outsideLinks;
+    // Only add userTypeId if it's provided and not null/undefined
+    const userData = rest.userTypeId
+      ? { ...baseUserData, ...rest }
+      : { ...baseUserData, ...rest, userTypeId: undefined };
+
+    // Remove undefined userTypeId to avoid constraint issues
+    if (!userData.userTypeId) {
+      delete userData.userTypeId;
     }
 
     const user = await this.userRepository.insert(userData);
@@ -90,12 +98,13 @@ export class AuthService {
     } */
 
     // Remove sensitive data from response
-    delete user.password;
-    delete user.accountActivationToken;
+    const { password: _p, accountActivationToken: _t, ...userResponse } = user;
+    DiscardUnderscores(_p);
+    DiscardUnderscores(_t);
 
-    return ResponseHandler.created(
-      'Registration successful. Please check your email to activate your account.',
-      user
+    return this.i18nResponse.created(
+      'auth.register_success_check_email',
+      userResponse
     );
   }
 
@@ -105,20 +114,18 @@ export class AuthService {
     // Find user with password
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException();
     }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException();
     }
 
     // Check if account is active
     if (user.active !== ActiveStatus.ACTIVE) {
-      throw new UnauthorizedException(
-        'Account is not active. Please activate your account first.'
-      );
+      throw new UnauthorizedException();
     }
 
     // Update login IP address
@@ -131,10 +138,11 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     // Remove password from response
-    delete user.password;
+    const { password: _p, ...userResponse } = user;
+    DiscardUnderscores(_p);
 
-    return ResponseHandler.success('Login successful', 200, {
-      user,
+    return this.i18nResponse.success('auth.login_success', {
+      user: userResponse,
       token,
     });
   }
@@ -147,16 +155,15 @@ export class AuthService {
 
     // Find user with this activation token
     const user = await this.userRepository.findByActivationToken(hashedToken);
+
     if (!user) {
-      throw new BadRequestException('Invalid or expired activation token');
+      return this.i18nResponse.badRequest('auth.invalid_activation_token');
     }
 
     // Activate user account
     await this.userRepository.activateUser(user.id);
 
-    return ResponseHandler.success(
-      'Account activated successfully. You can now login.'
-    );
+    return this.i18nResponse.success('auth.account_activated_login');
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
@@ -164,7 +171,7 @@ export class AuthService {
 
     const user = await this.userRepository.getDetail({ email });
     if (!user) {
-      throw new NotFoundException('User with this email does not exist');
+      throw new NotFoundException();
     }
 
     // Generate reset token
@@ -192,10 +199,10 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Failed to send password reset email:', error);
-      throw new BadRequestException('Failed to send password reset email');
+      return this.i18nResponse.badRequest('auth.password_reset_email_failed');
     } */
 
-    return ResponseHandler.success('Password reset email sent successfully');
+    return this.i18nResponse.success('auth.password_reset_email_sent');
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -207,7 +214,7 @@ export class AuthService {
     // Find user with this reset token
     const user = await this.userRepository.findByResetToken(hashedToken);
     if (!user) {
-      throw new BadRequestException('Invalid or expired reset token');
+      return this.i18nResponse.badRequest('auth.invalid_reset_token');
     }
 
     // Hash new password
@@ -216,7 +223,7 @@ export class AuthService {
     // Update user password and clear reset token
     await this.userRepository.updatePassword(user.id, hashedPassword);
 
-    return ResponseHandler.success('Password reset successfully');
+    return this.i18nResponse.success('auth.password_reset_success');
   }
 
   async validateUser(

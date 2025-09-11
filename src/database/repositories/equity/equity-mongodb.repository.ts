@@ -26,6 +26,8 @@ export class EquityMongoRepository
     super(model);
   }
 
+  protected toEntity(doc: EquityDocument): EquityEntity;
+  protected toEntity(doc: EquityDocument | null): EquityEntity | null;
   protected toEntity(doc: EquityDocument | null): EquityEntity | null {
     if (!doc) return null;
     const obj = doc.toObject() as Record<string, unknown>;
@@ -125,7 +127,7 @@ export class EquityMongoRepository
   ): Promise<EquityEntity[]> {
     const query = this.model.find({ userId }).sort({ createdAt: -1 });
     const docs = await this.applyQueryOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc)).filter(Boolean);
+    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is EquityEntity => entity !== null);
   }
 
   async findActivePublicCampaigns(
@@ -133,7 +135,7 @@ export class EquityMongoRepository
   ): Promise<EquityEntity[]> {
     const query = this.model.find({ status: 'ACTIVE' }).sort({ createdAt: -1 });
     const docs = await this.applyQueryOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc)).filter(Boolean);
+    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is EquityEntity => entity !== null);
   }
 
   async findWithRelations(id: string): Promise<EquityEntity | null> {
