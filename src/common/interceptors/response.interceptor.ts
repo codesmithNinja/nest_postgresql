@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Response } from 'express';
 import { ResponseHandler } from '../utils/response.handler';
+import { DiscardUnderscores } from '../utils/discard-underscores.util';
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
@@ -15,12 +16,25 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
     return next.handle().pipe(
       map((data: unknown) => {
         const response = context.switchToHttp().getResponse<Response>();
-        const statusCode: number = response?.statusCode || 200;
 
-        // If the response is already formatted (contains success property), return as is
+        // If the response is already formatted (contains success property), use its statusCode
         if (data && typeof data === 'object' && 'success' in data) {
-          return data;
+          const formattedResponse = data as {
+            statusCode?: number;
+            [key: string]: unknown;
+          };
+          if (formattedResponse.statusCode !== undefined) {
+            // Set HTTP status based on the statusCode in response
+            response.status(formattedResponse.statusCode);
+          }
+          // Always remove statusCode from response body since it should only be in HTTP status
+          const { statusCode, ...responseWithoutStatusCode } =
+            formattedResponse;
+          DiscardUnderscores(statusCode);
+          return responseWithoutStatusCode;
         }
+
+        const statusCode: number = response?.statusCode || 200;
 
         // If it's a simple message string
         if (typeof data === 'string') {

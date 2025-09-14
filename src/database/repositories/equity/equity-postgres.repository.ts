@@ -105,7 +105,9 @@ export class EquityPostgresRepository
       estimatedRevenue: data.estimatedRevenue
         ? Number(data.estimatedRevenue)
         : undefined,
-      pricePerShare: data.pricePerShare ? Number(data.pricePerShare) : undefined,
+      pricePerShare: data.pricePerShare
+        ? Number(data.pricePerShare)
+        : undefined,
       preMoneyValuation: data.preMoneyValuation
         ? Number(data.preMoneyValuation)
         : undefined,

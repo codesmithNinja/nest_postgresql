@@ -426,9 +426,9 @@ export class UserPostgresRepository
       notificationLanguageId: this.safeOptionalString(
         prismaUser.notificationLanguageId
       ),
-      notificationLanguage: this.safeNotificationLanguage(
-        prismaUser.notificationLanguage
-      ) || undefined,
+      notificationLanguage:
+        this.safeNotificationLanguage(prismaUser.notificationLanguage) ||
+        undefined,
       walletAddress: this.safeOptionalString(prismaUser.walletAddress),
       createdAt: this.safeDate(prismaUser.createdAt, new Date()),
       updatedAt: this.safeDate(prismaUser.updatedAt, new Date()),

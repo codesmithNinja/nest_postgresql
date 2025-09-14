@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
 import { EquityController } from './equity.controller';
@@ -37,19 +37,7 @@ import { PrismaService } from '../../database/prisma/prisma.service';
         }
         return new EquityPostgresRepository(prismaService);
       },
-      inject: [ConfigService, PrismaService, 'EquityModel'],
-    },
-    {
-      provide: 'EquityModel',
-      useFactory: (configService: ConfigService) => {
-        const dbType = configService.get<DatabaseType>('database.type');
-        if (dbType === DatabaseType.MONGODB) {
-          // This will be injected by MongooseModule
-          return null;
-        }
-        return null;
-      },
-      inject: [ConfigService],
+      inject: [ConfigService, PrismaService, getModelToken(Equity.name)],
     },
   ],
   exports: [EquityService, EQUITY_REPOSITORY],

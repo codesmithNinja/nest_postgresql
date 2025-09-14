@@ -41,7 +41,9 @@ export class AuthService {
     // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      return this.i18nResponse.badRequest('auth.email_already_exists');
+      return this.i18nResponse.translateBadRequest(
+        'translations.auth.email_already_exists'
+      );
     }
 
     // Hash password
@@ -103,7 +105,7 @@ export class AuthService {
     DiscardUnderscores(_t);
 
     return this.i18nResponse.created(
-      'auth.register_success_check_email',
+      'translations.auth.register_success_check_email',
       userResponse
     );
   }
@@ -141,7 +143,7 @@ export class AuthService {
     const { password: _p, ...userResponse } = user;
     DiscardUnderscores(_p);
 
-    return this.i18nResponse.success('auth.login_success', {
+    return this.i18nResponse.success('translations.auth.login_success', {
       user: userResponse,
       token,
     });
@@ -157,13 +159,18 @@ export class AuthService {
     const user = await this.userRepository.findByActivationToken(hashedToken);
 
     if (!user) {
-      return this.i18nResponse.badRequest('auth.invalid_activation_token');
+      return this.i18nResponse.translateBadRequest(
+        'translations.auth.invalid_activation_token'
+      );
     }
 
     // Activate user account
     await this.userRepository.activateUser(user.id);
 
-    return this.i18nResponse.success('auth.account_activated_login');
+    return this.i18nResponse.translateAndRespond(
+      'translations.auth.account_activated_login',
+      200
+    );
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
@@ -199,10 +206,13 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Failed to send password reset email:', error);
-      return this.i18nResponse.badRequest('auth.password_reset_email_failed');
+      return this.i18nResponse.translateBadRequest('translations.auth.password_reset_email_failed');
     } */
 
-    return this.i18nResponse.success('auth.password_reset_email_sent');
+    return this.i18nResponse.translateAndRespond(
+      'translations.auth.password_reset_email_sent',
+      200
+    );
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -214,7 +224,9 @@ export class AuthService {
     // Find user with this reset token
     const user = await this.userRepository.findByResetToken(hashedToken);
     if (!user) {
-      return this.i18nResponse.badRequest('auth.invalid_reset_token');
+      return this.i18nResponse.translateBadRequest(
+        'translations.auth.invalid_reset_token'
+      );
     }
 
     // Hash new password
@@ -223,7 +235,10 @@ export class AuthService {
     // Update user password and clear reset token
     await this.userRepository.updatePassword(user.id, hashedPassword);
 
-    return this.i18nResponse.success('auth.password_reset_success');
+    return this.i18nResponse.translateAndRespond(
+      'translations.auth.password_reset_success',
+      200
+    );
   }
 
   async validateUser(

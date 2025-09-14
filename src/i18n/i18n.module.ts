@@ -4,6 +4,7 @@ import {
   QueryResolver,
   HeaderResolver,
   AcceptLanguageResolver,
+  I18nJsonLoader,
 } from 'nestjs-i18n';
 import * as path from 'path';
 import { I18nResponseService } from '../common/services/i18n-response.service';
@@ -14,16 +15,17 @@ import { I18nResponseService } from '../common/services/i18n-response.service';
     NestI18nModule.forRootAsync({
       useFactory: () => ({
         fallbackLanguage: 'en',
+        loader: I18nJsonLoader,
         loaderOptions: {
           path: path.join(process.cwd(), 'src/i18n/locales/'),
           watch: true,
         },
-        resolvers: [
-          { use: QueryResolver, options: ['lang'] },
-          { use: HeaderResolver, options: ['x-lang'] },
-          AcceptLanguageResolver,
-        ],
       }),
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        { use: HeaderResolver, options: ['x-lang'] },
+        AcceptLanguageResolver,
+      ],
     }),
   ],
   providers: [I18nResponseService],

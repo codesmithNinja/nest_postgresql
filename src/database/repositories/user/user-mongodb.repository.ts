@@ -218,7 +218,9 @@ export class UserMongoRepository implements IUserRepository {
   ): Promise<UserEntity[]> {
     const query = this.model.find(this.toDocument(filter || {}));
     const docs = await this.applyOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null);
+    return docs
+      .map((doc) => this.toEntity(doc))
+      .filter((entity): entity is UserEntity => entity !== null);
   }
 
   async getDetailById(
@@ -276,7 +278,9 @@ export class UserMongoRepository implements IUserRepository {
 
     return {
       count: updateResult.modifiedCount || 0,
-      updated: updatedDocs.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null),
+      updated: updatedDocs
+        .map((doc) => this.toEntity(doc))
+        .filter((entity): entity is UserEntity => entity !== null),
     };
   }
 
@@ -293,7 +297,9 @@ export class UserMongoRepository implements IUserRepository {
 
     return {
       count: result.deletedCount || 0,
-      deleted: toDelete.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null),
+      deleted: toDelete
+        .map((doc) => this.toEntity(doc))
+        .filter((entity): entity is UserEntity => entity !== null),
     };
   }
 
@@ -345,7 +351,9 @@ export class UserMongoRepository implements IUserRepository {
   ): Promise<UserEntity[]> {
     const query = this.model.find(this.toDocument(filter || {}));
     const docs = await this.applyOptions(query, options).exec();
-    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is UserEntity => entity !== null);
+    return docs
+      .map((doc) => this.toEntity(doc))
+      .filter((entity): entity is UserEntity => entity !== null);
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {

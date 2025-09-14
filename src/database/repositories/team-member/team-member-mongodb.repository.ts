@@ -61,7 +61,9 @@ export class TeamMemberMongoRepository
       .find({ equityId })
       .sort({ createdAt: -1 })
       .exec();
-    return docs.map((doc) => this.toEntity(doc)).filter((entity): entity is TeamMemberEntity => entity !== null);
+    return docs
+      .map((doc) => this.toEntity(doc))
+      .filter((entity): entity is TeamMemberEntity => entity !== null);
   }
 
   async findByEquityIdAndPublicId(

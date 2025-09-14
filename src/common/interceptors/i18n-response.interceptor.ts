@@ -36,12 +36,6 @@ export class I18nResponseInterceptor implements NestInterceptor {
 
           if (response.messageKey) {
             try {
-              console.log(
-                '🔧 Debug - Attempting to translate:',
-                response.messageKey,
-                'for lang:',
-                lang
-              );
               const translatedMessage = await this.i18n.translate(
                 response.messageKey,
                 {
@@ -50,25 +44,13 @@ export class I18nResponseInterceptor implements NestInterceptor {
                 }
               );
 
-              console.log('🔧 Debug - Translation result:', translatedMessage);
-              console.log(
-                '🔧 Debug - Translation type:',
-                typeof translatedMessage
-              );
-              console.log(
-                '🔧 Debug - Is equal to key?',
-                translatedMessage === response.messageKey
-              );
-
               const message =
                 typeof translatedMessage === 'string'
                   ? translatedMessage
                   : translatedMessage
                     ? JSON.stringify(translatedMessage)
                     : response.messageKey;
-
-              console.log('🔧 Debug - Final message to send:', message);
-
+              delete response.messageKey;
               return {
                 ...response,
                 message,

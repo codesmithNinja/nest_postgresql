@@ -24,7 +24,7 @@ import securityConfig from './common/config/security.config';
 // Import interceptors and filters
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { ErrorLoggingInterceptor } from './common/interceptors/error-logging.interceptor';
-// import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor';
+import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor';
 import { LanguagePersistenceInterceptor } from './common/interceptors/language-persistence.interceptor';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -68,12 +68,12 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     },
     {
       provide: APP_INTERCEPTOR,
+      useClass: I18nResponseInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: I18nResponseInterceptor,
-    // },
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorLoggingInterceptor,

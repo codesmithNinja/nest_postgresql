@@ -6,6 +6,8 @@ import {
   Query,
   Req,
   ValidationPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
@@ -36,6 +38,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  @HttpCode(HttpStatus.OK) // Force 200 status for login
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   async login(@Body(ValidationPipe) loginDto: LoginDto, @Req() req: Request) {
     const ipAddress = this.getClientIp(req);

@@ -62,37 +62,15 @@ export class I18nResponseService {
   }
 
   success<T = unknown>(messageKey: string, data?: T) {
-    const translatedMessage = this.getTranslation(messageKey);
-    return ResponseHandler.success(translatedMessage, 200, data);
-  }
-
-  private getTranslation(messageKey: string): string {
-    // Simple translation map for common messages
-    const translations: Record<string, string> = {
-      'auth.register_success_check_email':
-        'Registration successful. Please check your email to activate your account.',
-      'auth.account_activated_login':
-        'Account activated successfully. You can now login.',
-      'auth.invalid_activation_token': 'Invalid or expired activation token',
-      'auth.email_already_exists': 'Email already exists',
-      'auth.login_success': 'Login successful',
-      'auth.password_reset_email_sent':
-        'Password reset email sent successfully',
-      'auth.password_reset_success': 'Password reset successfully',
-      'auth.invalid_reset_token': 'Invalid or expired reset token',
-    };
-
-    return translations[messageKey] || messageKey;
+    return ResponseHandler.successWithKey(messageKey, 200, data);
   }
 
   created<T = unknown>(messageKey: string, data?: T) {
-    const translatedMessage = this.getTranslation(messageKey);
-    return ResponseHandler.created(translatedMessage, data);
+    return ResponseHandler.createdWithKey(messageKey, data);
   }
 
   badRequest(messageKey: string, error?: string) {
-    const translatedMessage = this.getTranslation(messageKey);
-    return ResponseHandler.badRequest(translatedMessage, error);
+    return ResponseHandler.badRequestWithKey(messageKey, error);
   }
 
   unauthorized(
@@ -145,5 +123,14 @@ export class I18nResponseService {
     messageArgs?: Record<string, string | number>
   ) {
     return ResponseHandler.internalErrorWithKey(messageKey, error, messageArgs);
+  }
+
+  async translateBadRequest(
+    messageKey: string,
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.translateError(messageKey, 400, error, messageArgs, lang);
   }
 }

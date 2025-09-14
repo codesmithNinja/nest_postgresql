@@ -22,7 +22,13 @@
       "Bash(npx prettier:*)",
       "Bash(netstat:*)",
       "Bash(set PORT=3001)",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:nestjs-i18n.com)",
+      "Bash(timeout:*)",
+      "WebSearch",
+      "Bash(mongod:*)",
+      "Bash(cmd //c:*)"
     ],
     "deny": [],
     "ask": []

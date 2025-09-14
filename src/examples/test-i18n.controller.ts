@@ -1,10 +1,14 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { I18nResponseService } from '../common/services/i18n-response.service';
+import { I18nService } from 'nestjs-i18n';
 
 @Controller('test-i18n')
 export class TestI18nController {
-  constructor(private readonly i18nResponseService: I18nResponseService) {}
+  constructor(
+    private readonly i18nResponseService: I18nResponseService,
+    private readonly i18nService: I18nService
+  ) {}
 
   @Public()
   @Get('success')
@@ -53,23 +57,45 @@ export class TestI18nController {
 
   @Public()
   @Get('all-languages')
-  async testAllLanguages() {
+  testAllLanguages() {
     const languages = ['en', 'es', 'fr'];
     const testKey = 'auth.login_success';
 
-    const results: Record<string, string> = {};
+    const results: Record<string, any> = {};
     for (const lang of languages) {
-      const translatedMessage =
-        await this.i18nResponseService.translateAndRespond(
-          testKey,
-          200,
-          { test: true },
-          {},
-          lang
-        );
-      results[lang] = translatedMessage.message;
+      try {
+        const translation = this.i18nService.translate(testKey, { lang });
+        results[lang] = translation;
+      } catch (error: any) {
+        results[lang] =
+          `Error: ${(error as Error)?.message || 'Unknown error'}`;
+      }
     }
 
-    return this.i18nResponseService.success('common.success', results);
+    return { success: true, data: results };
+  }
+
+  @Public()
+  @Get('raw-test')
+  rawTest(@Query('lang') lang: string = 'es') {
+    try {
+      const translation = this.i18nService.translate(
+        'translations.auth.login_success',
+        {
+          lang,
+        }
+      );
+      return {
+        success: true,
+        translation,
+        lang,
+        key: 'translations.auth.login_success',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: (error as Error)?.message || 'Unknown error',
+      };
+    }
   }
 }

@@ -99,8 +99,8 @@ export class Equity {
   status!: CampaignStatus;
 
   // Step 2: Fundraising Details
-  @Prop({ required: true })
-  isUpcomingCampaign!: boolean;
+  @Prop({ default: false })
+  isUpcomingCampaign?: boolean;
 
   @Prop()
   projectTimezone?: string;
@@ -114,26 +114,26 @@ export class Equity {
   @Prop()
   actualStartDateTime?: Date;
 
-  @Prop({ required: true })
-  currencyId!: string;
+  @Prop()
+  currencyId?: string;
 
-  @Prop({ required: true })
-  goal!: number;
+  @Prop()
+  goal?: number;
 
-  @Prop({ required: true })
-  closingDate!: Date;
+  @Prop()
+  closingDate?: Date;
 
-  @Prop({ required: true })
-  minimumRaise!: number;
+  @Prop()
+  minimumRaise?: number;
 
-  @Prop({ required: true })
-  maximumRaise!: number;
+  @Prop()
+  maximumRaise?: number;
 
-  @Prop({ required: true })
-  campaignStage!: string;
+  @Prop()
+  campaignStage?: string;
 
-  @Prop({ required: true })
-  industry!: string;
+  @Prop()
+  industry?: string;
 
   @Prop()
   previouslyRaised?: number;
@@ -141,14 +141,14 @@ export class Equity {
   @Prop()
   estimatedRevenue?: number;
 
-  @Prop({ required: true })
-  hasLeadInvestor!: boolean;
+  @Prop({ default: false })
+  hasLeadInvestor?: boolean;
 
-  @Prop({ required: true })
-  termId!: string;
+  @Prop()
+  termId?: string;
 
-  @Prop({ enum: TermSlug, required: true })
-  termslug!: TermSlug;
+  @Prop({ enum: TermSlug })
+  termslug?: TermSlug;
 
   // Term-specific fields
   @Prop()
