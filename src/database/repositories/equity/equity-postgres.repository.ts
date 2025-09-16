@@ -16,6 +16,7 @@ export class EquityPostgresRepository
     publicId: true,
     companyLogo: true,
     companyName: true,
+    companySlug: true,
     companyTagline: true,
     companyEmail: true,
     companyPhoneNumber: true,

@@ -11,6 +11,7 @@ export class EquityResponseDto {
   publicId?: string;
   companyLogo?: string;
   companyName?: string;
+  companySlug?: string;
   companyTagline?: string;
   companyEmail?: string;
   companyPhoneNumber?: string;

@@ -39,6 +39,7 @@ export class EquityMongoRepository
       publicId: (obj.publicId as string) || '',
       companyLogo: (obj.companyLogo as string) || '',
       companyName: (obj.companyName as string) || '',
+      companySlug: (obj.companySlug as string) || '',
       companyTagline: (obj.companyTagline as string) || '',
       companyEmail: (obj.companyEmail as string) || '',
       companyPhoneNumber: (obj.companyPhoneNumber as string) || '',
