@@ -15,13 +15,13 @@ export enum CampaignStatus {
 }
 
 export enum UploadType {
-  IMAGE = 'Image',
-  VIDEO = 'Video',
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
 }
 
 export enum AccountType {
-  CURRENT_ACCOUNT = 'Current Account',
-  SAVING_ACCOUNT = 'Saving Account',
+  CURRENT_ACCOUNT = 'CURRENT_ACCOUNT',
+  SAVING_ACCOUNT = 'SAVING_ACCOUNT',
 }
 
 export enum TermSlug {
@@ -32,7 +32,7 @@ export enum TermSlug {
 
 @Schema({
   timestamps: true,
-  collection: 'equity_campaigns',
+  collection: 'campaigns',
   toJSON: {
     transform: function (
       _doc: unknown,
@@ -64,6 +64,9 @@ export class Equity {
 
   @Prop({ required: true })
   companyName!: string;
+
+  @Prop()
+  companySlug?: string;
 
   @Prop({ required: true })
   companyTagline!: string;
@@ -226,4 +229,5 @@ export const EquitySchema = SchemaFactory.createForClass(Equity);
 // Indexes
 EquitySchema.index({ userId: 1 });
 EquitySchema.index({ status: 1 });
+EquitySchema.index({ companySlug: 1 });
 EquitySchema.index({ userId: 1, status: 1 });

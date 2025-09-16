@@ -17,13 +17,13 @@ export enum CampaignStatus {
 }
 
 export enum UploadType {
-  IMAGE = 'Image',
-  VIDEO = 'Video',
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
 }
 
 export enum AccountType {
-  CURRENT_ACCOUNT = 'Current Account',
-  SAVING_ACCOUNT = 'Saving Account',
+  CURRENT_ACCOUNT = 'CURRENT_ACCOUNT',
+  SAVING_ACCOUNT = 'SAVING_ACCOUNT',
 }
 
 export enum TermSlug {
@@ -44,6 +44,7 @@ export interface Equity {
   // Step 1: Company Information
   companyLogo: string;
   companyName: string;
+  companySlug?: string;
   companyTagline: string;
   companyEmail: string;
   companyPhoneNumber: string;

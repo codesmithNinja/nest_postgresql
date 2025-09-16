@@ -4,7 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Request } from 'express';
 import { FileUploadUtil } from '../utils/file-upload.util';
 
-// Use memory storage when uploading to AWS S3, disk storage for local files
+// Use memory storage when uploading to AWS S3, disk storage for local files (legacy)
 const getStorage = () => {
   if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
     return memoryStorage();
@@ -22,6 +22,11 @@ const getStorage = () => {
       },
     });
   }
+};
+
+// Always use memory storage for the new file upload system
+const getMemoryStorage = () => {
+  return memoryStorage();
 };
 
 const imageFileFilter = (
@@ -99,7 +104,7 @@ export const multerConfig = {
 // New multer configuration for the new file management system
 export const getFileUploadConfig = (maxSizeInMB: number = 10) => {
   return {
-    storage: getStorage(),
+    storage: getMemoryStorage(),
     limits: {
       fileSize: maxSizeInMB * 1024 * 1024, // Convert MB to bytes
     },

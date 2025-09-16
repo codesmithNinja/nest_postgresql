@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
@@ -20,11 +22,50 @@ export interface ErrorResponse {
 
 export class ResponseHandler {
   /**
+   * Simplified success response with custom status code
+   * @param data - Data to return (object, array, string, etc.)
+   * @param statusCode - HTTP status code (uses http-status-codes)
+   * @param message - Optional message (defaults to "Success")
+   */
+  static send<T>(
+    data: T,
+    statusCode: StatusCodes = StatusCodes.OK,
+    message: string = 'Success'
+  ): ApiResponse<T> {
+    return {
+      success: true,
+      message,
+      statusCode,
+      data,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Simplified error response with custom status code
+   * @param message - Error message
+   * @param statusCode - HTTP status code (uses http-status-codes)
+   * @param error - Optional error details
+   */
+  static sendError(
+    message: string,
+    statusCode: StatusCodes = StatusCodes.BAD_REQUEST,
+    error?: string
+  ): ErrorResponse {
+    return {
+      success: false,
+      message,
+      statusCode,
+      error,
+      timestamp: new Date().toISOString(),
+    };
+  }
+  /**
    * Success response handler with i18n support
    */
   static successWithKey<T>(
     messageKey: string,
-    statusCode: number = 200,
+    statusCode: number = StatusCodes.OK,
     data?: T,
     messageArgs?: Record<string, string | number>
   ): ApiResponse<T> {
@@ -79,7 +120,7 @@ export class ResponseHandler {
    */
   static success<T>(
     message: string,
-    statusCode: number = 200,
+    statusCode: number = StatusCodes.OK,
     data?: T
   ): ApiResponse<T> {
     const response: ApiResponse<T> = {
@@ -130,7 +171,7 @@ export class ResponseHandler {
       totalCount: number;
       limit: number;
     },
-    statusCode: number = 200
+    statusCode: number = StatusCodes.OK
   ): ApiResponse<{
     items: T[];
     pagination: typeof pagination;
@@ -153,7 +194,7 @@ export class ResponseHandler {
       totalCount: number;
       limit: number;
     },
-    statusCode: number = 200,
+    statusCode: number = StatusCodes.OK,
     messageArgs?: Record<string, string | number>
   ): ApiResponse<{
     items: T[];
@@ -174,7 +215,7 @@ export class ResponseHandler {
    * Created response (201)
    */
   static created<T>(message: string, data?: T): ApiResponse<T> {
-    return this.success(message, 201, data);
+    return this.success(message, StatusCodes.CREATED, data);
   }
 
   /**
@@ -185,21 +226,26 @@ export class ResponseHandler {
     data?: T,
     messageArgs?: Record<string, string | number>
   ): ApiResponse<T> {
-    return this.successWithKey(messageKey, 201, data, messageArgs);
+    return this.successWithKey(
+      messageKey,
+      StatusCodes.CREATED,
+      data,
+      messageArgs
+    );
   }
 
   /**
    * No content response (204)
    */
   static noContent(message: string): ApiResponse {
-    return this.success(message, 204);
+    return this.success(message, StatusCodes.NO_CONTENT);
   }
 
   /**
    * Bad request error (400)
    */
   static badRequest(message: string, error?: string): ErrorResponse {
-    return this.error(message, 400, error);
+    return this.error(message, StatusCodes.BAD_REQUEST, error);
   }
 
   /**
@@ -210,7 +256,12 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 400, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.BAD_REQUEST,
+      error,
+      messageArgs
+    );
   }
 
   /**
@@ -220,7 +271,7 @@ export class ResponseHandler {
     message: string = 'Unauthorized',
     error?: string
   ): ErrorResponse {
-    return this.error(message, 401, error);
+    return this.error(message, StatusCodes.UNAUTHORIZED, error);
   }
 
   /**
@@ -231,7 +282,12 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 401, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.UNAUTHORIZED,
+      error,
+      messageArgs
+    );
   }
 
   /**
@@ -241,7 +297,7 @@ export class ResponseHandler {
     message: string = 'Forbidden',
     error?: string
   ): ErrorResponse {
-    return this.error(message, 403, error);
+    return this.error(message, StatusCodes.FORBIDDEN, error);
   }
 
   /**
@@ -252,7 +308,12 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 403, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.FORBIDDEN,
+      error,
+      messageArgs
+    );
   }
 
   /**
@@ -262,7 +323,7 @@ export class ResponseHandler {
     message: string = 'Not found',
     error?: string
   ): ErrorResponse {
-    return this.error(message, 404, error);
+    return this.error(message, StatusCodes.NOT_FOUND, error);
   }
 
   /**
@@ -273,14 +334,19 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 404, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.NOT_FOUND,
+      error,
+      messageArgs
+    );
   }
 
   /**
    * Conflict error (409)
    */
   static conflict(message: string, error?: string): ErrorResponse {
-    return this.error(message, 409, error);
+    return this.error(message, StatusCodes.CONFLICT, error);
   }
 
   /**
@@ -291,14 +357,19 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 409, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.CONFLICT,
+      error,
+      messageArgs
+    );
   }
 
   /**
    * Validation error (422)
    */
   static validationError(message: string, error?: string): ErrorResponse {
-    return this.error(message, 422, error);
+    return this.error(message, StatusCodes.UNPROCESSABLE_ENTITY, error);
   }
 
   /**
@@ -309,7 +380,12 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 422, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.UNPROCESSABLE_ENTITY,
+      error,
+      messageArgs
+    );
   }
 
   /**
@@ -319,7 +395,7 @@ export class ResponseHandler {
     message: string = 'Internal server error',
     error?: string
   ): ErrorResponse {
-    return this.error(message, 500, error);
+    return this.error(message, StatusCodes.INTERNAL_SERVER_ERROR, error);
   }
 
   /**
@@ -330,6 +406,11 @@ export class ResponseHandler {
     error?: string,
     messageArgs?: Record<string, string | number>
   ): ErrorResponse {
-    return this.errorWithKey(messageKey, 500, error, messageArgs);
+    return this.errorWithKey(
+      messageKey,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      error,
+      messageArgs
+    );
   }
 }

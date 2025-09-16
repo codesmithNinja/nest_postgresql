@@ -27,6 +27,7 @@ import {
   ExtrasImageResponseDto,
 } from './dto/extras-image.dto';
 import { multerConfig } from '../../common/config/multer.config';
+import { ResponseHandler } from '../../common/utils/response.handler';
 
 @ApiTags('Extras Images')
 @Controller('extrasImage')
@@ -93,12 +94,7 @@ export class ExtrasImageController {
   @ApiOperation({ summary: 'Upload extras image file' })
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return {
-        success: false,
-        message: 'Image file is required',
-        statusCode: 400,
-        timestamp: new Date().toISOString(),
-      };
+      return ResponseHandler.badRequest('Image file is required');
     }
     return this.extrasImageService.uploadFile(file);
   }

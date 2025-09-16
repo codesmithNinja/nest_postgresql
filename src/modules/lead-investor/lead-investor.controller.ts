@@ -27,6 +27,7 @@ import {
   LeadInvestorResponseDto,
 } from './dto/lead-investor.dto';
 import { multerConfig } from '../../common/config/multer.config';
+import { ResponseHandler } from '../../common/utils/response.handler';
 
 @ApiTags('Lead Investors')
 @Controller('leadInvestor')
@@ -93,13 +94,8 @@ export class LeadInvestorController {
   @ApiOperation({ summary: 'Upload investor photo' })
   async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return {
-        success: false,
-        message: 'Photo file is required',
-        statusCode: 400,
-        timestamp: new Date().toISOString(),
-      };
+      return ResponseHandler.badRequest('Photo file is required');
     }
-    return this.leadInvestorService.uploadFile(file, 'investor-photo');
+    return this.leadInvestorService.uploadFile(file);
   }
 }

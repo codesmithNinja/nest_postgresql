@@ -123,8 +123,8 @@ enum CampaignStatus {
 }
 
 enum UploadType {
-  Image
-  Video
+  IMAGE
+  VIDEO
 }
 
 enum AccountType {
@@ -146,6 +146,7 @@ model Equity {
   // Step 1: Company Information
   companyLogo            String
   companyName            String
+  companySlug            String?
   companyTagline         String
   companyEmail           String
   companyPhoneNumber     String
@@ -221,8 +222,9 @@ model Equity {
   @@index([userId])
   @@index([status])
   @@index([publicId])
+  @@index([companySlug])
   @@index([userId, status])
-  @@map("equity_campaigns")
+  @@map("campaigns")
 }
 
 // Lead Investor Model

@@ -58,9 +58,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       errorDetails
     );
 
-    // Send formatted error response
+    // Send formatted error response without statusCode in body
     const errorResponse = ResponseHandler.error(message, status, error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { statusCode, ...responseWithoutStatusCode } = errorResponse;
 
-    response.status(status).json(errorResponse);
+    response.status(status).json(responseWithoutStatusCode);
   }
 }

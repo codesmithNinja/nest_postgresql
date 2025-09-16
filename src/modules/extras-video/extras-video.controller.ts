@@ -27,6 +27,7 @@ import {
   ExtrasVideoResponseDto,
 } from './dto/extras-video.dto';
 import { multerConfig } from '../../common/config/multer.config';
+import { ResponseHandler } from '../../common/utils/response.handler';
 
 @ApiTags('Extras Videos')
 @Controller('extrasVideo')
@@ -93,12 +94,7 @@ export class ExtrasVideoController {
   @ApiOperation({ summary: 'Upload extras video file' })
   async uploadVideo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return {
-        success: false,
-        message: 'Video file is required',
-        statusCode: 400,
-        timestamp: new Date().toISOString(),
-      };
+      return ResponseHandler.badRequest('Video file is required');
     }
     return this.extrasVideoService.uploadFile(file, 'extras-video');
   }

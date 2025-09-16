@@ -4,16 +4,13 @@ import {
   TEAM_MEMBER_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
-import { FileUploadUtil } from '../../common/utils/file-upload.util';
+import { FileManagementService } from '../../common/services/file-management.service';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   CreateTeamMemberDto,
   UpdateTeamMemberDto,
 } from './dto/team-member.dto';
 import { TeamMember } from '../../database/entities/team-member.entity';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 
 @Injectable()
 export class TeamMemberService {
@@ -22,7 +19,8 @@ export class TeamMemberService {
   constructor(
     @Inject(TEAM_MEMBER_REPOSITORY)
     private readonly teamMemberRepository: ITeamMemberRepository,
-    private i18nResponse: I18nResponseService
+    private i18nResponse: I18nResponseService,
+    private fileManagementService: FileManagementService
   ) {}
 
   async getTeamMembersByEquityId(equityId: string) {
@@ -138,28 +136,18 @@ export class TeamMemberService {
     }
   }
 
-  async uploadFile(file: Express.Multer.File, prefix: string) {
+  async uploadFile(file: Express.Multer.File) {
     try {
-      const uploadDir = join(process.cwd(), 'uploads');
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true });
-      }
-
-      const filename = FileUploadUtil.generateFileName(
-        file.originalname,
-        prefix
-      );
-      const filepath = join(uploadDir, filename);
-
-      await writeFile(filepath, file.buffer);
-
-      const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
+      const uploadResult =
+        await this.fileManagementService.uploadTeamMemberImage(file);
 
       return this.i18nResponse.success('common.file_uploaded', {
-        filename,
-        url: fileUrl,
-        mimetype: file.mimetype,
-        size: file.size,
+        filename: uploadResult.filePath,
+        url:
+          uploadResult.url ||
+          this.fileManagementService.getFileUrl(uploadResult.filePath),
+        mimetype: uploadResult.mimetype,
+        size: uploadResult.size,
       });
     } catch (error) {
       const errorMessage =

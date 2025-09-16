@@ -98,7 +98,7 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-nestjs_app}
+      - POSTGRES_DB=${POSTGRES_DB:-equity_crowfunding_nest}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
     volumes:
@@ -116,7 +116,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-mongo}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
-      - MONGO_INITDB_DATABASE=${MONGO_DB:-nestjs_app}
+      - MONGO_INITDB_DATABASE=${MONGO_DB:-equity_crowfunding_nest}
     volumes:
       - mongodb_data:/data/db
       - ./mongo-init-scripts:/docker-entrypoint-initdb.d

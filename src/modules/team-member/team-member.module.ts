@@ -16,6 +16,7 @@ import { TEAM_MEMBER_REPOSITORY } from '../../common/interfaces/campaign-reposit
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { EquityModule } from '../equity/equity.module';
+import { FileManagementService } from '../../common/services/file-management.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EquityModule } from '../equity/equity.module';
   controllers: [TeamMemberController],
   providers: [
     TeamMemberService,
+    FileManagementService,
     {
       provide: TEAM_MEMBER_REPOSITORY,
       useFactory: (

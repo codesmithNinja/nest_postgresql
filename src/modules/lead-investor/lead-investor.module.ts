@@ -16,6 +16,7 @@ import {
 import { LEAD_INVESTOR_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
+import { FileManagementService } from '../../common/services/file-management.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PrismaService } from '../../database/prisma/prisma.service';
   controllers: [LeadInvestorController],
   providers: [
     LeadInvestorService,
+    FileManagementService,
     {
       provide: LEAD_INVESTOR_REPOSITORY,
       useFactory: (

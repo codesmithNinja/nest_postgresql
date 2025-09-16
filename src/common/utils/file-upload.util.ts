@@ -69,14 +69,37 @@ export class FileUploadUtil {
 
   /**
    * New file upload method with AWS S3 and local support
+   * Optionally cleans up old file if oldFilePath is provided
    */
   static async uploadFile(
     file: Express.Multer.File,
-    options: FileUploadOptions
+    options: FileUploadOptions,
+    oldFilePath?: string
   ): Promise<FileUploadResult> {
     this.validateFileNew(file, options);
 
-    const fileName = this.generateFileName(file.originalname);
+    // Delete old file if it exists and is provided
+    if (oldFilePath) {
+      try {
+        const oldFileExists = await this.fileExists(oldFilePath);
+        if (oldFileExists) {
+          await this.deleteFile(oldFilePath);
+          this.logger.log(`Old file cleaned up successfully: ${oldFilePath}`);
+        }
+      } catch (cleanupError) {
+        // Log cleanup error but don't fail the upload
+        const errorMessage =
+          cleanupError instanceof Error
+            ? cleanupError.message
+            : 'Unknown error';
+        this.logger.warn(
+          `Failed to cleanup old file ${oldFilePath}: ${errorMessage}`
+        );
+      }
+    }
+
+    const prefix = options.fieldName ? `${options.fieldName}-` : '';
+    const fileName = this.generateFileName(file.originalname, prefix);
     const filePath = `${options.bucketType}/${fileName}`;
 
     if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
@@ -92,6 +115,12 @@ export class FileUploadUtil {
   ): void {
     if (!file) {
       throw new BadRequestException('No file provided');
+    }
+
+    if (!file.buffer) {
+      throw new BadRequestException(
+        'File buffer is missing. Please ensure multer is configured with memory storage.'
+      );
     }
 
     if (

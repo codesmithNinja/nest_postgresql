@@ -27,6 +27,7 @@ import {
   TeamMemberResponseDto,
 } from './dto/team-member.dto';
 import { multerConfig } from '../../common/config/multer.config';
+import { ResponseHandler } from '../../common/utils/response.handler';
 
 @ApiTags('Team Members')
 @Controller('teamMember')
@@ -90,13 +91,8 @@ export class TeamMemberController {
   @ApiOperation({ summary: 'Upload member photo' })
   async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return {
-        success: false,
-        message: 'Photo file is required',
-        statusCode: 400,
-        timestamp: new Date().toISOString(),
-      };
+      return ResponseHandler.badRequest('Photo file is required');
     }
-    return this.teamMemberService.uploadFile(file, 'member-photo');
+    return this.teamMemberService.uploadFile(file);
   }
 }

@@ -28,7 +28,9 @@
       "Bash(timeout:*)",
       "WebSearch",
       "Bash(mongod:*)",
-      "Bash(cmd //c:*)"
+      "Bash(cmd //c:*)",
+      "Bash(git rm:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

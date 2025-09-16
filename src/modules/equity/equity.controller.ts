@@ -31,11 +31,12 @@ import { EquityService } from './equity.service';
 import {
   CreateEquityDto,
   UpdateEquityDto,
+  UpdateEquityFormDataDto,
   EquityResponseDto,
   EquityWithRelationsResponseDto,
 } from './dto/equity.dto';
 import { FileUploadResponseDto } from '../../common/dto/file-upload.dto';
-import { multerConfig } from '../../common/config/multer.config';
+import { getFileUploadConfig } from '../../common/config/multer.config';
 
 @ApiTags('Equity Campaigns')
 @Controller('equity')
@@ -95,13 +96,16 @@ export class EquityController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, CampaignModificationGuard)
   @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('campaignImageURL', getFileUploadConfig(5)))
+  @ApiConsumes('multipart/form-data', 'application/json')
   @ApiOperation({ summary: 'Update campaign (Steps 2-6)' })
   @ApiResponse({ type: EquityResponseDto })
   async updateCampaign(
     @Param('id') id: string,
-    @Body() updateEquityDto: UpdateEquityDto
+    @Body() updateEquityDto: UpdateEquityDto | UpdateEquityFormDataDto,
+    @UploadedFile() file?: Express.Multer.File
   ) {
-    return await this.equityService.updateCampaign(id, updateEquityDto);
+    return await this.equityService.updateCampaign(id, updateEquityDto, file);
   }
 
   @Delete(':id')
@@ -116,7 +120,7 @@ export class EquityController {
   @Post('upload/logo')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseInterceptors(FileInterceptor('logo', multerConfig.imageUpload))
+  @UseInterceptors(FileInterceptor('logo', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload company logo' })
   @ApiResponse({ type: FileUploadResponseDto })
@@ -130,7 +134,7 @@ export class EquityController {
   @Post('upload/image')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @UseInterceptors(FileInterceptor('image', multerConfig.imageUpload))
+  @UseInterceptors(FileInterceptor('image', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload campaign image' })
   @ApiResponse({ type: FileUploadResponseDto })
@@ -139,19 +143,5 @@ export class EquityController {
       return this.i18nResponse.badRequest('equity.image_file_required');
     }
     return await this.equityService.uploadFile(file, 'campaign-image');
-  }
-
-  @Post('upload/video')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @UseInterceptors(FileInterceptor('video', multerConfig.videoUpload))
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload campaign video' })
-  @ApiResponse({ type: FileUploadResponseDto })
-  async uploadVideo(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      return this.i18nResponse.badRequest('equity.video_file_required');
-    }
-    return await this.equityService.uploadFile(file, 'campaign-video');
   }
 }

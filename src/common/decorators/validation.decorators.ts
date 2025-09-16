@@ -134,10 +134,10 @@ export class EnhancedUpdateFundraisingDetailsDto extends UpdateFundraisingDetail
   startDate?: string;
 
   @IsFutureDate({ message: 'Closing date must be in the future' })
-  closingDate: string;
+  closingDate!: string;
 
   @IsTermFieldsValid({ message: 'Required fields for term type are missing' })
-  termslug: TermSlug;
+  termslug!: TermSlug;
 }
 
 export class EnhancedUpdateInvestmentInfoDto extends UpdateInvestmentInfoDto {

@@ -19,8 +19,19 @@ security:
     max: 100 # limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP'
 
+    # Stricter limits for sensitive endpoints
+    auth:
+      windowMs: 900000 # 15 minutes
+      max: 5 # limit each IP to 5 auth requests per windowMs
+      message: 'Too many authentication attempts from this IP'
+
+    campaign:
+      windowMs: 300000 # 5 minutes
+      max: 50 # limit each IP to 50 campaign requests per windowMs
+      message: 'Too many campaign requests from this IP'
+
   # JWT configuration
   jwt:
     expiresIn: '7d'
-    issuer: 'campaign-service'
-    audience: 'campaign-users'
+    issuer: 'equity-crowfunding-service'
+    audience: 'equity-crowfunding-users'

@@ -10,17 +10,19 @@ import {
 import { CacheUtil } from '../../common/utils/cache.util';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 import { DateUtil } from '../../common/utils/date.util';
-import { FileUploadUtil } from '../../common/utils/file-upload.util';
+import {
+  FileUploadUtil,
+  BucketType,
+} from '../../common/utils/file-upload.util';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateEquityDto, UpdateEquityDto } from './dto/equity.dto';
 import {
   Equity,
   CampaignStatus,
   TermSlug,
+  UploadType,
 } from '../../database/entities/equity.entity';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import slugify from 'slugify';
 
 @Injectable()
 export class EquityService {
@@ -31,6 +33,14 @@ export class EquityService {
     private readonly equityRepository: IEquityRepository,
     private i18nResponse: I18nResponseService
   ) {}
+
+  /**
+   * Generate company slug from company name
+   */
+  private generateCompanySlug(companyName: string): string {
+    const timeString = new Date().getTime().toString().substr(7, 5);
+    return `${slugify(companyName, { lower: true })}-${timeString}`;
+  }
 
   /**
    * Get all campaigns for a specific user
@@ -166,10 +176,29 @@ export class EquityService {
    */
   async createCampaign(userId: string, createEquityDto: CreateEquityDto) {
     try {
+      // Generate company slug if companyName is provided
+      let companySlug: string | undefined;
+      if (createEquityDto.companyName) {
+        companySlug = this.generateCompanySlug(createEquityDto.companyName);
+      }
+
       const campaignData: Partial<Equity> = {
         ...createEquityDto,
+        companySlug,
         userId,
         status: CampaignStatus.DRAFT,
+        // Set default values for required fields
+        isUpcomingCampaign: false,
+        currencyId: 'USD', // Default currency
+        goal: 0,
+        closingDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        minimumRaise: 0,
+        maximumRaise: 0,
+        campaignStage: 'Pre-seed',
+        industry: createEquityDto.companyCategory,
+        hasLeadInvestor: false,
+        termId: 'default',
+        termslug: TermSlug.EQUITY,
       };
 
       const campaign = await this.equityRepository.insert(campaignData);
@@ -179,7 +208,7 @@ export class EquityService {
 
       this.logger.log(`Campaign created successfully: ${campaign.id}`);
 
-      return this.i18nResponse.created('campaign.created', campaign);
+      return this.i18nResponse.created('equity.campaign_created', campaign);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -193,7 +222,8 @@ export class EquityService {
    */
   async updateCampaign(
     id: string,
-    updateEquityDto: UpdateEquityDto
+    updateEquityDto: UpdateEquityDto,
+    file?: Express.Multer.File
   ): Promise<ApiResponse<Equity> | ErrorResponse> {
     try {
       const existingCampaign = await this.equityRepository.getDetailById(id);
@@ -202,9 +232,77 @@ export class EquityService {
         throw new NotFoundException();
       }
 
+      // Handle file upload if provided
+      if (file) {
+        // Only process file upload if uploadType is IMAGE or if uploadType is not specified
+        const shouldUploadImage =
+          !updateEquityDto.uploadType ||
+          updateEquityDto.uploadType === UploadType.IMAGE;
+
+        if (shouldUploadImage) {
+          try {
+            // Get the old image path for cleanup
+            const oldImagePath = existingCampaign.campaignImageURL;
+
+            const uploadResult = await FileUploadUtil.uploadFile(
+              file,
+              {
+                bucketType: BucketType.CAMPAIGNS,
+                allowedMimeTypes: [
+                  'image/jpeg',
+                  'image/png',
+                  'image/webp',
+                  'image/gif',
+                ],
+                maxSizeInMB: 5,
+                fieldName: 'campaignImageURL',
+              },
+              oldImagePath
+            );
+
+            // Get the file URL
+            const fileUrl = uploadResult.filePath;
+
+            // Set the uploaded file URL in the update data
+            updateEquityDto.campaignImageURL = fileUrl;
+
+            // Also set uploadType if it wasn't provided
+            if (!updateEquityDto.uploadType) {
+              updateEquityDto.uploadType = UploadType.IMAGE;
+            }
+
+            this.logger.log(
+              `Campaign image uploaded successfully: ${uploadResult.filePath}${oldImagePath ? ` (old image ${oldImagePath} cleaned up)` : ''}`
+            );
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : 'Unknown error';
+            this.logger.error(
+              `Error uploading campaign image: ${errorMessage}`
+            );
+            return this.i18nResponse.badRequest(
+              'equity.image_upload_failed',
+              errorMessage
+            );
+          }
+        } else {
+          this.logger.warn(
+            `File provided but uploadType is ${updateEquityDto.uploadType}, skipping file upload`
+          );
+        }
+      }
+
+      // Generate company slug if companyName is being updated
+      if (updateEquityDto.companyName) {
+        updateEquityDto.companySlug = this.generateCompanySlug(
+          updateEquityDto.companyName
+        );
+      }
+
       // Validate and prepare update data
       const updateData: Partial<Equity> = {};
 
+      // Handle nested structure (original format)
       if (updateEquityDto.fundraisingDetails) {
         const fundraising = updateEquityDto.fundraisingDetails;
 
@@ -262,6 +360,108 @@ export class EquityService {
         Object.assign(updateData, investmentInfo);
       }
 
+      // Handle direct fields (for backward compatibility and ease of use)
+      const directFields = [
+        'companyName',
+        'companySlug',
+        'isUpcomingCampaign',
+        'projectTimezone',
+        'startDate',
+        'startTime',
+        'currencyId',
+        'goal',
+        'closingDate',
+        'minimumRaise',
+        'maximumRaise',
+        'campaignStage',
+        'industry',
+        'previouslyRaised',
+        'estimatedRevenue',
+        'hasLeadInvestor',
+        'termId',
+        'termslug',
+        'availableShares',
+        'pricePerShare',
+        'preMoneyValuation',
+        'maturityDate',
+        'investFrequency',
+        'IRR',
+        'equityAvailable',
+        'interestRate',
+        'termLength',
+        'uploadType',
+        'campaignImageURL',
+        'campaignVideoURL',
+        'campaignStory',
+        'googleAnalyticsID',
+        'additionalLinks',
+        'bankName',
+        'accountType',
+        'accountHolderName',
+        'accountNumber',
+        'confirmAccountNumber',
+        'routingNumber',
+        'status',
+      ];
+
+      const directUpdateData: Record<string, unknown> = {};
+      let hasDirectFields = false;
+
+      for (const field of directFields) {
+        if (
+          updateEquityDto[field as keyof typeof updateEquityDto] !== undefined
+        ) {
+          directUpdateData[field] =
+            updateEquityDto[field as keyof typeof updateEquityDto];
+          hasDirectFields = true;
+        }
+      }
+
+      if (hasDirectFields) {
+        // Validate term-specific fields for direct fields
+        if (directUpdateData.termslug) {
+          const validationResult = this.validateTermSpecificFields(
+            directUpdateData.termslug as TermSlug,
+            directUpdateData
+          );
+          if (validationResult) {
+            return validationResult;
+          }
+        }
+
+        // Calculate actual start date time if upcoming campaign for direct fields
+        if (
+          directUpdateData.isUpcomingCampaign &&
+          directUpdateData.startDate &&
+          directUpdateData.startTime &&
+          directUpdateData.projectTimezone
+        ) {
+          directUpdateData.actualStartDateTime =
+            DateUtil.calculateActualStartDateTime(
+              new Date(directUpdateData.startDate as string),
+              directUpdateData.startTime as string,
+              directUpdateData.projectTimezone as string
+            );
+        }
+
+        // Validate account numbers match for direct fields
+        if (
+          directUpdateData.accountNumber &&
+          directUpdateData.confirmAccountNumber
+        ) {
+          if (
+            directUpdateData.accountNumber !==
+            directUpdateData.confirmAccountNumber
+          ) {
+            return this.i18nResponse.badRequest(
+              'equity.account_numbers_must_match'
+            );
+          }
+        }
+
+        Object.assign(updateData, directUpdateData);
+      }
+
       const updatedCampaign = await this.equityRepository.updateById(
         id,
         updateData
@@ -273,7 +473,10 @@ export class EquityService {
 
       this.logger.log(`Campaign updated successfully: ${id}`);
 
-      return this.i18nResponse.success('campaign.updated', updatedCampaign);
+      return this.i18nResponse.success(
+        'equity.campaign_updated',
+        updatedCampaign
+      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -308,7 +511,7 @@ export class EquityService {
 
       this.logger.log(`Campaign deleted successfully: ${id}`);
 
-      return this.i18nResponse.success('campaign.deleted');
+      return this.i18nResponse.success('equity.campaign_deleted');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -322,29 +525,59 @@ export class EquityService {
    */
   async uploadFile(file: Express.Multer.File, prefix: string) {
     try {
-      // Ensure upload directory exists
-      const uploadDir = join(process.cwd(), 'uploads');
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true });
+      // Determine bucket type based on prefix
+      let bucketType: BucketType;
+      let allowedMimeTypes: string[];
+      let maxSizeInMB: number;
+
+      switch (prefix) {
+        case 'logo':
+          bucketType = BucketType.COMPANY;
+          allowedMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/gif',
+          ];
+          maxSizeInMB = 5;
+          break;
+        case 'campaign-image':
+          bucketType = BucketType.CAMPAIGNS;
+          allowedMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/gif',
+          ];
+          maxSizeInMB = 5;
+          break;
+        default:
+          bucketType = BucketType.CAMPAIGNS;
+          allowedMimeTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/gif',
+          ];
+          maxSizeInMB = 5;
       }
 
-      const filename = FileUploadUtil.generateFileName(
-        file.originalname,
-        prefix
-      );
-      const filepath = join(uploadDir, filename);
+      const uploadResult = await FileUploadUtil.uploadFile(file, {
+        bucketType,
+        allowedMimeTypes,
+        maxSizeInMB,
+        fieldName: prefix,
+      });
 
-      await writeFile(filepath, file.buffer);
+      const fileUrl = uploadResult.filePath;
 
-      const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
-
-      this.logger.log(`File uploaded successfully: ${filename}`);
+      this.logger.log(`File uploaded successfully: ${uploadResult.filePath}`);
 
       return this.i18nResponse.success('common.file_uploaded', {
-        filename,
+        filename: uploadResult.filePath,
         url: fileUrl,
-        mimetype: file.mimetype,
-        size: file.size,
+        mimetype: uploadResult.mimetype,
+        size: uploadResult.size,
       });
     } catch (error) {
       const errorMessage =

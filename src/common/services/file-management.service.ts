@@ -12,25 +12,27 @@ export class FileManagementService {
 
   async uploadFile(
     file: Express.Multer.File,
-    options: FileUploadOptions
+    options: FileUploadOptions,
+    oldFilePath?: string
   ): Promise<FileUploadResult> {
     this.logger.log(
-      `Uploading file: ${file.originalname} to bucket: ${options.bucketType}`
+      `Uploading file: ${file.originalname} to bucket: ${options.bucketType}${oldFilePath ? ` (cleaning up: ${oldFilePath})` : ''}`
     );
-    return await FileUploadUtil.uploadFile(file, options);
+    return await FileUploadUtil.uploadFile(file, options, oldFilePath);
   }
 
   async uploadImage(
     file: Express.Multer.File,
     bucketType: BucketType,
-    maxSizeInMB: number = 5
+    maxSizeInMB: number = 5,
+    oldFilePath?: string
   ): Promise<FileUploadResult> {
     const options: FileUploadOptions = {
       bucketType,
       allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
       maxSizeInMB,
     };
-    return await this.uploadFile(file, options);
+    return await this.uploadFile(file, options, oldFilePath);
   }
 
   async uploadVideo(
@@ -90,9 +92,10 @@ export class FileManagementService {
   }
 
   async uploadCampaignImage(
-    file: Express.Multer.File
+    file: Express.Multer.File,
+    oldFilePath?: string
   ): Promise<FileUploadResult> {
-    return await this.uploadImage(file, BucketType.CAMPAIGNS, 10);
+    return await this.uploadImage(file, BucketType.CAMPAIGNS, 10, oldFilePath);
   }
 
   async uploadCampaignDocument(
@@ -107,14 +110,28 @@ export class FileManagementService {
     return await this.uploadDocument(file, BucketType.EXTRA_DOCUMENTS, 20);
   }
 
-  async uploadExtraImage(file: Express.Multer.File): Promise<FileUploadResult> {
-    return await this.uploadImage(file, BucketType.EXTRA_IMAGES, 10);
+  async uploadExtraImage(
+    file: Express.Multer.File,
+    oldFilePath?: string
+  ): Promise<FileUploadResult> {
+    return await this.uploadImage(
+      file,
+      BucketType.EXTRA_IMAGES,
+      10,
+      oldFilePath
+    );
   }
 
   async uploadTeamMemberImage(
-    file: Express.Multer.File
+    file: Express.Multer.File,
+    oldFilePath?: string
   ): Promise<FileUploadResult> {
-    return await this.uploadImage(file, BucketType.TEAM_MEMBERS, 5);
+    return await this.uploadImage(
+      file,
+      BucketType.TEAM_MEMBERS,
+      5,
+      oldFilePath
+    );
   }
 
   async uploadCompanyDocument(
