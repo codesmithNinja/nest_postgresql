@@ -8,15 +8,30 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ResponseHandler } from '../utils/response.handler';
+import { I18nService } from 'nestjs-i18n';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+  constructor(private readonly i18n?: I18nService) {}
+
+  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<
+      Request & { language?: string; i18nLang?: string }
+    >();
+
+    // Set up i18n service for ResponseHandler if available
+    if (this.i18n) {
+      ResponseHandler.setI18nService(this.i18n);
+    }
+
+    // Get current language from request
+    const getCurrentLanguage = (): string => {
+      return request.language || request.i18nLang || 'en';
+    };
 
     let status: number;
     let message: string;
@@ -37,7 +52,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      message = 'Internal server error';
+      message = 'common.internal_error';
       error =
         exception instanceof Error
           ? exception.message
@@ -59,7 +74,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     );
 
     // Send formatted error response without statusCode in body
-    const errorResponse = ResponseHandler.error(message, status, error);
+    let errorResponse;
+    if (this.i18n && message.includes('.')) {
+      // If message looks like a translation key (contains dots) and i18n is available
+      errorResponse = await ResponseHandler.errorWithTranslation(
+        message,
+        status,
+        error,
+        undefined,
+        getCurrentLanguage()
+      );
+    } else {
+      // Fallback to regular error response
+      errorResponse = ResponseHandler.error(message, status, error);
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { statusCode, ...responseWithoutStatusCode } = errorResponse;
 

@@ -20,7 +20,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { CampaignModificationGuard } from '../../common/guards/campaign-modification.guard';
 import { Public } from '../../common/decorators/public.decorator';
@@ -47,7 +47,7 @@ export class EquityController {
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtUserGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all campaigns of logged-in user' })
   @ApiResponse({ type: [EquityResponseDto] })
@@ -70,7 +70,7 @@ export class EquityController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard, CampaignOwnershipGuard)
+  @UseGuards(JwtUserGuard, CampaignOwnershipGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get single campaign with relations' })
   @ApiResponse({ type: EquityWithRelationsResponseDto })
@@ -79,7 +79,7 @@ export class EquityController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtUserGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new campaign (Step 1)' })
   @ApiResponse({ type: EquityResponseDto, status: 201 })
@@ -94,7 +94,7 @@ export class EquityController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, CampaignModificationGuard)
+  @UseGuards(JwtUserGuard, CampaignModificationGuard)
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('campaignImageURL', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data', 'application/json')
@@ -109,7 +109,7 @@ export class EquityController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, CampaignModificationGuard)
+  @UseGuards(JwtUserGuard, CampaignModificationGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete campaign (DRAFT/PENDING only)' })
   @ApiResponse({ status: 200, description: 'Campaign deleted successfully' })
@@ -118,7 +118,7 @@ export class EquityController {
   }
 
   @Post('upload/logo')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtUserGuard)
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('logo', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data')
@@ -132,7 +132,7 @@ export class EquityController {
   }
 
   @Post('upload/image')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtUserGuard)
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('image', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data')

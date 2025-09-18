@@ -24,20 +24,24 @@ export class I18nResponseInterceptor implements NestInterceptor {
   ): Observable<ApiResponse | ErrorResponse> {
     return next.handle().pipe(
       switchMap(async (response: ApiResponse | ErrorResponse) => {
+        // Check if response has messageKey OR if message looks like a translation key
         if (
           response &&
           typeof response === 'object' &&
-          'messageKey' in response
+          ('messageKey' in response ||
+           (response.message && typeof response.message === 'string' && response.message.includes('.')))
         ) {
+          const translationKey = response.messageKey || response.message;
+
           const request = context
             .switchToHttp()
             .getRequest<Request & { i18nLang?: string; language?: string }>();
           const lang = request.language || request.i18nLang || 'en';
 
-          if (response.messageKey) {
+          if (translationKey) {
             try {
               const translatedMessage = await this.i18n.translate(
-                response.messageKey,
+                translationKey,
                 {
                   lang,
                   args: response.messageArgs || {},
@@ -49,14 +53,17 @@ export class I18nResponseInterceptor implements NestInterceptor {
                   ? translatedMessage
                   : translatedMessage
                     ? JSON.stringify(translatedMessage)
-                    : response.messageKey;
+                    : translationKey;
+
               delete response.messageKey;
+              delete response.messageArgs;
+
               return {
                 ...response,
                 message,
               } as TranslatedApiResponse | TranslatedErrorResponse;
             } catch (error) {
-              console.error('Translation error:', error);
+              console.error('I18nResponseInterceptor - Translation error:', error);
               return response;
             }
           }

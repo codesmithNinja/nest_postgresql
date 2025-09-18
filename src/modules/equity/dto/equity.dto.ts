@@ -948,7 +948,7 @@ export class UpdateEquityFormDataDto {
 
   @IsOptional()
   @ApiProperty({ type: 'string', format: 'binary' })
-  campaignImageURL?: any; // This will be handled by multer
+  campaignImageURL?: Express.Multer.File; // This will be handled by multer
 
   @IsOptional()
   @IsString()

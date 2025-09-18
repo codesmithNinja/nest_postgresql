@@ -12,10 +12,14 @@ import { I18nResponseService } from '../../common/services/i18n-response.service
 import { DateUtil } from '../../common/utils/date.util';
 import {
   FileUploadUtil,
-  BucketType,
+  getBucketName,
 } from '../../common/utils/file-upload.util';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { CreateEquityDto, UpdateEquityDto } from './dto/equity.dto';
+import {
+  CreateEquityDto,
+  UpdateEquityDto,
+  UpdateEquityFormDataDto,
+} from './dto/equity.dto';
 import {
   Equity,
   CampaignStatus,
@@ -222,7 +226,7 @@ export class EquityService {
    */
   async updateCampaign(
     id: string,
-    updateEquityDto: UpdateEquityDto,
+    updateEquityDto: UpdateEquityDto | UpdateEquityFormDataDto,
     file?: Express.Multer.File
   ): Promise<ApiResponse<Equity> | ErrorResponse> {
     try {
@@ -247,7 +251,7 @@ export class EquityService {
             const uploadResult = await FileUploadUtil.uploadFile(
               file,
               {
-                bucketType: BucketType.CAMPAIGNS,
+                bucketName: getBucketName('CAMPAIGNS'),
                 allowedMimeTypes: [
                   'image/jpeg',
                   'image/png',
@@ -292,8 +296,21 @@ export class EquityService {
         }
       }
 
+      // Type guard to check if it's UpdateEquityDto
+      const isUpdateEquityDto = (
+        dto: UpdateEquityDto | UpdateEquityFormDataDto
+      ): dto is UpdateEquityDto => {
+        return (
+          'companyName' in dto ||
+          'fundraisingDetails' in dto ||
+          'projectStory' in dto ||
+          'extras' in dto ||
+          'investmentInfo' in dto
+        );
+      };
+
       // Generate company slug if companyName is being updated
-      if (updateEquityDto.companyName) {
+      if (isUpdateEquityDto(updateEquityDto) && updateEquityDto.companyName) {
         updateEquityDto.companySlug = this.generateCompanySlug(
           updateEquityDto.companyName
         );
@@ -303,11 +320,14 @@ export class EquityService {
       const updateData: Partial<Equity> = {};
 
       // Handle nested structure (original format)
-      if (updateEquityDto.fundraisingDetails) {
+      if (
+        isUpdateEquityDto(updateEquityDto) &&
+        updateEquityDto.fundraisingDetails
+      ) {
         const fundraising = updateEquityDto.fundraisingDetails;
 
         // Validate term-specific fields
-        const validationResult = this.validateTermSpecificFields(
+        const validationResult = await this.validateTermSpecificFields(
           fundraising.termslug,
           fundraising as unknown as Record<string, unknown>
         );
@@ -334,15 +354,18 @@ export class EquityService {
         Object.assign(updateData, fundraising);
       }
 
-      if (updateEquityDto.projectStory) {
+      if (isUpdateEquityDto(updateEquityDto) && updateEquityDto.projectStory) {
         Object.assign(updateData, updateEquityDto.projectStory);
       }
 
-      if (updateEquityDto.extras) {
+      if (isUpdateEquityDto(updateEquityDto) && updateEquityDto.extras) {
         Object.assign(updateData, updateEquityDto.extras);
       }
 
-      if (updateEquityDto.investmentInfo) {
+      if (
+        isUpdateEquityDto(updateEquityDto) &&
+        updateEquityDto.investmentInfo
+      ) {
         // Validate account numbers match
         const investmentInfo = updateEquityDto.investmentInfo;
         if (
@@ -420,7 +443,7 @@ export class EquityService {
       if (hasDirectFields) {
         // Validate term-specific fields for direct fields
         if (directUpdateData.termslug) {
-          const validationResult = this.validateTermSpecificFields(
+          const validationResult = await this.validateTermSpecificFields(
             directUpdateData.termslug as TermSlug,
             directUpdateData
           );
@@ -525,14 +548,14 @@ export class EquityService {
    */
   async uploadFile(file: Express.Multer.File, prefix: string) {
     try {
-      // Determine bucket type based on prefix
-      let bucketType: BucketType;
+      // Determine bucket name based on prefix
+      let bucketName: string;
       let allowedMimeTypes: string[];
       let maxSizeInMB: number;
 
       switch (prefix) {
         case 'logo':
-          bucketType = BucketType.COMPANY;
+          bucketName = getBucketName('COMPANY');
           allowedMimeTypes = [
             'image/jpeg',
             'image/png',
@@ -542,7 +565,7 @@ export class EquityService {
           maxSizeInMB = 5;
           break;
         case 'campaign-image':
-          bucketType = BucketType.CAMPAIGNS;
+          bucketName = getBucketName('CAMPAIGNS');
           allowedMimeTypes = [
             'image/jpeg',
             'image/png',
@@ -552,7 +575,7 @@ export class EquityService {
           maxSizeInMB = 5;
           break;
         default:
-          bucketType = BucketType.CAMPAIGNS;
+          bucketName = getBucketName('CAMPAIGNS');
           allowedMimeTypes = [
             'image/jpeg',
             'image/png',
@@ -563,7 +586,7 @@ export class EquityService {
       }
 
       const uploadResult = await FileUploadUtil.uploadFile(file, {
-        bucketType,
+        bucketName,
         allowedMimeTypes,
         maxSizeInMB,
         fieldName: prefix,
@@ -590,10 +613,10 @@ export class EquityService {
   /**
    * Validate term-specific fields based on termslug
    */
-  private validateTermSpecificFields(
+  private async validateTermSpecificFields(
     termslug: TermSlug,
     data: Record<string, unknown>
-  ): void | ErrorResponse {
+  ): Promise<void | ErrorResponse> {
     if (!termslug) return;
 
     const requiredFields: Record<TermSlug, string[]> = {

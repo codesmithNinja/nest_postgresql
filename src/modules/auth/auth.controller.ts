@@ -20,6 +20,7 @@ import {
   ResetPasswordDto,
 } from './dto/auth.dto';
 import { Public } from '../../common/decorators/public.decorator';
+import { IpExtractionUtil } from '../../common/utils/ip-extraction.util';
 
 @Controller('auth')
 export class AuthController {
@@ -32,7 +33,7 @@ export class AuthController {
     @Body(ValidationPipe) registerDto: RegisterDto,
     @Req() req: Request
   ) {
-    const ipAddress = this.getClientIp(req);
+    const ipAddress = IpExtractionUtil.getSanitizedIp(req);
     return this.authService.register(registerDto, ipAddress);
   }
 
@@ -41,7 +42,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK) // Force 200 status for login
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   async login(@Body(ValidationPipe) loginDto: LoginDto, @Req() req: Request) {
-    const ipAddress = this.getClientIp(req);
+    const ipAddress = IpExtractionUtil.getSanitizedIp(req);
     return this.authService.login(loginDto, ipAddress);
   }
 
@@ -69,19 +70,5 @@ export class AuthController {
     @Body(ValidationPipe) resetPasswordDto: ResetPasswordDto
   ) {
     return this.authService.resetPassword(resetPasswordDto);
-  }
-
-  private getClientIp(req: Request): string {
-    const forwarded = req.headers['x-forwarded-for'];
-    const forwardedIp = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-
-    return (
-      forwardedIp?.split(',')[0] ||
-      (req.headers['x-real-ip'] as string) ||
-      req.connection?.remoteAddress ||
-      req.socket?.remoteAddress ||
-      req.ip ||
-      'unknown'
-    );
   }
 }

@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import { I18nService } from 'nestjs-i18n';
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -21,6 +22,51 @@ export interface ErrorResponse {
 }
 
 export class ResponseHandler {
+  private static i18nService: I18nService;
+
+  /**
+   * Set the i18n service instance for translation
+   */
+  static setI18nService(i18nService: I18nService) {
+    ResponseHandler.i18nService = i18nService;
+  }
+
+  /**
+   * Translate a message key to actual message
+   */
+  private static async translateMessage(
+    messageKey: string,
+    lang: string = 'en'
+    // messageArgs?: Record<string, string | number>
+  ): Promise<string> {
+    console.log('translateMessage called with:', messageKey, 'lang:', lang);
+    console.log('i18nService available:', !!ResponseHandler.i18nService);
+
+    if (!ResponseHandler.i18nService) {
+      console.log('No i18nService, returning key');
+      return messageKey; // Fallback to key if no i18n service
+    }
+
+    try {
+      console.log('Attempting translation...');
+      const translated = await ResponseHandler.i18nService.translate(
+        messageKey,
+        { lang }
+      );
+      console.log(
+        'Translation result:',
+        translated,
+        'type:',
+        typeof translated
+      );
+
+      return typeof translated === 'string' ? translated : messageKey;
+    } catch (error) {
+      console.log('Translation error:', error);
+      return messageKey; // Fallback to key on error
+    }
+  }
+
   /**
    * Simplified success response with custom status code
    * @param data - Data to return (object, array, string, etc.)
@@ -411,6 +457,228 @@ export class ResponseHandler {
       StatusCodes.INTERNAL_SERVER_ERROR,
       error,
       messageArgs
+    );
+  }
+
+  /**
+   * Async success response with automatic translation
+   */
+  static async successWithTranslation<T>(
+    messageKey: string,
+    statusCode: number = StatusCodes.OK,
+    data?: T,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ApiResponse<T>> {
+    console.log(
+      'ResponseHandler.successWithTranslation called with:',
+      messageKey,
+      'lang:',
+      lang
+    );
+    const translatedMessage = await this.translateMessage(
+      messageKey,
+      lang
+      // messageArgs
+    );
+    console.log('Translated message:', translatedMessage);
+
+    const response: ApiResponse<T> = {
+      success: true,
+      message: translatedMessage,
+      messageKey,
+      statusCode,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (messageArgs) {
+      response.messageArgs = messageArgs;
+    }
+
+    if (data !== undefined) {
+      response.data = data;
+    }
+
+    console.log('Final response:', response);
+    return response;
+  }
+
+  /**
+   * Async error response with automatic translation
+   */
+  static async errorWithTranslation(
+    messageKey: string,
+    statusCode: number,
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    const translatedMessage = await this.translateMessage(
+      messageKey,
+      lang
+      // messageArgs
+    );
+
+    const response: ErrorResponse = {
+      success: false,
+      message: translatedMessage,
+      messageKey,
+      statusCode,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (messageArgs) {
+      response.messageArgs = messageArgs;
+    }
+
+    if (error) {
+      response.error = error;
+    }
+
+    return response;
+  }
+
+  /**
+   * Async created response with automatic translation (201)
+   */
+  static async createdWithTranslation<T>(
+    messageKey: string,
+    data?: T,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ApiResponse<T>> {
+    return this.successWithTranslation(
+      messageKey,
+      StatusCodes.CREATED,
+      data,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async bad request error with automatic translation (400)
+   */
+  static async badRequestWithTranslation(
+    messageKey: string,
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.BAD_REQUEST,
+      error,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async unauthorized error with automatic translation (401)
+   */
+  static async unauthorizedWithTranslation(
+    messageKey: string = 'auth.unauthorized',
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.UNAUTHORIZED,
+      error,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async forbidden error with automatic translation (403)
+   */
+  static async forbiddenWithTranslation(
+    messageKey: string = 'auth.forbidden',
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.FORBIDDEN,
+      error,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async not found error with automatic translation (404)
+   */
+  static async notFoundWithTranslation(
+    messageKey: string = 'common.not_found',
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.NOT_FOUND,
+      error,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async conflict error with automatic translation (409)
+   */
+  static async conflictWithTranslation(
+    messageKey: string = 'common.conflict',
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.CONFLICT,
+      error,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async validation error with automatic translation (422)
+   */
+  static async validationErrorWithTranslation(
+    messageKey: string,
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.UNPROCESSABLE_ENTITY,
+      error,
+      messageArgs,
+      lang
+    );
+  }
+
+  /**
+   * Async internal server error with automatic translation (500)
+   */
+  static async internalErrorWithTranslation(
+    messageKey: string = 'common.internal_error',
+    error?: string,
+    messageArgs?: Record<string, string | number>,
+    lang?: string
+  ): Promise<ErrorResponse> {
+    return this.errorWithTranslation(
+      messageKey,
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      error,
+      messageArgs,
+      lang
     );
   }
 }

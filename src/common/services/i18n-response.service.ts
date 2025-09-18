@@ -4,6 +4,7 @@ import { I18nService } from 'nestjs-i18n';
 import { Request } from 'express';
 import { ResponseHandler } from '../utils/response.handler';
 import { ApiResponse, ErrorResponse } from '../utils/response.handler';
+import { StatusCodes } from 'http-status-codes';
 
 @Injectable({ scope: Scope.REQUEST })
 export class I18nResponseService {
@@ -25,18 +26,14 @@ export class I18nResponseService {
     lang?: string
   ): Promise<ApiResponse<T>> {
     const currentLang = lang || this.getCurrentLanguage();
-    const translatedMessage = await this.i18n.translate(messageKey, {
-      lang: currentLang,
-      args: messageArgs || {},
-    });
-
-    const message =
-      typeof translatedMessage === 'string'
-        ? translatedMessage
-        : translatedMessage
-          ? JSON.stringify(translatedMessage)
-          : messageKey;
-    return ResponseHandler.success(message, statusCode, data);
+    ResponseHandler.setI18nService(this.i18n);
+    return ResponseHandler.successWithTranslation(
+      messageKey,
+      statusCode,
+      data,
+      messageArgs,
+      currentLang
+    );
   }
 
   async translateError(
@@ -47,22 +44,26 @@ export class I18nResponseService {
     lang?: string
   ): Promise<ErrorResponse> {
     const currentLang = lang || this.getCurrentLanguage();
-    const translatedMessage = await this.i18n.translate(messageKey, {
-      lang: currentLang,
-      args: messageArgs || {},
-    });
-
-    const message =
-      typeof translatedMessage === 'string'
-        ? translatedMessage
-        : translatedMessage
-          ? JSON.stringify(translatedMessage)
-          : messageKey;
-    return ResponseHandler.error(message, statusCode, error);
+    ResponseHandler.setI18nService(this.i18n);
+    return ResponseHandler.errorWithTranslation(
+      messageKey,
+      statusCode,
+      error,
+      messageArgs,
+      currentLang
+    );
   }
 
-  success<T = unknown>(messageKey: string, data?: T) {
-    return ResponseHandler.successWithKey(messageKey, 200, data);
+  async success<T = unknown>(messageKey: string, data?: T) {
+    const currentLang = this.getCurrentLanguage();
+    ResponseHandler.setI18nService(this.i18n);
+    return ResponseHandler.successWithTranslation(
+      messageKey,
+      StatusCodes.OK,
+      data,
+      undefined,
+      currentLang
+    );
   }
 
   created<T = unknown>(messageKey: string, data?: T) {
@@ -132,5 +133,109 @@ export class I18nResponseService {
     lang?: string
   ): Promise<ErrorResponse> {
     return this.translateError(messageKey, 400, error, messageArgs, lang);
+  }
+
+  // Common admin response methods
+  adminLoginSuccess<T = unknown>(data?: T) {
+    return this.success('admin.login_success', data);
+  }
+
+  adminLogoutSuccess() {
+    return this.success('admin.logout_success');
+  }
+
+  adminCreated<T = unknown>(data?: T) {
+    return this.created('admin.created', data);
+  }
+
+  adminUpdated<T = unknown>(data?: T) {
+    return this.success('admin.updated', data);
+  }
+
+  adminDeleted() {
+    return this.success('admin.deleted');
+  }
+
+  adminNotFound() {
+    return this.notFound('admin.not_found');
+  }
+
+  adminProfileRetrieved<T = unknown>(data?: T) {
+    return this.success('admin.profile_retrieved', data);
+  }
+
+  adminsRetrieved<T = unknown>(data?: T) {
+    return this.success('admin.admins_retrieved', data);
+  }
+
+  adminPasswordUpdated() {
+    return this.success('admin.password_updated');
+  }
+
+  // Common user response methods
+  userLoginSuccess<T = unknown>(data?: T) {
+    return this.success('auth.login_success', data);
+  }
+
+  userLogoutSuccess() {
+    return this.success('auth.logout_success');
+  }
+
+  userRegistered<T = unknown>(data?: T) {
+    return this.success('auth.register_success_check_email', data);
+  }
+
+  userProfileUpdated<T = unknown>(data?: T) {
+    return this.success('user.profile_updated', data);
+  }
+
+  userProfileRetrieved<T = unknown>(data?: T) {
+    return this.success('user.profile_retrieved', data);
+  }
+
+  userPasswordChanged() {
+    return this.success('user.password_changed');
+  }
+
+  userAccountDeactivated() {
+    return this.success('user.account_deactivated');
+  }
+
+  // Common error response methods
+  invalidCredentials() {
+    return this.unauthorized('auth.invalid_credentials');
+  }
+
+  adminInvalidCredentials() {
+    return this.unauthorized('admin.invalid_credentials');
+  }
+
+  emailAlreadyExists() {
+    return this.conflict('auth.email_already_exists');
+  }
+
+  adminEmailAlreadyExists() {
+    return this.conflict('admin.email_already_exists');
+  }
+
+  // Generic CRUD response methods
+  entityCreated<T = unknown>(entityType: string, data?: T) {
+    return this.created(`${entityType}.created`, data);
+  }
+
+  entityUpdated<T = unknown>(entityType: string, data?: T) {
+    return this.success(`${entityType}.updated`, data);
+  }
+
+  entityDeleted(entityType: string) {
+    return this.success(`${entityType}.deleted`);
+  }
+
+  entityRetrieved<T = unknown>(entityType: string, data?: T) {
+    return this.success(`${entityType}.retrieved`, data);
+  }
+
+  entityNotFound(entityType: string) {
+    return this.notFound(`${entityType}.not_found`);
   }
 }

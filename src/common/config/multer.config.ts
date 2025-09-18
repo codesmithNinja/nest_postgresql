@@ -1,27 +1,11 @@
-import { diskStorage, memoryStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 import { BadRequestException } from '@nestjs/common';
 import { Request } from 'express';
 import { FileUploadUtil } from '../utils/file-upload.util';
 
-// Use memory storage when uploading to AWS S3, disk storage for local files (legacy)
+// Always use memory storage for new file management system
 const getStorage = () => {
-  if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
-    return memoryStorage();
-  } else {
-    return diskStorage({
-      destination: './uploads',
-      filename: (req, file, callback) => {
-        const name = file.originalname.split('.')[0];
-        const fileExtName = extname(file.originalname);
-        const randomName = Array(4)
-          .fill(null)
-          .map(() => Math.round(Math.random() * 16).toString(16))
-          .join('');
-        callback(null, `${name}-${Date.now()}-${randomName}${fileExtName}`);
-      },
-    });
-  }
+  return memoryStorage();
 };
 
 // Always use memory storage for the new file upload system

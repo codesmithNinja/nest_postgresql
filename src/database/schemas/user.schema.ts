@@ -101,6 +101,12 @@ export class User {
   loginIpAddress?: string;
 
   @Prop()
+  currentLoginDateTime?: Date;
+
+  @Prop()
+  lastLoginDateTime?: Date;
+
+  @Prop()
   uniqueGoogleId?: string;
 
   @Prop()
@@ -181,6 +187,9 @@ UserSchema.index({ active: 1 });
 UserSchema.index({ firstName: 1 });
 UserSchema.index({ lastName: 1 });
 UserSchema.index({ signupIpAddress: 1 });
+UserSchema.index({ loginIpAddress: 1 });
+UserSchema.index({ currentLoginDateTime: 1 });
+UserSchema.index({ lastLoginDateTime: 1 });
 UserSchema.index({ userTypeId: 1 });
 UserSchema.index({ active: 1, _id: 1 });
 UserSchema.index({

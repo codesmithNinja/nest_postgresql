@@ -9,17 +9,17 @@ import {
   Req,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { UsersService } from './users.service';
 import { UpdateProfileDto, ChangePasswordDto } from './dto/user.dto';
 import { RequestWithUser } from '../../common/types/user.types';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Get('profile')
+  @Get('me')
   async getProfile(@Req() req: RequestWithUser) {
     return this.usersService.getProfile(req.user.id);
   }

@@ -8,15 +8,26 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { BadRequestException, Logger } from '@nestjs/common';
 
-export enum BucketType {
-  CAMPAIGN_CATEGORIES = 'campaign-categories',
-  CATEGORIES = 'categories',
-  COMPANY = 'company-profiles',
-  CAMPAIGNS = 'campaigns',
-  EXTRA_DOCUMENTS = 'extras-documents',
-  EXTRA_IMAGES = 'extras-images',
-  TEAM_MEMBERS = 'team-members',
-  USER = 'users',
+/**
+ * Get bucket name from environment variables with fallback
+ * @param bucketKey - The bucket type key (e.g., 'ADMIN', 'CAMPAIGNS')
+ * @returns The bucket name from environment or fallback value
+ */
+export function getBucketName(bucketKey: string): string {
+  const bucketMap: Record<string, string> = {
+    ADMIN: process.env.ADMIN_BUCKET || 'admins',
+    CAMPAIGNS: process.env.CAMPAIGNS_BUCKET || 'campaigns',
+    COMPANY: process.env.COMPANY_BUCKET || 'company-profiles',
+    CAMPAIGN_CATEGORIES:
+      process.env.CAMPAIGN_CATEGORIES_BUCKET || 'campaign-categories',
+    CATEGORIES: process.env.CATEGORIES_BUCKET || 'categories',
+    EXTRA_DOCUMENTS: process.env.EXTRA_DOCUMENTS_BUCKET || 'extras-documents',
+    EXTRA_IMAGES: process.env.EXTRA_IMAGES_BUCKET || 'extras-images',
+    TEAM_MEMBERS: process.env.TEAM_MEMBERS_BUCKET || 'team-members',
+    USER: process.env.USER_BUCKET || 'users',
+  };
+
+  return bucketMap[bucketKey] || bucketKey.toLowerCase();
 }
 
 export interface FileUploadResult {
@@ -28,7 +39,7 @@ export interface FileUploadResult {
 }
 
 export interface FileUploadOptions {
-  bucketType: BucketType;
+  bucketName: string;
   allowedMimeTypes?: string[];
   maxSizeInMB?: number;
   fieldName?: string;
@@ -100,7 +111,7 @@ export class FileUploadUtil {
 
     const prefix = options.fieldName ? `${options.fieldName}-` : '';
     const fileName = this.generateFileName(file.originalname, prefix);
-    const filePath = `${options.bucketType}/${fileName}`;
+    const filePath = `${options.bucketName}/${fileName}`;
 
     if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
       return await this.uploadToS3(file, filePath);

@@ -35,6 +35,8 @@ export interface User {
   twoFactorSecretKey?: string;
   signupIpAddress?: string;
   loginIpAddress?: string;
+  currentLoginDateTime?: Date;
+  lastLoginDateTime?: Date;
   uniqueGoogleId?: string;
   uniqueLinkedInId?: string;
   uniqueFacebookId?: string;

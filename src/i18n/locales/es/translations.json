@@ -122,5 +122,23 @@
     "not_found": "Miembro del equipo no encontrado",
     "updated": "Miembro del equipo actualizado exitosamente",
     "deleted": "Miembro del equipo eliminado exitosamente"
+  },
+  "admin": {
+    "login_success": "Administrador logueado exitosamente",
+    "logout_success": "Administrador deslogueado exitosamente",
+    "created": "Administrador creado exitosamente",
+    "updated": "Administrador actualizado exitosamente",
+    "deleted": "Administrador eliminado exitosamente",
+    "not_found": "Administrador no encontrado",
+    "profile_retrieved": "Perfil de administrador obtenido exitosamente",
+    "admins_retrieved": "Administradores obtenidos exitosamente",
+    "password_updated": "Contraseña de administrador actualizada exitosamente",
+    "invalid_credentials": "Credenciales de administrador inválidas",
+    "email_already_exists": "Ya existe un administrador con este email",
+    "password_reset_sent": "Email de restablecimiento de contraseña enviado si existe el administrador",
+    "password_reset_success": "Restablecimiento de contraseña exitoso",
+    "invalid_reset_token": "Token inválido o expirado",
+    "password_mismatch": "Las contraseñas no coinciden",
+    "invalid_current_password": "La contraseña actual es incorrecta"
   }
 }

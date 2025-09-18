@@ -122,5 +122,23 @@
     "not_found": "Team member not found",
     "updated": "Team member updated successfully",
     "deleted": "Team member deleted successfully"
+  },
+  "admin": {
+    "login_success": "Admin logged in successfully",
+    "logout_success": "Admin logged out successfully",
+    "created": "Admin created successfully",
+    "updated": "Admin updated successfully",
+    "deleted": "Admin deleted successfully",
+    "not_found": "Admin not found",
+    "profile_retrieved": "Admin profile retrieved successfully",
+    "admins_retrieved": "Admins retrieved successfully",
+    "password_updated": "Admin password updated successfully",
+    "invalid_credentials": "Invalid admin credentials",
+    "email_already_exists": "Admin with this email already exists",
+    "password_reset_sent": "Password reset email sent if admin exists",
+    "password_reset_success": "Password reset successful",
+    "invalid_reset_token": "Invalid or expired token",
+    "password_mismatch": "Passwords do not match",
+    "invalid_current_password": "Current password is incorrect"
   }
 }

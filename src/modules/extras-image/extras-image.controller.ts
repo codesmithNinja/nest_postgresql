@@ -18,7 +18,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { ExtrasImageService } from './extras-image.service';
 import {
@@ -27,14 +27,17 @@ import {
   ExtrasImageResponseDto,
 } from './dto/extras-image.dto';
 import { multerConfig } from '../../common/config/multer.config';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Extras Images')
 @Controller('extrasImage')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class ExtrasImageController {
-  constructor(private readonly extrasImageService: ExtrasImageService) {}
+  constructor(
+    private readonly extrasImageService: ExtrasImageService,
+    private readonly i18nResponse: I18nResponseService
+  ) {}
 
   @Get(':equityId')
   @UseGuards(CampaignOwnershipGuard)
@@ -94,7 +97,7 @@ export class ExtrasImageController {
   @ApiOperation({ summary: 'Upload extras image file' })
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return ResponseHandler.badRequest('Image file is required');
+      return this.i18nResponse.badRequest('extras_image.image_file_required');
     }
     return this.extrasImageService.uploadFile(file);
   }

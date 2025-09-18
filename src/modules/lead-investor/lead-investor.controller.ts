@@ -18,7 +18,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { LeadInvestorService } from './lead-investor.service';
 import {
@@ -27,14 +27,17 @@ import {
   LeadInvestorResponseDto,
 } from './dto/lead-investor.dto';
 import { multerConfig } from '../../common/config/multer.config';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Lead Investors')
 @Controller('leadInvestor')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class LeadInvestorController {
-  constructor(private readonly leadInvestorService: LeadInvestorService) {}
+  constructor(
+    private readonly leadInvestorService: LeadInvestorService,
+    private readonly i18nResponse: I18nResponseService
+  ) {}
 
   @Get(':equityId')
   @UseGuards(CampaignOwnershipGuard)
@@ -94,7 +97,7 @@ export class LeadInvestorController {
   @ApiOperation({ summary: 'Upload investor photo' })
   async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return ResponseHandler.badRequest('Photo file is required');
+      return this.i18nResponse.badRequest('lead_investor.photo_file_required');
     }
     return this.leadInvestorService.uploadFile(file);
   }

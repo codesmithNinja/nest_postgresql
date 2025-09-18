@@ -325,3 +325,34 @@ model ExtrasDocument {
   @@index([equityId])
   @@map("extras_documents")
 }
+
+// Admin Model
+model Admin {
+  id                      String    @id @default(cuid())
+  publicId               String    @unique @default(cuid())
+  firstName              String
+  lastName               String
+  email                  String    @unique
+  photo                  String?
+  password               String
+  passwordChangedAt      DateTime?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  active                 Boolean   @default(true)
+  loginIpAddress         String
+  currentLoginDateTime   DateTime
+  lastLoginDateTime      DateTime
+  twoFactorAuthVerified  Boolean   @default(false)
+  twoFactorSecretKey     String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([email])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([active])
+  @@index([publicId])
+  @@index([active, id])
+  @@index([firstName, lastName, email, id])
+  @@map("admins")
+}

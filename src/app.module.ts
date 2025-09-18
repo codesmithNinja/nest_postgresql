@@ -6,6 +6,7 @@ import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 // Import common modules
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { AdminModulesModule } from './modules/adminModules/admin-modules.module';
 import { EquityModule } from './modules/equity/equity.module';
 import { CampaignFaqModule } from './modules/campaign-faq/campaign-faq.module';
 import { LeadInvestorModule } from './modules/lead-investor/lead-investor.module';
@@ -32,7 +33,6 @@ import { ErrorLoggingInterceptor } from './common/interceptors/error-logging.int
 import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor';
 import { LanguagePersistenceInterceptor } from './common/interceptors/language-persistence.interceptor';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -52,6 +52,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     EmailModule,
     AuthModule,
     UsersModule,
+    AdminModulesModule,
     EquityModule,
     CampaignFaqModule,
     LeadInvestorModule,
@@ -67,10 +68,6 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
     },
     {
       provide: APP_INTERCEPTOR,

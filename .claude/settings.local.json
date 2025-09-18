@@ -30,7 +30,12 @@
       "Bash(mongod:*)",
       "Bash(cmd //c:*)",
       "Bash(git rm:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(pkill:*)",
+      "Bash(node:*)",
+      "Bash(cmd /c taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(/dev/null)"
     ],
     "deny": [],
     "ask": []

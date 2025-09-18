@@ -130,8 +130,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    // Update login IP address
-    await this.userRepository.updateById(user.id, {
+    // Update login tracking fields (IP address and datetime)
+    const updatedUser = await this.userRepository.updateById(user.id, {
+      lastLoginDateTime: user.currentLoginDateTime || user.createdAt,
+      currentLoginDateTime: new Date(),
       loginIpAddress: ipAddress,
     });
 
@@ -139,11 +141,11 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id };
     const token = this.jwtService.sign(payload);
 
-    // Remove password from response
-    const { password: _p, ...userResponse } = user;
+    // Remove password from response (use updated user)
+    const { password: _p, ...userResponse } = updatedUser;
     DiscardUnderscores(_p);
 
-    return this.i18nResponse.success('translations.auth.login_success', {
+    return this.i18nResponse.userLoginSuccess({
       user: userResponse,
       token,
     });

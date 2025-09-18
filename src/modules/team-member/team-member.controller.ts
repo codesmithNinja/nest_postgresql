@@ -18,7 +18,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { TeamMemberService } from './team-member.service';
 import {
@@ -27,14 +27,17 @@ import {
   TeamMemberResponseDto,
 } from './dto/team-member.dto';
 import { multerConfig } from '../../common/config/multer.config';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Team Members')
 @Controller('teamMember')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class TeamMemberController {
-  constructor(private readonly teamMemberService: TeamMemberService) {}
+  constructor(
+    private readonly teamMemberService: TeamMemberService,
+    private readonly i18nResponse: I18nResponseService
+  ) {}
 
   @Get(':equityId')
   @UseGuards(CampaignOwnershipGuard)
@@ -91,7 +94,7 @@ export class TeamMemberController {
   @ApiOperation({ summary: 'Upload member photo' })
   async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return ResponseHandler.badRequest('Photo file is required');
+      return this.i18nResponse.badRequest('team_member.photo_file_required');
     }
     return this.teamMemberService.uploadFile(file);
   }

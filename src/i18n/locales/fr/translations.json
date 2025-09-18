@@ -122,5 +122,23 @@
     "not_found": "Membre de l'équipe non trouvé",
     "updated": "Membre de l'équipe mis à jour avec succès",
     "deleted": "Membre de l'équipe supprimé avec succès"
+  },
+  "admin": {
+    "login_success": "Administrateur connecté avec succès",
+    "logout_success": "Administrateur déconnecté avec succès",
+    "created": "Administrateur créé avec succès",
+    "updated": "Administrateur mis à jour avec succès",
+    "deleted": "Administrateur supprimé avec succès",
+    "not_found": "Administrateur non trouvé",
+    "profile_retrieved": "Profil administrateur récupéré avec succès",
+    "admins_retrieved": "Administrateurs récupérés avec succès",
+    "password_updated": "Mot de passe administrateur mis à jour avec succès",
+    "invalid_credentials": "Identifiants administrateur invalides",
+    "email_already_exists": "Un administrateur avec cet email existe déjà",
+    "password_reset_sent": "Email de réinitialisation du mot de passe envoyé si l'administrateur existe",
+    "password_reset_success": "Réinitialisation du mot de passe réussie",
+    "invalid_reset_token": "Token invalide ou expiré",
+    "password_mismatch": "Les mots de passe ne correspondent pas",
+    "invalid_current_password": "Le mot de passe actuel est incorrect"
   }
 }

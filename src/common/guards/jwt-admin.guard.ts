@@ -6,10 +6,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { User } from '../../database/entities/user.entity';
+import { Admin } from '../../database/entities/admin.entity';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAdminGuard extends AuthGuard('admin-jwt') {
   constructor(private reflector: Reflector) {
     super();
   }
@@ -28,22 +28,22 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = any>(
+  handleRequest<TAdmin = any>(
     err: Error | null,
-    user: Pick<User, 'id' | 'email' | 'firstName' | 'lastName'> | false,
+    admin: Pick<Admin, 'id' | 'email' | 'firstName' | 'lastName'> | false,
     info: unknown,
     context: ExecutionContext
-  ): TUser {
-    if (err || !user) {
+  ): TAdmin {
+    if (err || !admin) {
       throw err || new UnauthorizedException('Unauthorized');
     }
 
-    // Add additional context to user object
+    // Add additional context to admin object
     const request = context.switchToHttp().getRequest<Request>();
     return {
-      ...user,
+      ...admin,
       ip: request.socket.remoteAddress || '',
       userAgent: request.headers['user-agent'] || '',
-    } as TUser;
+    } as TAdmin;
   }
 }

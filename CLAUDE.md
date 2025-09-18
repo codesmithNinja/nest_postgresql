@@ -1,9 +1,11 @@
 # NestJS Multi-Database Auth Project Guide
 
 ## Project Overview
+
 NestJS application with dual database support (PostgreSQL/MongoDB), JWT authentication, Prisma ORM, and email integration. The project supports microservices architecture with separate services for admin, campaign, and investment modules.
 
 ## Architecture Style
+
 - **Modular Architecture** with feature-based modules
 - **Repository Pattern** for database abstraction
 - **Dual Database Support** (PostgreSQL with Prisma, MongoDB with Mongoose)
@@ -11,6 +13,7 @@ NestJS application with dual database support (PostgreSQL/MongoDB), JWT authenti
 - **Microservices Ready** with separate entry points
 
 ## Project Structure
+
 ```
 src/
 ├── common/           # Shared utilities, guards, interceptors
@@ -28,6 +31,7 @@ src/
 ## Code Conventions
 
 ### TypeScript/NestJS Style
+
 - **Indentation**: 2 spaces (enforced by .prettierrc)
 - **Quotes**: Single quotes for strings
 - **Semicolons**: Always use semicolons
@@ -35,15 +39,17 @@ src/
 - **Trailing Comma**: ES5 style
 
 ### Naming Conventions
+
 - **Controllers**: [Entity]Controller (e.g., `AuthController`, `UsersController`)
 - **Services**: [Entity]Service (e.g., `AuthService`, `UsersService`)
 - **Modules**: [Feature]Module (e.g., `AuthModule`, `UsersModule`)
 - **DTOs**: [Action][Entity]Dto (e.g., `RegisterDto`, `UpdateProfileDto`)
 - **Interfaces**: I[Name] for repository interfaces (e.g., `IUserRepository`)
-- **Repository Token**: [ENTITY]_REPOSITORY (e.g., `USER_REPOSITORY`)
+- **Repository Token**: [ENTITY]\_REPOSITORY (e.g., `USER_REPOSITORY`)
 - **Database Entities**: Singular names (e.g., `User`, not `Users`)
 
 ### Repository Pattern Implementation
+
 - **Base Repository**: Abstract class in `src/database/repositories/base/`
 - **PostgreSQL Repository**: Extends `PostgresRepository<T>`
 - **MongoDB Repository**: Implements `MongoRepository<T>`
@@ -51,6 +57,7 @@ src/
 - **Dependency Injection**: Use tokens like `USER_REPOSITORY`
 
 ### Error Handling
+
 - **Global Exception Filter**: `GlobalExceptionFilter` in `common/filters/`
 - **Response Handler**: Use `ResponseHandler` utility for consistent responses
 - **HTTP Exceptions**: Use NestJS built-in exceptions
@@ -58,6 +65,7 @@ src/
 - **Validation**: Use class-validator with DTOs
 
 ### Authentication & Security
+
 - **JWT Strategy**: Passport JWT strategy with guards
 - **Password Hashing**: bcryptjs with 12 rounds
 - **Rate Limiting**: Throttler module with custom limits per endpoint
@@ -65,6 +73,7 @@ src/
 - **Public Routes**: Use `@Public()` decorator
 
 ### Database Operations
+
 - **Prisma Client**: Accessed via `PrismaService`
 - **Mongoose Models**: Injected using `@InjectModel()`
 - **Transactions**: Use Prisma transactions for PostgreSQL
@@ -72,6 +81,7 @@ src/
 - **Soft Deletes**: Use `ActiveStatus` enum (ACTIVE, INACTIVE, DELETED)
 
 ### Testing Strategy
+
 - **Unit Tests**: Jest with `.spec.ts` files
 - **E2E Tests**: Supertest for API testing
 - **Test Coverage**: Minimum 80% for business logic
@@ -80,6 +90,7 @@ src/
 ## Database Schema
 
 ### User Entity Fields
+
 - Core fields: id, firstName, lastName, email, password, slug
 - Status fields: active (enum), enableNotification
 - Authentication: accountActivationToken, passwordResetToken
@@ -88,11 +99,13 @@ src/
 - Metadata: createdAt, updatedAt
 
 ### Enums
+
 - **ActiveStatus**: PENDING, ACTIVE, INACTIVE, DELETED
 - **NotificationStatus**: YES, NO
 - **DatabaseType**: postgres, mongodb
 
 ## API Endpoints Structure
+
 ```
 /auth
   POST /register
@@ -110,11 +123,13 @@ src/
 ```
 
 ## Email Templates
+
 - Account Activation Email
 - Password Reset Email
 - Use nodemailer with HTML templates
 
 ## Environment Variables
+
 ```env
 DATABASE_TYPE=postgres
 DATABASE_URL=postgresql://...
@@ -126,6 +141,7 @@ EMAIL_PORT=...
 ```
 
 ## Docker Configuration
+
 - Multi-stage builds for optimization
 - Separate services for microservices
 - PostgreSQL, MongoDB, Redis, Nginx included
@@ -134,28 +150,34 @@ EMAIL_PORT=...
 ## Common Patterns
 
 ### Response Format
+
 Always use ResponseHandler:
+
 ```typescript
 return ResponseHandler.success('Message', 200, data);
 return ResponseHandler.error('Error message', 400);
 ```
 
 ### Repository Usage
+
 ```typescript
 @Inject(USER_REPOSITORY) private userRepository: IUserRepository
 ```
 
 ### DTO Validation
+
 ```typescript
 @Body(ValidationPipe) dto: RegisterDto
 ```
 
 ### Guard Usage
+
 ```typescript
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 ```
 
 ## Current Dependencies
+
 - @nestjs/common: ^11.0.1
 - @nestjs/jwt: ^11.0.0
 - @prisma/client: ^6.13.0
@@ -165,6 +187,7 @@ return ResponseHandler.error('Error message', 400);
 - nodemailer: ^7.0.5
 
 ## Development Workflow
+
 1. Create feature module with `nest g module modules/[name]`
 2. Implement repository following dual-database pattern
 3. Create DTOs with validation
@@ -174,6 +197,7 @@ return ResponseHandler.error('Error message', 400);
 7. Update Prisma schema if needed and migrate
 
 ## Microservices Configuration
+
 - ENABLE_MICROSERVICES flag for separate/single port mode
 - Separate Docker targets for each service
 - Nginx configuration for routing

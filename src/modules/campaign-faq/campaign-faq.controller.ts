@@ -14,7 +14,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { CampaignFaqService } from './campaign-faq.service';
 import {
@@ -25,7 +25,7 @@ import {
 
 @ApiTags('Campaign FAQs')
 @Controller('campaignFaq')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class CampaignFaqController {
   constructor(private readonly campaignFaqService: CampaignFaqService) {}

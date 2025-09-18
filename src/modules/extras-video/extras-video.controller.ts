@@ -18,7 +18,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { ExtrasVideoService } from './extras-video.service';
 import {
@@ -27,14 +27,17 @@ import {
   ExtrasVideoResponseDto,
 } from './dto/extras-video.dto';
 import { multerConfig } from '../../common/config/multer.config';
-import { ResponseHandler } from '../../common/utils/response.handler';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Extras Videos')
 @Controller('extrasVideo')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class ExtrasVideoController {
-  constructor(private readonly extrasVideoService: ExtrasVideoService) {}
+  constructor(
+    private readonly extrasVideoService: ExtrasVideoService,
+    private readonly i18nResponse: I18nResponseService
+  ) {}
 
   @Get(':equityId')
   @UseGuards(CampaignOwnershipGuard)
@@ -94,7 +97,7 @@ export class ExtrasVideoController {
   @ApiOperation({ summary: 'Upload extras video file' })
   async uploadVideo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
-      return ResponseHandler.badRequest('Video file is required');
+      return this.i18nResponse.badRequest('extras_video.video_file_required');
     }
     return this.extrasVideoService.uploadFile(file, 'extras-video');
   }
