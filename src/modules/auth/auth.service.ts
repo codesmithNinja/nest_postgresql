@@ -41,9 +41,7 @@ export class AuthService {
     // Check if user already exists
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      return this.i18nResponse.translateBadRequest(
-        'translations.auth.email_already_exists'
-      );
+      return this.i18nResponse.translateBadRequest('auth.email_already_exists');
     }
 
     // Hash password
@@ -105,7 +103,7 @@ export class AuthService {
     DiscardUnderscores(_t);
 
     return this.i18nResponse.created(
-      'translations.auth.register_success_check_email',
+      'auth.register_success_check_email',
       userResponse
     );
   }
@@ -162,7 +160,7 @@ export class AuthService {
 
     if (!user) {
       return this.i18nResponse.translateBadRequest(
-        'translations.auth.invalid_activation_token'
+        'auth.invalid_activation_token'
       );
     }
 
@@ -170,7 +168,7 @@ export class AuthService {
     await this.userRepository.activateUser(user.id);
 
     return this.i18nResponse.translateAndRespond(
-      'translations.auth.account_activated_login',
+      'auth.account_activated_login',
       200
     );
   }
@@ -208,11 +206,11 @@ export class AuthService {
       );
     } catch (error) {
       console.error('Failed to send password reset email:', error);
-      return this.i18nResponse.translateBadRequest('translations.auth.password_reset_email_failed');
+      return this.i18nResponse.translateBadRequest('auth.password_reset_email_failed');
     } */
 
     return this.i18nResponse.translateAndRespond(
-      'translations.auth.password_reset_email_sent',
+      'auth.password_reset_email_sent',
       200
     );
   }
@@ -226,9 +224,7 @@ export class AuthService {
     // Find user with this reset token
     const user = await this.userRepository.findByResetToken(hashedToken);
     if (!user) {
-      return this.i18nResponse.translateBadRequest(
-        'translations.auth.invalid_reset_token'
-      );
+      return this.i18nResponse.translateBadRequest('auth.invalid_reset_token');
     }
 
     // Hash new password
@@ -238,7 +234,7 @@ export class AuthService {
     await this.userRepository.updatePassword(user.id, hashedPassword);
 
     return this.i18nResponse.translateAndRespond(
-      'translations.auth.password_reset_success',
+      'auth.password_reset_success',
       200
     );
   }

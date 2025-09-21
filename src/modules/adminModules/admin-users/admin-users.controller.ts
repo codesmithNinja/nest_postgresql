@@ -37,7 +37,6 @@ import {
   AdminForgotPasswordDto,
   AdminResetPasswordDto,
   AdminFilterDto,
-  AdminResponseDto,
 } from './dto/admin-user.dto';
 
 interface RequestWithAdmin extends ExpressRequest {
@@ -89,9 +88,7 @@ export class AdminUsersController {
   }
 
   @Get('me')
-  async getProfile(
-    @Request() req: RequestWithAdmin
-  ) {
+  async getProfile(@Request() req: RequestWithAdmin) {
     return this.adminUsersService.getProfile(req.user.id);
   }
 
@@ -101,9 +98,7 @@ export class AdminUsersController {
   }
 
   @Get(':publicId')
-  async getAdminByPublicId(
-    @Param('publicId') publicId: string
-  ) {
+  async getAdminByPublicId(@Param('publicId') publicId: string) {
     return this.adminUsersService.getAdminByPublicId(publicId);
   }
 

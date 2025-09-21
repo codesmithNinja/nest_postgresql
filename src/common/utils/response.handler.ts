@@ -39,30 +39,18 @@ export class ResponseHandler {
     lang: string = 'en'
     // messageArgs?: Record<string, string | number>
   ): Promise<string> {
-    console.log('translateMessage called with:', messageKey, 'lang:', lang);
-    console.log('i18nService available:', !!ResponseHandler.i18nService);
-
     if (!ResponseHandler.i18nService) {
-      console.log('No i18nService, returning key');
       return messageKey; // Fallback to key if no i18n service
     }
 
     try {
-      console.log('Attempting translation...');
       const translated = await ResponseHandler.i18nService.translate(
         messageKey,
         { lang }
       );
-      console.log(
-        'Translation result:',
-        translated,
-        'type:',
-        typeof translated
-      );
 
       return typeof translated === 'string' ? translated : messageKey;
-    } catch (error) {
-      console.log('Translation error:', error);
+    } catch {
       return messageKey; // Fallback to key on error
     }
   }
@@ -470,18 +458,11 @@ export class ResponseHandler {
     messageArgs?: Record<string, string | number>,
     lang?: string
   ): Promise<ApiResponse<T>> {
-    console.log(
-      'ResponseHandler.successWithTranslation called with:',
-      messageKey,
-      'lang:',
-      lang
-    );
     const translatedMessage = await this.translateMessage(
       messageKey,
       lang
       // messageArgs
     );
-    console.log('Translated message:', translatedMessage);
 
     const response: ApiResponse<T> = {
       success: true,
@@ -499,7 +480,6 @@ export class ResponseHandler {
       response.data = data;
     }
 
-    console.log('Final response:', response);
     return response;
   }
 

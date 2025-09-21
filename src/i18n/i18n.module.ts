@@ -13,14 +13,19 @@ import { I18nResponseService } from '../common/services/i18n-response.service';
 @Module({
   imports: [
     NestI18nModule.forRootAsync({
-      useFactory: () => ({
-        fallbackLanguage: 'en',
-        loader: I18nJsonLoader,
-        loaderOptions: {
-          path: path.join(process.cwd(), 'src/i18n/locales/'),
-          watch: true,
-        },
-      }),
+      useFactory: () => {
+        const localesPath = path.join(__dirname, 'locales/');
+        console.log('I18n locales path:', localesPath);
+
+        return {
+          fallbackLanguage: 'en',
+          loader: I18nJsonLoader,
+          loaderOptions: {
+            path: localesPath,
+            watch: true,
+          },
+        };
+      },
       resolvers: [
         { use: QueryResolver, options: ['lang'] },
         { use: HeaderResolver, options: ['x-lang'] },

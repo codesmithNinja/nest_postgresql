@@ -304,10 +304,10 @@ describe('AdminUsersController', () => {
   });
 
   describe('logout', () => {
-    it('should logout admin successfully', async () => {
+    it('should logout admin successfully', () => {
       service.logout.mockReturnValue(undefined);
 
-      const result = await controller.logout(mockRequest as RequestWithAdmin);
+      const result = controller.logout(mockRequest as RequestWithAdmin);
 
       expect(mockAdminService.logout).toHaveBeenCalledWith('1');
       expect(result.message).toBe('Admin logged out successfully');

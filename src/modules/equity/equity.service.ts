@@ -327,7 +327,7 @@ export class EquityService {
         const fundraising = updateEquityDto.fundraisingDetails;
 
         // Validate term-specific fields
-        const validationResult = await this.validateTermSpecificFields(
+        const validationResult = this.validateTermSpecificFields(
           fundraising.termslug,
           fundraising as unknown as Record<string, unknown>
         );
@@ -443,7 +443,7 @@ export class EquityService {
       if (hasDirectFields) {
         // Validate term-specific fields for direct fields
         if (directUpdateData.termslug) {
-          const validationResult = await this.validateTermSpecificFields(
+          const validationResult = this.validateTermSpecificFields(
             directUpdateData.termslug as TermSlug,
             directUpdateData
           );
@@ -613,10 +613,10 @@ export class EquityService {
   /**
    * Validate term-specific fields based on termslug
    */
-  private async validateTermSpecificFields(
+  private validateTermSpecificFields(
     termslug: TermSlug,
     data: Record<string, unknown>
-  ): Promise<void | ErrorResponse> {
+  ): void | ErrorResponse {
     if (!termslug) return;
 
     const requiredFields: Record<TermSlug, string[]> = {

@@ -23,8 +23,6 @@ import { Admin } from '../../../database/entities/admin.entity';
 import { EmailService } from '../../../email/email.service';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
 import { I18nService } from 'nestjs-i18n';
-import { StatusCodes } from 'http-status-codes';
-import { ResponseHandler } from '../../../common/utils/response.handler';
 import {
   CreateAdminDto,
   UpdateAdminDto,
@@ -135,7 +133,9 @@ export class AdminUsersService {
       throw new AdminNotFoundException('Admin not found');
     }
 
-    return this.i18nResponse.adminProfileRetrieved(this.transformToResponseDto(admin));
+    return this.i18nResponse.adminProfileRetrieved(
+      this.transformToResponseDto(admin)
+    );
   }
 
   async getAllAdmins(filterDto: AdminFilterDto) {
@@ -168,7 +168,9 @@ export class AdminUsersService {
       throw new AdminNotFoundException('Admin not found');
     }
 
-    return this.i18nResponse.adminProfileRetrieved(this.transformToResponseDto(admin));
+    return this.i18nResponse.adminProfileRetrieved(
+      this.transformToResponseDto(admin)
+    );
   }
 
   // Internal method for getting raw admin data (used internally, not for API responses)
@@ -180,10 +182,7 @@ export class AdminUsersService {
     return admin;
   }
 
-  async updateAdmin(
-    publicId: string,
-    updateAdminDto: UpdateAdminDto
-  ) {
+  async updateAdmin(publicId: string, updateAdminDto: UpdateAdminDto) {
     const admin = await this.adminRepository.findByPublicId(publicId);
     if (!admin) {
       throw new AdminNotFoundException('Admin not found');
@@ -204,7 +203,9 @@ export class AdminUsersService {
     );
 
     this.logger.log(`Admin updated successfully: ${admin.id}`);
-    return this.i18nResponse.adminUpdated(this.transformToResponseDto(updatedAdmin));
+    return this.i18nResponse.adminUpdated(
+      this.transformToResponseDto(updatedAdmin)
+    );
   }
 
   async deleteAdmin(publicId: string): Promise<void> {

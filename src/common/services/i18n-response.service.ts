@@ -18,52 +18,36 @@ export class I18nResponseService {
     return this.request.language || this.request.i18nLang || 'en';
   }
 
-  async translateAndRespond<T = unknown>(
+  translateAndRespond<T = unknown>(
     messageKey: string,
     statusCode: number = 200,
     data?: T,
-    messageArgs?: Record<string, string | number>,
-    lang?: string
-  ): Promise<ApiResponse<T>> {
-    const currentLang = lang || this.getCurrentLanguage();
-    ResponseHandler.setI18nService(this.i18n);
-    return ResponseHandler.successWithTranslation(
+    messageArgs?: Record<string, string | number>
+  ): ApiResponse<T> {
+    return ResponseHandler.successWithKey(
       messageKey,
       statusCode,
       data,
-      messageArgs,
-      currentLang
+      messageArgs
     );
   }
 
-  async translateError(
+  translateError(
     messageKey: string,
     statusCode: number,
     error?: string,
-    messageArgs?: Record<string, string | number>,
-    lang?: string
-  ): Promise<ErrorResponse> {
-    const currentLang = lang || this.getCurrentLanguage();
-    ResponseHandler.setI18nService(this.i18n);
-    return ResponseHandler.errorWithTranslation(
+    messageArgs?: Record<string, string | number>
+  ): ErrorResponse {
+    return ResponseHandler.errorWithKey(
       messageKey,
       statusCode,
       error,
-      messageArgs,
-      currentLang
+      messageArgs
     );
   }
 
-  async success<T = unknown>(messageKey: string, data?: T) {
-    const currentLang = this.getCurrentLanguage();
-    ResponseHandler.setI18nService(this.i18n);
-    return ResponseHandler.successWithTranslation(
-      messageKey,
-      StatusCodes.OK,
-      data,
-      undefined,
-      currentLang
-    );
+  success<T = unknown>(messageKey: string, data?: T) {
+    return ResponseHandler.successWithKey(messageKey, StatusCodes.OK, data);
   }
 
   created<T = unknown>(messageKey: string, data?: T) {
@@ -126,13 +110,12 @@ export class I18nResponseService {
     return ResponseHandler.internalErrorWithKey(messageKey, error, messageArgs);
   }
 
-  async translateBadRequest(
+  translateBadRequest(
     messageKey: string,
     error?: string,
-    messageArgs?: Record<string, string | number>,
-    lang?: string
-  ): Promise<ErrorResponse> {
-    return this.translateError(messageKey, 400, error, messageArgs, lang);
+    messageArgs?: Record<string, string | number>
+  ): ErrorResponse {
+    return ResponseHandler.badRequestWithKey(messageKey, error, messageArgs);
   }
 
   // Common admin response methods
