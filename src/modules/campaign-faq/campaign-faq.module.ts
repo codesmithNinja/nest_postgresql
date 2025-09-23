@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,33 +17,41 @@ import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { EquityModule } from '../equity/equity.module';
 
-@Module({
-  imports: [
-    DatabaseModule.forRoot(),
-    MongooseModule.forFeature([
-      { name: CampaignFaq.name, schema: CampaignFaqSchema },
-    ]),
-    EquityModule,
-  ],
-  controllers: [CampaignFaqController],
-  providers: [
-    CampaignFaqService,
-    {
-      provide: CAMPAIGN_FAQ_REPOSITORY,
-      useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        model: Model<CampaignFaqDocument>
-      ) => {
-        const dbType = configService.get<DatabaseType>('database.type');
-        if (dbType === DatabaseType.MONGODB) {
+export class CampaignFaqModule {
+  static register(): DynamicModule {
+    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: any[] = [DatabaseModule.forRootConditional(), EquityModule.register()];
+    const providers: any[] = [CampaignFaqService];
+
+    if (dbType === DatabaseType.MONGODB) {
+      imports.push(
+        MongooseModule.forFeature([
+          { name: CampaignFaq.name, schema: CampaignFaqSchema },
+        ])
+      );
+      providers.push({
+        provide: CAMPAIGN_FAQ_REPOSITORY,
+        useFactory: (model: Model<CampaignFaqDocument>) => {
           return new CampaignFaqMongoRepository(model);
-        }
-        return new CampaignFaqPostgresRepository(prismaService);
-      },
-      inject: [ConfigService, PrismaService, 'CampaignFaqModel'],
-    },
-  ],
-  exports: [CampaignFaqService, CAMPAIGN_FAQ_REPOSITORY],
-})
-export class CampaignFaqModule {}
+        },
+        inject: ['CampaignFaqModel'],
+      });
+    } else {
+      providers.push({
+        provide: CAMPAIGN_FAQ_REPOSITORY,
+        useFactory: (prismaService: PrismaService) => {
+          return new CampaignFaqPostgresRepository(prismaService);
+        },
+        inject: [PrismaService],
+      });
+    }
+
+    return {
+      module: CampaignFaqModule,
+      imports,
+      controllers: [CampaignFaqController],
+      providers,
+      exports: [CampaignFaqService, CAMPAIGN_FAQ_REPOSITORY],
+    };
+  }
+}

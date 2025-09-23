@@ -105,6 +105,9 @@ export class EquityController {
     @Body() updateEquityDto: UpdateEquityDto | UpdateEquityFormDataDto,
     @UploadedFile() file?: Express.Multer.File
   ) {
+    // Validate business logic FIRST (before file upload)
+    await this.equityService.validateCampaignUpdate(id, updateEquityDto);
+
     return await this.equityService.updateCampaign(id, updateEquityDto, file);
   }
 

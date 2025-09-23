@@ -339,9 +339,9 @@ model Admin {
   passwordResetToken     String?
   passwordResetExpires   DateTime?
   active                 Boolean   @default(true)
-  loginIpAddress         String
-  currentLoginDateTime   DateTime
-  lastLoginDateTime      DateTime
+  loginIpAddress         String?
+  currentLoginDateTime   DateTime?
+  lastLoginDateTime      DateTime?
   twoFactorAuthVerified  Boolean   @default(false)
   twoFactorSecretKey     String?
   createdAt             DateTime  @default(now())

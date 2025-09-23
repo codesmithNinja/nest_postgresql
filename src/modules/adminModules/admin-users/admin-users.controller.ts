@@ -1,25 +1,26 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Request,
-  Query,
-  UseInterceptors,
-  UploadedFile,
-  HttpStatus,
-  ValidationPipe,
-  HttpCode,
-} from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
 import type { Request as ExpressRequest } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { ApiConsumes, ApiBody } from '@nestjs/swagger';
+
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Request,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import {
   FileUploadUtil,
   getBucketName,
@@ -102,6 +103,7 @@ export class AdminUsersController {
     return this.adminUsersService.getAdminByPublicId(publicId);
   }
 
+  @Public()
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateAdminDto })
@@ -110,6 +112,10 @@ export class AdminUsersController {
     @Body(ValidationPipe) createAdminDto: CreateAdminDto,
     @UploadedFile() photo: Express.Multer.File
   ) {
+    // Validate business logic FIRST (before file upload)
+    await this.adminUsersService.validateAdminCreation(createAdminDto);
+
+    // Only upload file AFTER validation passes
     if (photo) {
       const uploadResult = await FileUploadUtil.uploadFile(photo, {
         bucketName: getBucketName('ADMIN'),

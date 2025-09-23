@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -16,30 +16,39 @@ import { EQUITY_REPOSITORY } from '../../common/interfaces/campaign-repository.i
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 
-@Module({
-  imports: [
-    DatabaseModule.forRoot(),
-    MongooseModule.forFeature([{ name: Equity.name, schema: EquitySchema }]),
-  ],
-  controllers: [EquityController],
-  providers: [
-    EquityService,
-    {
-      provide: EQUITY_REPOSITORY,
-      useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        equityModel: Model<EquityDocument>
-      ) => {
-        const dbType = configService.get<DatabaseType>('database.type');
-        if (dbType === DatabaseType.MONGODB) {
+export class EquityModule {
+  static register(): DynamicModule {
+    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: any[] = [DatabaseModule.forRootConditional()];
+    const providers: any[] = [EquityService];
+
+    if (dbType === DatabaseType.MONGODB) {
+      imports.push(
+        MongooseModule.forFeature([{ name: Equity.name, schema: EquitySchema }])
+      );
+      providers.push({
+        provide: EQUITY_REPOSITORY,
+        useFactory: (equityModel: Model<EquityDocument>) => {
           return new EquityMongoRepository(equityModel);
-        }
-        return new EquityPostgresRepository(prismaService);
-      },
-      inject: [ConfigService, PrismaService, getModelToken(Equity.name)],
-    },
-  ],
-  exports: [EquityService, EQUITY_REPOSITORY],
-})
-export class EquityModule {}
+        },
+        inject: [getModelToken(Equity.name)],
+      });
+    } else {
+      providers.push({
+        provide: EQUITY_REPOSITORY,
+        useFactory: (prismaService: PrismaService) => {
+          return new EquityPostgresRepository(prismaService);
+        },
+        inject: [PrismaService],
+      });
+    }
+
+    return {
+      module: EquityModule,
+      imports,
+      controllers: [EquityController],
+      providers,
+      exports: [EquityService, EQUITY_REPOSITORY],
+    };
+  }
+}

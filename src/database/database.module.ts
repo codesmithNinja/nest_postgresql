@@ -1,4 +1,4 @@
-import { Module, Global, DynamicModule } from '@nestjs/common';
+import { Module, Global, DynamicModule, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -18,57 +18,118 @@ import { DatabaseType } from '../common/enums/database-type.enum';
 @Module({})
 export class DatabaseModule {
   static forRoot(): DynamicModule {
+    // We need to use a factory approach to conditionally setup the module
     return {
       module: DatabaseModule,
       imports: [
-        PrismaModule,
-        MongooseModule.forRootAsync({
+        // Import ConfigModule to access config in the provider factory
+      ],
+      providers: [
+        {
+          provide: 'DATABASE_SETUP',
           useFactory: (configService: ConfigService) => {
             const dbType = configService.get<DatabaseType>('database.type');
-            return dbType === DatabaseType.MONGODB
-              ? { uri: configService.get<string>('database.mongodb.uri') }
-              : { uri: 'mongodb://localhost:27017/dummy' };
+
+            // Validate environment variables based on database type
+            if (dbType === DatabaseType.POSTGRES) {
+              const dbUrl = configService.get<string>('database.postgres.url');
+              if (!dbUrl) {
+                throw new Error(
+                  'DATABASE_URL is required when DATABASE_TYPE=postgres'
+                );
+              }
+            } else if (dbType === DatabaseType.MONGODB) {
+              const mongoUri = configService.get<string>(
+                'database.mongodb.uri'
+              );
+              if (!mongoUri) {
+                throw new Error(
+                  'MONGODB_URI is required when DATABASE_TYPE=mongodb'
+                );
+              }
+            } else {
+              throw new Error(
+                `Invalid DATABASE_TYPE: ${dbType}. Must be 'postgres' or 'mongodb'`
+              );
+            }
+
+            return { dbType };
           },
+          inject: [ConfigService],
+        },
+      ],
+      exports: [],
+    };
+  }
+
+  static forRootConditional(): DynamicModule {
+    // Use process.env directly to read DATABASE_TYPE at module initialization
+    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+
+    const imports: any[] = [];
+    const providers: Provider[] = [];
+    const exports: any[] = [];
+
+    if (dbType === DatabaseType.POSTGRES) {
+      // PostgreSQL setup only
+      imports.push(PrismaModule);
+
+      providers.push(
+        {
+          provide: USER_REPOSITORY,
+          useFactory: (prismaService: PrismaService) => {
+            return new UserPostgresRepository(prismaService);
+          },
+          inject: [PrismaService],
+        },
+        {
+          provide: ADMIN_REPOSITORY,
+          useFactory: (prismaService: PrismaService) => {
+            return new AdminPostgresRepository(prismaService);
+          },
+          inject: [PrismaService],
+        }
+      );
+    } else if (dbType === DatabaseType.MONGODB) {
+      // MongoDB setup only
+      imports.push(
+        MongooseModule.forRootAsync({
+          useFactory: (configService: ConfigService) => ({
+            uri: configService.get<string>('database.mongodb.uri'),
+          }),
           inject: [ConfigService],
         }),
         MongooseModule.forFeature([
           { name: User.name, schema: UserSchema },
           { name: Admin.name, schema: AdminSchema },
-        ]),
-      ],
-      providers: [
+        ])
+      );
+
+      providers.push(
         {
           provide: USER_REPOSITORY,
-          useFactory: (
-            configService: ConfigService,
-            prismaService: PrismaService,
-            userModel: Model<UserDocument>
-          ) => {
-            const dbType = configService.get<DatabaseType>('database.type');
-            if (dbType === DatabaseType.MONGODB) {
-              return new UserMongoRepository(userModel);
-            }
-            return new UserPostgresRepository(prismaService);
+          useFactory: (userModel: Model<UserDocument>) => {
+            return new UserMongoRepository(userModel);
           },
-          inject: [ConfigService, PrismaService, getModelToken(User.name)],
+          inject: [getModelToken(User.name)],
         },
         {
           provide: ADMIN_REPOSITORY,
-          useFactory: (
-            configService: ConfigService,
-            prismaService: PrismaService,
-            adminModel: Model<AdminDocument>
-          ) => {
-            const dbType = configService.get<DatabaseType>('database.type');
-            if (dbType === DatabaseType.MONGODB) {
-              return new AdminMongoRepository(adminModel);
-            }
-            return new AdminPostgresRepository(prismaService);
+          useFactory: (adminModel: Model<AdminDocument>) => {
+            return new AdminMongoRepository(adminModel);
           },
-          inject: [ConfigService, PrismaService, getModelToken(Admin.name)],
-        },
-      ],
-      exports: [USER_REPOSITORY, ADMIN_REPOSITORY],
+          inject: [getModelToken(Admin.name)],
+        }
+      );
+    }
+
+    exports.push(USER_REPOSITORY, ADMIN_REPOSITORY);
+
+    return {
+      module: DatabaseModule,
+      imports,
+      providers,
+      exports,
     };
   }
 }

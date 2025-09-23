@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -15,37 +15,44 @@ import {
 import { EXTRAS_IMAGE_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
-import { EquityModule } from '../equity/equity.module';
 import { FileManagementService } from '../../common/services/file-management.service';
+import { EquityModule } from '../equity/equity.module';
 
-@Module({
-  imports: [
-    DatabaseModule.forRoot(),
-    MongooseModule.forFeature([
-      { name: ExtrasImage.name, schema: ExtrasImageSchema },
-    ]),
-    EquityModule,
-  ],
-  controllers: [ExtrasImageController],
-  providers: [
-    ExtrasImageService,
-    FileManagementService,
-    {
-      provide: EXTRAS_IMAGE_REPOSITORY,
-      useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        model: Model<ExtrasImageDocument>
-      ) => {
-        const dbType = configService.get<DatabaseType>('database.type');
-        if (dbType === DatabaseType.MONGODB) {
+export class ExtrasImageModule {
+  static register(): DynamicModule {
+    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: any[] = [DatabaseModule.forRootConditional(), EquityModule.register()];
+    const providers: any[] = [ExtrasImageService, FileManagementService];
+
+    if (dbType === DatabaseType.MONGODB) {
+      imports.push(
+        MongooseModule.forFeature([
+          { name: ExtrasImage.name, schema: ExtrasImageSchema },
+        ])
+      );
+      providers.push({
+        provide: EXTRAS_IMAGE_REPOSITORY,
+        useFactory: (model: Model<ExtrasImageDocument>) => {
           return new ExtrasImageMongoRepository(model);
-        }
-        return new ExtrasImagePostgresRepository(prismaService);
-      },
-      inject: [ConfigService, PrismaService, 'ExtrasImageModel'],
-    },
-  ],
-  exports: [ExtrasImageService, EXTRAS_IMAGE_REPOSITORY],
-})
-export class ExtrasImageModule {}
+        },
+        inject: ['ExtrasImageModel'],
+      });
+    } else {
+      providers.push({
+        provide: EXTRAS_IMAGE_REPOSITORY,
+        useFactory: (prismaService: PrismaService) => {
+          return new ExtrasImagePostgresRepository(prismaService);
+        },
+        inject: [PrismaService],
+      });
+    }
+
+    return {
+      module: ExtrasImageModule,
+      imports,
+      controllers: [ExtrasImageController],
+      providers,
+      exports: [ExtrasImageService, EXTRAS_IMAGE_REPOSITORY],
+    };
+  }
+}

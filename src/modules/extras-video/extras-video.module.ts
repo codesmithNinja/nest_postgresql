@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,33 +17,41 @@ import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { EquityModule } from '../equity/equity.module';
 
-@Module({
-  imports: [
-    DatabaseModule.forRoot(),
-    MongooseModule.forFeature([
-      { name: ExtrasVideo.name, schema: ExtrasVideoSchema },
-    ]),
-    EquityModule,
-  ],
-  controllers: [ExtrasVideoController],
-  providers: [
-    ExtrasVideoService,
-    {
-      provide: EXTRAS_VIDEO_REPOSITORY,
-      useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        model: Model<ExtrasVideoDocument>
-      ) => {
-        const dbType = configService.get<DatabaseType>('database.type');
-        if (dbType === DatabaseType.MONGODB) {
+export class ExtrasVideoModule {
+  static register(): DynamicModule {
+    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: any[] = [DatabaseModule.forRootConditional(), EquityModule.register()];
+    const providers: any[] = [ExtrasVideoService];
+
+    if (dbType === DatabaseType.MONGODB) {
+      imports.push(
+        MongooseModule.forFeature([
+          { name: ExtrasVideo.name, schema: ExtrasVideoSchema },
+        ])
+      );
+      providers.push({
+        provide: EXTRAS_VIDEO_REPOSITORY,
+        useFactory: (model: Model<ExtrasVideoDocument>) => {
           return new ExtrasVideoMongoRepository(model);
-        }
-        return new ExtrasVideoPostgresRepository(prismaService);
-      },
-      inject: [ConfigService, PrismaService, 'ExtrasVideoModel'],
-    },
-  ],
-  exports: [ExtrasVideoService, EXTRAS_VIDEO_REPOSITORY],
-})
-export class ExtrasVideoModule {}
+        },
+        inject: ['ExtrasVideoModel'],
+      });
+    } else {
+      providers.push({
+        provide: EXTRAS_VIDEO_REPOSITORY,
+        useFactory: (prismaService: PrismaService) => {
+          return new ExtrasVideoPostgresRepository(prismaService);
+        },
+        inject: [PrismaService],
+      });
+    }
+
+    return {
+      module: ExtrasVideoModule,
+      imports,
+      controllers: [ExtrasVideoController],
+      providers,
+      exports: [ExtrasVideoService, EXTRAS_VIDEO_REPOSITORY],
+    };
+  }
+}

@@ -1,30 +1,32 @@
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+import slugify from 'slugify';
+import { v4 as uuidv4 } from 'uuid';
+
 import {
-  Injectable,
-  UnauthorizedException,
-  NotFoundException,
   Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
+
+import { ActiveStatus } from '../../common/enums/database-type.enum';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
+import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
 import {
   IUserRepository,
   USER_REPOSITORY,
 } from '../../database/repositories/user/user.repository.interface';
-import { I18nResponseService } from '../../common/services/i18n-response.service';
-// import { EmailService } from '../email/email.service';
-import * as bcrypt from 'bcryptjs';
-import * as crypto from 'crypto';
-import slugify from 'slugify';
+
 import {
-  RegisterDto,
-  LoginDto,
   ActivateAccountDto,
   ForgotPasswordDto,
+  LoginDto,
+  RegisterDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
-import { ActiveStatus } from '../../common/enums/database-type.enum';
 import { ValidatedUser } from './interfaces/validated-user.interface';
-import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
 
 @Injectable()
 export class AuthService {

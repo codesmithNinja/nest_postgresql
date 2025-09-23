@@ -1,32 +1,36 @@
-import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
+import slugify from 'slugify';
+
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+
+import { CacheUtil } from '../../common/utils/cache.util';
+import { DateUtil } from '../../common/utils/date.util';
+import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import {
+  ApiResponse,
+  ErrorResponse,
+} from '../../common/utils/response.handler';
+import {
+  FileUploadUtil,
+  getBucketName,
+} from '../../common/utils/file-upload.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
   IEquityRepository,
   EQUITY_REPOSITORY,
 } from '../../common/interfaces/campaign-repository.interface';
 import {
-  ErrorResponse,
-  ApiResponse,
-} from '../../common/utils/response.handler';
-import { CacheUtil } from '../../common/utils/cache.util';
-import { I18nResponseService } from '../../common/services/i18n-response.service';
-import { DateUtil } from '../../common/utils/date.util';
-import {
-  FileUploadUtil,
-  getBucketName,
-} from '../../common/utils/file-upload.util';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+  CampaignStatus,
+  Equity,
+  TermSlug,
+  UploadType,
+} from '../../database/entities/equity.entity';
+
 import {
   CreateEquityDto,
   UpdateEquityDto,
   UpdateEquityFormDataDto,
 } from './dto/equity.dto';
-import {
-  Equity,
-  CampaignStatus,
-  TermSlug,
-  UploadType,
-} from '../../database/entities/equity.entity';
-import slugify from 'slugify';
 
 @Injectable()
 export class EquityService {
@@ -222,6 +226,26 @@ export class EquityService {
   }
 
   /**
+   * Validate campaign update before file operations
+   */
+  async validateCampaignUpdate(
+    id: string,
+    updateEquityDto: UpdateEquityDto | UpdateEquityFormDataDto
+  ): Promise<Equity> {
+    const existingCampaign = await this.equityRepository.getDetailById(id);
+
+    if (!existingCampaign) {
+      throw new NotFoundException();
+    }
+
+    // Add any additional validation logic here
+    // For example, check if user has permission to update this campaign
+    DiscardUnderscores(updateEquityDto);
+
+    return existingCampaign;
+  }
+
+  /**
    * Update campaign (Steps 2-6)
    */
   async updateCampaign(
@@ -230,6 +254,7 @@ export class EquityService {
     file?: Express.Multer.File
   ): Promise<ApiResponse<Equity> | ErrorResponse> {
     try {
+      // Note: validation should be done in controller before calling this method
       const existingCampaign = await this.equityRepository.getDetailById(id);
 
       if (!existingCampaign) {
@@ -289,10 +314,6 @@ export class EquityService {
               errorMessage
             );
           }
-        } else {
-          this.logger.warn(
-            `File provided but uploadType is ${updateEquityDto.uploadType}, skipping file upload`
-          );
         }
       }
 

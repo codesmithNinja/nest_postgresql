@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -15,37 +15,44 @@ import {
 import { TEAM_MEMBER_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
-import { EquityModule } from '../equity/equity.module';
 import { FileManagementService } from '../../common/services/file-management.service';
+import { EquityModule } from '../equity/equity.module';
 
-@Module({
-  imports: [
-    DatabaseModule.forRoot(),
-    MongooseModule.forFeature([
-      { name: TeamMember.name, schema: TeamMemberSchema },
-    ]),
-    EquityModule,
-  ],
-  controllers: [TeamMemberController],
-  providers: [
-    TeamMemberService,
-    FileManagementService,
-    {
-      provide: TEAM_MEMBER_REPOSITORY,
-      useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        model: Model<TeamMemberDocument>
-      ) => {
-        const dbType = configService.get<DatabaseType>('database.type');
-        if (dbType === DatabaseType.MONGODB) {
+export class TeamMemberModule {
+  static register(): DynamicModule {
+    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: any[] = [DatabaseModule.forRootConditional(), EquityModule.register()];
+    const providers: any[] = [TeamMemberService, FileManagementService];
+
+    if (dbType === DatabaseType.MONGODB) {
+      imports.push(
+        MongooseModule.forFeature([
+          { name: TeamMember.name, schema: TeamMemberSchema },
+        ])
+      );
+      providers.push({
+        provide: TEAM_MEMBER_REPOSITORY,
+        useFactory: (model: Model<TeamMemberDocument>) => {
           return new TeamMemberMongoRepository(model);
-        }
-        return new TeamMemberPostgresRepository(prismaService);
-      },
-      inject: [ConfigService, PrismaService, 'TeamMemberModel'],
-    },
-  ],
-  exports: [TeamMemberService, TEAM_MEMBER_REPOSITORY],
-})
-export class TeamMemberModule {}
+        },
+        inject: ['TeamMemberModel'],
+      });
+    } else {
+      providers.push({
+        provide: TEAM_MEMBER_REPOSITORY,
+        useFactory: (prismaService: PrismaService) => {
+          return new TeamMemberPostgresRepository(prismaService);
+        },
+        inject: [PrismaService],
+      });
+    }
+
+    return {
+      module: TeamMemberModule,
+      imports,
+      controllers: [TeamMemberController],
+      providers,
+      exports: [TeamMemberService, TEAM_MEMBER_REPOSITORY],
+    };
+  }
+}

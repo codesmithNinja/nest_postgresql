@@ -1,14 +1,17 @@
+import { $Enums, Prisma } from '@prisma/client';
+
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { PostgresRepository } from '../base/postgres.repository';
-import { IUserRepository } from './user.repository.interface';
-import { User, OutsideLink } from '../../entities/user.entity';
+
 import {
   ActiveStatus,
   NotificationStatus,
 } from '../../../common/enums/database-type.enum';
-import { Prisma, $Enums } from '@prisma/client';
 import { QueryOptions } from '../../../common/interfaces/repository.interface';
+import { OutsideLink, User } from '../../entities/user.entity';
+import { PrismaService } from '../../prisma/prisma.service';
+
+import { PostgresRepository } from '../base/postgres.repository';
+import { IUserRepository } from './user.repository.interface';
 
 type PrismaUserResult = {
   id: string;

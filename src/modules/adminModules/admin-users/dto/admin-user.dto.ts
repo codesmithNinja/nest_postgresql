@@ -30,7 +30,11 @@ export class CreateAdminDto {
   @IsNotEmpty()
   email!: string;
 
-  @ApiPropertyOptional({ description: 'Admin photo URL' })
+  @ApiPropertyOptional({
+    description: 'Admin photo file',
+    type: 'string',
+    format: 'binary',
+  })
   @IsOptional()
   @IsString()
   photo?: string;

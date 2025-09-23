@@ -1,38 +1,42 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import {
-  AdminNotFoundException,
-  AdminAlreadyExistsException,
-  InvalidAdminCredentialsException,
-  InactiveAdminException,
-  AdminPasswordMismatchException,
-  InvalidCurrentPasswordException,
-  InvalidResetTokenException,
-  AdminEmailSendException,
-} from './exceptions/admin.exceptions';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
-import { FileUploadUtil } from '../../../common/utils/file-upload.util';
+
+import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { I18nService } from 'nestjs-i18n';
+
+import { Admin } from '../../../database/entities/admin.entity';
 import {
   IAdminRepository,
   ADMIN_REPOSITORY,
 } from '../../../database/repositories/admin/admin.repository.interface';
-import { Admin } from '../../../database/entities/admin.entity';
+import { DiscardUnderscores } from '../../../common/utils/discard-underscores.util';
 import { EmailService } from '../../../email/email.service';
+import { FileUploadUtil } from '../../../common/utils/file-upload.util';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
-import { I18nService } from 'nestjs-i18n';
+
 import {
+  AdminFilterDto,
+  AdminForgotPasswordDto,
+  AdminLoginDto,
+  AdminResetPasswordDto,
+  AdminResponseDto,
   CreateAdminDto,
   UpdateAdminDto,
-  AdminLoginDto,
   UpdatePasswordDto,
-  AdminForgotPasswordDto,
-  AdminResetPasswordDto,
-  AdminFilterDto,
-  AdminResponseDto,
 } from './dto/admin-user.dto';
+import {
+  AdminAlreadyExistsException,
+  AdminEmailSendException,
+  AdminNotFoundException,
+  AdminPasswordMismatchException,
+  InactiveAdminException,
+  InvalidAdminCredentialsException,
+  InvalidCurrentPasswordException,
+  InvalidResetTokenException,
+} from './exceptions/admin.exceptions';
 
 @Injectable()
 export class AdminUsersService {
@@ -47,8 +51,10 @@ export class AdminUsersService {
     private i18n: I18nService
   ) {}
 
-  async createAdmin(createAdminDto: CreateAdminDto) {
-    this.logger.log(`Creating admin with email: ${createAdminDto.email}`);
+  async validateAdminCreation(createAdminDto: CreateAdminDto): Promise<void> {
+    this.logger.log(
+      `Validating admin creation for email: ${createAdminDto.email}`
+    );
 
     if (createAdminDto.password !== createAdminDto.passwordConfirm) {
       throw new AdminPasswordMismatchException(
@@ -62,12 +68,19 @@ export class AdminUsersService {
     if (existingAdmin) {
       throw new AdminAlreadyExistsException(createAdminDto.email);
     }
+  }
+
+  async createAdmin(createAdminDto: CreateAdminDto) {
+    this.logger.log(`Creating admin with email: ${createAdminDto.email}`);
 
     const hashedPassword = await bcrypt.hash(createAdminDto.password, 12);
     const publicId = uuidv4();
 
+    const { passwordConfirm, ...adminDataInput } = createAdminDto;
+    DiscardUnderscores(passwordConfirm);
+
     const adminData = {
-      ...createAdminDto,
+      ...adminDataInput,
       publicId,
       password: hashedPassword,
       active: createAdminDto.active ?? true,

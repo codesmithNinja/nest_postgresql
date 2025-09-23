@@ -36,7 +36,8 @@
       "Bash(cmd /c taskkill:*)",
       "Bash(cmd /c:*)",
       "Bash(/dev/null)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(set)"
     ],
     "deny": [],
     "ask": []

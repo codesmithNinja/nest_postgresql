@@ -1,23 +1,26 @@
+import * as bcrypt from 'bcryptjs';
+import slugify from 'slugify';
+
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
-  Inject,
 } from '@nestjs/common';
+
+import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
+import { I18nResponseService } from '../../common/services/i18n-response.service';
+import { User } from '../../database/entities/user.entity';
 import {
   IUserRepository,
   USER_REPOSITORY,
 } from '../../database/repositories/user/user.repository.interface';
-import { UpdateProfileDto, ChangePasswordDto } from './dto/user.dto';
-import * as bcrypt from 'bcryptjs';
-import slugify from 'slugify';
+
+import { ChangePasswordDto, UpdateProfileDto } from './dto/user.dto';
 import {
-  UserResponse,
   UserProfileResponse,
+  UserResponse,
 } from './interfaces/user-response.interface';
-import { User } from '../../database/entities/user.entity';
-import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
-import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @Injectable()
 export class UsersService {
