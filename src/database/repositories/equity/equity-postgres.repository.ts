@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PostgresRepository } from '../base/postgres.repository';
-import { IEquityRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { IEquityRepository } from './equity.repository.interface';
 import { Equity } from '../../entities/equity.entity';
 import { QueryOptions } from '../../../common/interfaces/repository.interface';
 
@@ -149,7 +149,7 @@ export class EquityPostgresRepository
     return results.map((result) => this.transformDecimalFields(result));
   }
 
-  async findWithRelations(id: string): Promise<Equity | null> {
+  async findRelations(id: string): Promise<Equity | null> {
     const result = await this.prisma.equity.findUnique({
       where: { id },
       select: {

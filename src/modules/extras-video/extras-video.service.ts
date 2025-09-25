@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   IExtrasVideoRepository,
   EXTRAS_VIDEO_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/extras-video/extras-video.repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
@@ -160,11 +160,8 @@ export class ExtrasVideoService {
 
       await writeFile(filepath, file.buffer);
 
-      const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
-
       return this.i18nResponse.success('common.file_uploaded', {
         filename,
-        url: fileUrl,
         mimetype: file.mimetype,
         size: file.size,
       });

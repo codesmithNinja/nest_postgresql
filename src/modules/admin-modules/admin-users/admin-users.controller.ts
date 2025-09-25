@@ -123,7 +123,7 @@ export class AdminUsersController {
         maxSizeInMB: 5,
         fieldName: 'photo',
       });
-      createAdminDto.photo = uploadResult.url || uploadResult.filePath;
+      createAdminDto.photo = uploadResult.filePath;
     }
 
     return this.adminUsersService.createAdmin(createAdminDto);
@@ -137,29 +137,14 @@ export class AdminUsersController {
     @Body(ValidationPipe) updateAdminDto: UpdateAdminDto,
     @UploadedFile() photo: Express.Multer.File
   ) {
-    let oldFilePath: string | undefined;
-
     if (photo) {
-      // Get the existing admin to find old photo path for cleanup
-      try {
-        const existingAdmin =
-          await this.adminUsersService.getAdminByPublicIdInternal(publicId);
-        oldFilePath = existingAdmin.photo;
-      } catch {
-        // Admin not found will be handled by updateAdmin method
-      }
-
-      const uploadResult = await FileUploadUtil.uploadFile(
-        photo,
-        {
-          bucketName: getBucketName('ADMIN'),
-          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-          maxSizeInMB: 5,
-          fieldName: 'photo',
-        },
-        oldFilePath
-      );
-      updateAdminDto.photo = uploadResult.url || uploadResult.filePath;
+      const uploadResult = await FileUploadUtil.uploadFile(photo, {
+        bucketName: getBucketName('ADMIN'),
+        allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        maxSizeInMB: 5,
+        fieldName: 'photo',
+      });
+      updateAdminDto.photo = uploadResult.filePath;
     }
 
     return this.adminUsersService.updateAdmin(publicId, updateAdminDto);

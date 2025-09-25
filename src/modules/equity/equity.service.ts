@@ -4,7 +4,7 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { CacheUtil } from '../../common/utils/cache.util';
 import { DateUtil } from '../../common/utils/date.util';
-import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
+import { discardUnderscores } from '../../common/utils/discard-underscores.util';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import {
   ApiResponse,
@@ -18,7 +18,7 @@ import { I18nResponseService } from '../../common/services/i18n-response.service
 import {
   IEquityRepository,
   EQUITY_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/equity/equity.repository.interface';
 import {
   CampaignStatus,
   Equity,
@@ -143,7 +143,7 @@ export class EquityService {
   /**
    * Get campaign with all relations
    */
-  async getCampaignWithRelations(id: string) {
+  async getCampaignRelations(id: string) {
     try {
       const cacheKey = CacheUtil.getCampaignKey(id);
 
@@ -154,7 +154,7 @@ export class EquityService {
         return cachedData;
       }
 
-      const campaign = await this.equityRepository.findWithRelations(id);
+      const campaign = await this.equityRepository.findRelations(id);
 
       if (!campaign) {
         throw new NotFoundException();
@@ -240,7 +240,7 @@ export class EquityService {
 
     // Add any additional validation logic here
     // For example, check if user has permission to update this campaign
-    DiscardUnderscores(updateEquityDto);
+    discardUnderscores(updateEquityDto);
 
     return existingCampaign;
   }
@@ -270,9 +270,6 @@ export class EquityService {
 
         if (shouldUploadImage) {
           try {
-            // Get the old image path for cleanup
-            const oldImagePath = existingCampaign.campaignImageURL;
-
             const uploadResult = await FileUploadUtil.uploadFile(
               file,
               {
@@ -285,8 +282,7 @@ export class EquityService {
                 ],
                 maxSizeInMB: 5,
                 fieldName: 'campaignImageURL',
-              },
-              oldImagePath
+              }
             );
 
             // Get the file URL
@@ -301,7 +297,7 @@ export class EquityService {
             }
 
             this.logger.log(
-              `Campaign image uploaded successfully: ${uploadResult.filePath}${oldImagePath ? ` (old image ${oldImagePath} cleaned up)` : ''}`
+              `Campaign image uploaded successfully: ${uploadResult.filePath}`
             );
           } catch (error) {
             const errorMessage =

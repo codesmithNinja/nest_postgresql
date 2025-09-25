@@ -33,7 +33,7 @@ import {
   UpdateEquityDto,
   UpdateEquityFormDataDto,
   EquityResponseDto,
-  EquityWithRelationsResponseDto,
+  EquityRelationsResponseDto,
 } from './dto/equity.dto';
 import { FileUploadResponseDto } from '../../common/dto/file-upload.dto';
 import { getFileUploadConfig } from '../../common/config/multer.config';
@@ -73,9 +73,9 @@ export class EquityController {
   @UseGuards(JwtUserGuard, CampaignOwnershipGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get single campaign with relations' })
-  @ApiResponse({ type: EquityWithRelationsResponseDto })
+  @ApiResponse({ type: EquityRelationsResponseDto })
   async getCampaignById(@Param('id') id: string) {
-    return await this.equityService.getCampaignWithRelations(id);
+    return await this.equityService.getCampaignRelations(id);
   }
 
   @Post()

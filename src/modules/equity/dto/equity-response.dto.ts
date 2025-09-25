@@ -65,7 +65,7 @@ export class EquityResponseDto {
   updatedAt?: Date;
 }
 
-export class EquityWithRelationsResponseDto extends EquityResponseDto {
+export class EquityRelationsResponseDto extends EquityResponseDto {
   leadInvestors?: LeadInvestorResponseDto[];
   teamMembers?: TeamMemberResponseDto[];
   campaignFaqs?: CampaignFaqResponseDto[];

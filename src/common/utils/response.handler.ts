@@ -21,6 +21,13 @@ export interface ErrorResponse {
   error?: string;
 }
 
+/**
+ * Response Handler Utility
+ *
+ * Provides standardized response formatting for the API with support for
+ * internationalization (i18n). Handles both success and error responses
+ * with consistent structure including status codes, messages, and timestamps.
+ */
 export class ResponseHandler {
   private static i18nService: I18nService;
 

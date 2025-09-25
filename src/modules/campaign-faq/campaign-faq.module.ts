@@ -1,5 +1,4 @@
-import { Module, DynamicModule } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { DynamicModule, Provider, Type } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
@@ -12,16 +11,20 @@ import {
   CampaignFaqSchema,
   CampaignFaqDocument,
 } from '../../database/schemas/campaign-faq.schema';
-import { CAMPAIGN_FAQ_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
+import { CAMPAIGN_FAQ_REPOSITORY } from '../../database/repositories/campaign-faq/campaign-faq.repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { EquityModule } from '../equity/equity.module';
 
 export class CampaignFaqModule {
   static register(): DynamicModule {
-    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
-    const imports: any[] = [DatabaseModule.forRootConditional(), EquityModule.register()];
-    const providers: any[] = [CampaignFaqService];
+    const dbType =
+      (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: Array<Type<unknown> | DynamicModule> = [
+      DatabaseModule.forRootConditional(),
+      EquityModule.register(),
+    ];
+    const providers: Provider[] = [CampaignFaqService];
 
     if (dbType === DatabaseType.MONGODB) {
       imports.push(

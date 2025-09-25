@@ -13,7 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { ActiveStatus } from '../../common/enums/database-type.enum';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
-import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
+import { discardUnderscores } from '../../common/utils/discard-underscores.util';
 import {
   IUserRepository,
   USER_REPOSITORY,
@@ -28,8 +28,22 @@ import {
 } from './dto/auth.dto';
 import { ValidatedUser } from './interfaces/validated-user.interface';
 
+/**
+ * Authentication Service
+ *
+ * Handles user authentication operations including registration, login,
+ * password reset, and account activation. Provides secure authentication
+ * using JWT tokens and bcrypt for password hashing.
+ */
 @Injectable()
 export class AuthService {
+  /**
+   * Create an instance of AuthService
+   *
+   * @param userRepository - Repository for user data operations
+   * @param jwtService - Service for JWT token generation and validation
+   * @param i18nResponse - Service for internationalized responses
+   */
   constructor(
     @Inject(USER_REPOSITORY) private userRepository: IUserRepository,
     private jwtService: JwtService,
@@ -37,6 +51,18 @@ export class AuthService {
     // private emailService: EmailService
   ) {}
 
+  /**
+   * Register a new user account
+   *
+   * Creates a new user account with email verification. The user will be
+   * created with inactive status and an activation token will be generated
+   * for email verification.
+   *
+   * @param registerDto - User registration data including email, password, and personal details
+   * @param ipAddress - IP address of the user registering the account
+   * @returns Promise containing registration response with user data and activation status
+   * @throws BadRequestException if email already exists
+   */
   async register(registerDto: RegisterDto, ipAddress: string) {
     const { email, password, firstName, lastName, ...rest } = registerDto;
 
@@ -101,8 +127,8 @@ export class AuthService {
 
     // Remove sensitive data from response
     const { password: _p, accountActivationToken: _t, ...userResponse } = user;
-    DiscardUnderscores(_p);
-    DiscardUnderscores(_t);
+    discardUnderscores(_p);
+    discardUnderscores(_t);
 
     return this.i18nResponse.created(
       'auth.register_success_check_email',
@@ -143,7 +169,7 @@ export class AuthService {
 
     // Remove password from response (use updated user)
     const { password: _p, ...userResponse } = updatedUser;
-    DiscardUnderscores(_p);
+    discardUnderscores(_p);
 
     return this.i18nResponse.userLoginSuccess({
       user: userResponse,
@@ -248,7 +274,7 @@ export class AuthService {
     const user = await this.userRepository.getDetail({ email });
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password: _p, ...result } = user;
-      DiscardUnderscores(_p);
+      discardUnderscores(_p);
       return result;
     }
     return null;

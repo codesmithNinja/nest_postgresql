@@ -10,7 +10,7 @@ import { RequestWithUser } from '../types/user.types';
 import {
   IEquityRepository,
   EQUITY_REPOSITORY,
-} from '../interfaces/campaign-repository.interface';
+} from '../../database/repositories/equity/equity.repository.interface';
 
 @Injectable()
 export class CampaignOwnershipGuard implements CanActivate {
@@ -22,7 +22,7 @@ export class CampaignOwnershipGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
-    const campaignId = request.params.id || request.params.equityId;
+    const campaignId = request.params.equityId || request.params.id;
 
     if (!user) {
       throw new ForbiddenException('Authentication required');

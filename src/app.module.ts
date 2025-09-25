@@ -17,7 +17,7 @@ import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
 import { I18nModule } from './i18n/i18n.module';
 import { MetricsModule } from './metrics/metrics.module';
-import { AdminModulesModule } from './modules/adminModules/admin-modules.module';
+import { AdminModule } from './modules/admin-modules/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CampaignFaqModule } from './modules/campaign-faq/campaign-faq.module';
 import { EquityModule } from './modules/equity/equity.module';
@@ -45,7 +45,7 @@ import { UsersModule } from './modules/users/users.module';
     EmailModule,
     AuthModule,
     UsersModule,
-    AdminModulesModule,
+    AdminModule,
     EquityModule.register(),
     CampaignFaqModule.register(),
     LeadInvestorModule.register(),

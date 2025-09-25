@@ -35,7 +35,6 @@ export interface FileUploadResult {
   originalName: string;
   size: number;
   mimetype: string;
-  url?: string;
 }
 
 export interface FileUploadOptions {
@@ -79,35 +78,14 @@ export class FileUploadUtil {
   }
 
   /**
-   * New file upload method with AWS S3 and local support
-   * Optionally cleans up old file if oldFilePath is provided
+   * Upload file to AWS S3 or local storage
+   * Returns relative file path for database storage
    */
   static async uploadFile(
     file: Express.Multer.File,
-    options: FileUploadOptions,
-    oldFilePath?: string
+    options: FileUploadOptions
   ): Promise<FileUploadResult> {
     this.validateFileNew(file, options);
-
-    // Delete old file if it exists and is provided
-    if (oldFilePath) {
-      try {
-        const oldFileExists = await this.fileExists(oldFilePath);
-        if (oldFileExists) {
-          await this.deleteFile(oldFilePath);
-          this.logger.log(`Old file cleaned up successfully: ${oldFilePath}`);
-        }
-      } catch (cleanupError) {
-        // Log cleanup error but don't fail the upload
-        const errorMessage =
-          cleanupError instanceof Error
-            ? cleanupError.message
-            : 'Unknown error';
-        this.logger.warn(
-          `Failed to cleanup old file ${oldFilePath}: ${errorMessage}`
-        );
-      }
-    }
 
     const prefix = options.fieldName ? `${options.fieldName}-` : '';
     const fileName = this.generateFileName(file.originalname, prefix);
@@ -166,10 +144,6 @@ export class FileUploadUtil {
 
       await this.s3Client.send(uploadCommand);
 
-      const fileUrl = process.env.AWS_CLOUDFRONT_URL
-        ? `${process.env.AWS_CLOUDFRONT_URL}/${filePath}`
-        : `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${filePath}`;
-
       this.logger.log(`File uploaded to S3: ${filePath}`);
 
       return {
@@ -177,7 +151,6 @@ export class FileUploadUtil {
         originalName: file.originalname,
         size: file.size,
         mimetype: file.mimetype,
-        url: fileUrl,
       };
     } catch (error) {
       const errorMessage =
@@ -248,6 +221,47 @@ export class FileUploadUtil {
       // For local files, return the file path (adjust based on your static file serving setup)
       const baseUrl = process.env.API_URL || 'http://localhost:3000';
       return `${baseUrl}/uploads/${filePath}`;
+    }
+  }
+
+  /**
+   * Extracts the relative file path from a stored URL
+   * Handles both local URLs and S3 URLs to get the correct file path for deletion
+   * @param urlOrPath - The stored URL or path (e.g., "http://localhost:3000/uploads/lead_investor/file.png")
+   * @returns The relative file path (e.g., "lead_investor/file.png")
+   */
+  static extractFilePathFromUrl(urlOrPath: string): string {
+    if (!urlOrPath) {
+      throw new BadRequestException('URL or path is required');
+    }
+
+    try {
+      // If it's already a relative path (no protocol), return as is
+      if (!urlOrPath.includes('://')) {
+        return urlOrPath;
+      }
+
+      // For local URLs (http://localhost:3000/uploads/...)
+      if (urlOrPath.includes('/uploads/')) {
+        const pathParts = urlOrPath.split('/uploads/');
+        if (pathParts.length > 1) {
+          return pathParts[1]; // Return everything after '/uploads/'
+        }
+      }
+
+      // For S3 URLs (https://bucket.s3.region.amazonaws.com/...)
+      if (urlOrPath.includes('.s3.') || urlOrPath.includes('cloudfront.net')) {
+        const url = new URL(urlOrPath);
+        // Remove leading slash from pathname
+        return url.pathname.substring(1);
+      }
+
+      // If we can't parse the URL, try to extract filename and assume it's in the root
+      const url = new URL(urlOrPath);
+      return url.pathname.substring(1); // Remove leading slash
+    } catch {
+      this.logger.error(`Failed to extract file path from URL: ${urlOrPath}`);
+      throw new BadRequestException('Invalid file URL format');
     }
   }
 

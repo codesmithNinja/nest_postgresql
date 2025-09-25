@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   IExtrasDocumentRepository,
   EXTRAS_DOCUMENT_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/extras-document/extras-document.repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 import { FileUploadUtil } from '../../common/utils/file-upload.util';
@@ -166,11 +166,8 @@ export class ExtrasDocumentService {
 
       await writeFile(filepath, file.buffer);
 
-      const fileUrl = `${process.env.API_URL}/uploads/${filename}`;
-
       return this.i18nResponse.success('common.file_uploaded', {
         filename,
-        url: fileUrl,
         mimetype: file.mimetype,
         size: file.size,
       });

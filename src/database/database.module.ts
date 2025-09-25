@@ -1,4 +1,4 @@
-import { Module, Global, DynamicModule, Provider } from '@nestjs/common';
+import { Module, Global, DynamicModule, Provider, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -64,11 +64,12 @@ export class DatabaseModule {
 
   static forRootConditional(): DynamicModule {
     // Use process.env directly to read DATABASE_TYPE at module initialization
-    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const dbType =
+      (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
 
-    const imports: any[] = [];
+    const imports: Array<Type<unknown> | DynamicModule> = [];
     const providers: Provider[] = [];
-    const exports: any[] = [];
+    const exports: Array<string | Provider | Type<unknown>> = [];
 
     if (dbType === DatabaseType.POSTGRES) {
       // PostgreSQL setup only

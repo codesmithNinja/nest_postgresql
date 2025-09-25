@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
-import { IExtrasImageRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { IExtrasImageRepository } from './extras-image.repository.interface';
 import {
   ExtrasImage,
   ExtrasImageDocument,

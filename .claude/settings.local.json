@@ -37,7 +37,9 @@
       "Bash(cmd /c:*)",
       "Bash(/dev/null)",
       "Bash(findstr:*)",
-      "Bash(set)"
+      "Bash(set)",
+      "Bash(tree:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

@@ -5,4 +5,4 @@ import { AdminUsersModule } from './admin-users/admin-users.module';
   imports: [AdminUsersModule],
   exports: [AdminUsersModule],
 })
-export class AdminModulesModule {}
+export class AdminModule {}

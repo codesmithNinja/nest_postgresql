@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
-import { DiscardUnderscores } from '../../common/utils/discard-underscores.util';
+import { discardUnderscores } from '../../common/utils/discard-underscores.util';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 import { User } from '../../database/entities/user.entity';
 import {
@@ -45,10 +45,10 @@ export class UsersService {
     } = user;
 
     // Discard unused variables to satisfy linting
-    DiscardUnderscores(_p);
-    DiscardUnderscores(_act);
-    DiscardUnderscores(_prt);
-    DiscardUnderscores(_tfsk);
+    discardUnderscores(_p);
+    discardUnderscores(_act);
+    discardUnderscores(_prt);
+    discardUnderscores(_tfsk);
 
     return this.i18nResponse.success('user.profile_retrieved', userProfile);
   }
@@ -88,7 +88,7 @@ export class UsersService {
       ...(slug !== existingUser.slug && { slug }),
       ...Object.entries(rest)
         .filter(([key, value]) => {
-          DiscardUnderscores(key);
+          discardUnderscores(key);
           return value !== undefined;
         })
         .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),

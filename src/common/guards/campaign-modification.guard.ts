@@ -10,7 +10,7 @@ import { RequestWithUser } from '../types/user.types';
 import {
   IEquityRepository,
   EQUITY_REPOSITORY,
-} from '../interfaces/campaign-repository.interface';
+} from '../../database/repositories/equity/equity.repository.interface';
 import { CampaignStatus } from '../../database/entities/equity.entity';
 
 @Injectable()

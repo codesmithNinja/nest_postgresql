@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   ICampaignFaqRepository,
   CAMPAIGN_FAQ_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/campaign-faq/campaign-faq.repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 import {
