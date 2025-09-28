@@ -138,6 +138,11 @@ enum TermSlug {
   DEBT
 }
 
+enum RecordType {
+  STRING
+  FILE
+}
+
 // Equity Campaign Model
 model Equity {
   id                      String         @id @default(cuid())
@@ -355,4 +360,19 @@ model Admin {
   @@index([active, id])
   @@index([firstName, lastName, email, id])
   @@map("admins")
+}
+
+// Settings Model
+model Settings {
+  id         String     @id @default(cuid())
+  groupType  String
+  recordType RecordType @default(STRING)
+  key        String
+  value      String     @db.Text
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([groupType, key])
+  @@index([groupType])
+  @@map("settings")
 }

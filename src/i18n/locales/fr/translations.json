@@ -140,5 +140,19 @@
     "invalid_reset_token": "Token invalide ou expiré",
     "password_mismatch": "Les mots de passe ne correspondent pas",
     "invalid_current_password": "Le mot de passe actuel est incorrect"
+  },
+  "settings": {
+    "retrieved_successfully": "Paramètres récupérés avec succès",
+    "created_successfully": "Paramètres créés/mis à jour avec succès",
+    "updated_successfully": "Paramètres mis à jour avec succès",
+    "deleted_successfully": "Paramètres supprimés avec succès",
+    "not_found": "Paramètres non trouvés",
+    "fetch_failed": "Échec de la récupération des paramètres",
+    "creation_failed": "Échec de la création/mise à jour des paramètres",
+    "update_failed": "Échec de la mise à jour des paramètres",
+    "deletion_failed": "Échec de la suppression des paramètres",
+    "invalid_group_type": "Format de type de groupe invalide",
+    "file_upload_failed": "Échec du téléchargement de fichier",
+    "cache_cleared": "Cache vidé avec succès"
   }
 }

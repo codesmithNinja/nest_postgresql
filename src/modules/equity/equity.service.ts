@@ -270,20 +270,17 @@ export class EquityService {
 
         if (shouldUploadImage) {
           try {
-            const uploadResult = await FileUploadUtil.uploadFile(
-              file,
-              {
-                bucketName: getBucketName('CAMPAIGNS'),
-                allowedMimeTypes: [
-                  'image/jpeg',
-                  'image/png',
-                  'image/webp',
-                  'image/gif',
-                ],
-                maxSizeInMB: 5,
-                fieldName: 'campaignImageURL',
-              }
-            );
+            const uploadResult = await FileUploadUtil.uploadFile(file, {
+              bucketName: getBucketName('CAMPAIGNS'),
+              allowedMimeTypes: [
+                'image/jpeg',
+                'image/png',
+                'image/webp',
+                'image/gif',
+              ],
+              maxSizeInMB: 5,
+              fieldName: 'campaignImageURL',
+            });
 
             // Get the file URL
             const fileUrl = uploadResult.filePath;

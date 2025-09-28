@@ -39,7 +39,9 @@
       "Bash(findstr:*)",
       "Bash(set)",
       "Bash(tree:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(npm ls:*)",
+      "Read(//d/**)"
     ],
     "deny": [],
     "ask": []

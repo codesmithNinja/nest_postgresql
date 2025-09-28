@@ -25,6 +25,7 @@ export function getBucketName(bucketKey: string): string {
     EXTRA_IMAGES: process.env.EXTRA_IMAGES_BUCKET || 'extras-images',
     TEAM_MEMBERS: process.env.TEAM_MEMBERS_BUCKET || 'team-members',
     USER: process.env.USER_BUCKET || 'users',
+    SETTINGS: process.env.SETTINGS_BUCKET || 'settings',
   };
 
   return bucketMap[bucketKey] || bucketKey.toLowerCase();

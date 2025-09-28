@@ -140,5 +140,19 @@
     "invalid_reset_token": "Token inválido o expirado",
     "password_mismatch": "Las contraseñas no coinciden",
     "invalid_current_password": "La contraseña actual es incorrecta"
+  },
+  "settings": {
+    "retrieved_successfully": "Configuraciones recuperadas exitosamente",
+    "created_successfully": "Configuraciones creadas/actualizadas exitosamente",
+    "updated_successfully": "Configuraciones actualizadas exitosamente",
+    "deleted_successfully": "Configuraciones eliminadas exitosamente",
+    "not_found": "Configuraciones no encontradas",
+    "fetch_failed": "Error al recuperar configuraciones",
+    "creation_failed": "Error al crear/actualizar configuraciones",
+    "update_failed": "Error al actualizar configuraciones",
+    "deletion_failed": "Error al eliminar configuraciones",
+    "invalid_group_type": "Formato de tipo de grupo inválido",
+    "file_upload_failed": "Error al subir archivo",
+    "cache_cleared": "Cache limpiado exitosamente"
   }
 }

@@ -140,5 +140,19 @@
     "invalid_reset_token": "Invalid or expired token",
     "password_mismatch": "Passwords do not match",
     "invalid_current_password": "Current password is incorrect"
+  },
+  "settings": {
+    "retrieved_successfully": "Settings retrieved successfully",
+    "created_successfully": "Settings created/updated successfully",
+    "updated_successfully": "Settings updated successfully",
+    "deleted_successfully": "Settings deleted successfully",
+    "not_found": "Settings not found",
+    "fetch_failed": "Failed to retrieve settings",
+    "creation_failed": "Failed to create/update settings",
+    "update_failed": "Failed to update settings",
+    "deletion_failed": "Failed to delete settings",
+    "invalid_group_type": "Invalid group type format",
+    "file_upload_failed": "File upload failed",
+    "cache_cleared": "Cache cleared successfully"
   }
 }

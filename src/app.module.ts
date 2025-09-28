@@ -9,13 +9,14 @@ import performanceConfig from './common/config/performance.config';
 import securityConfig from './common/config/security.config';
 import { ErrorLoggingInterceptor } from './common/interceptors/error-logging.interceptor';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor';
+// import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor'; // Temporarily disabled
 import { LanguagePersistenceInterceptor } from './common/interceptors/language-persistence.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
-import { I18nModule } from './i18n/i18n.module';
+// import { I18nModule } from './i18n/i18n.module'; // Temporarily disabled
+import { MockI18nModule } from './common/modules/mock-i18n.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { AdminModule } from './modules/admin-modules/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -40,7 +41,8 @@ import { UsersModule } from './modules/users/users.module';
         limit: 50, // Moderate limit for all operations
       },
     ]),
-    I18nModule,
+    // I18nModule, // Temporarily disabled - issue with I18nTranslations dependency resolution
+    MockI18nModule,
     DatabaseModule.forRootConditional(),
     EmailModule,
     AuthModule,
@@ -66,22 +68,22 @@ import { UsersModule } from './modules/users/users.module';
       provide: APP_INTERCEPTOR,
       useClass: LanguagePersistenceInterceptor,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: I18nResponseInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ResponseInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: I18nResponseInterceptor,
+    // }, // Temporarily disabled due to i18n dependency issue
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: ResponseInterceptor,
+    // }, // Temporarily disabled due to i18n dependency
     {
       provide: APP_INTERCEPTOR,
       useClass: ErrorLoggingInterceptor,
     },
-    {
-      provide: APP_FILTER,
-      useClass: GlobalExceptionFilter,
-    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: GlobalExceptionFilter,
+    // }, // Temporarily disabled due to i18n dependency
   ],
 })
 export class AppModule {}

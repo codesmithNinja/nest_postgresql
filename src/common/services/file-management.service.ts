@@ -148,4 +148,16 @@ export class FileManagementService {
       5
     );
   }
+
+  async uploadSettingsFile(
+    file: Express.Multer.File
+  ): Promise<FileUploadResult> {
+    return await this.uploadImage(file, getBucketName('SETTINGS'), 5);
+  }
+
+  async uploadSettingsDocument(
+    file: Express.Multer.File
+  ): Promise<FileUploadResult> {
+    return await this.uploadDocument(file, getBucketName('SETTINGS'), 10);
+  }
 }

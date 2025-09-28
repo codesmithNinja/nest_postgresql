@@ -544,6 +544,91 @@ providers: [
 export class AuthModule {}
 ```
 
+### Feature Module Example: SettingsModule
+
+```typescript
+// src/modules/admin-modules/settings/settings.module.ts
+@Module({
+  imports: [
+    ConfigModule,                              // Access to environment variables
+    DatabaseModule,                            // Settings repository access
+    FileManagementModule,                      // File upload service
+    I18nModule,                               // Internationalization
+  ],
+  controllers: [SettingsController],          // HTTP endpoints
+  providers: [
+    SettingsService,                          // Business logic
+    {
+      provide: SETTINGS_REPOSITORY,           // Repository injection
+      useFactory: (databaseType: string, prisma: PrismaService, settingsModel: Model<SettingsDocument>) => {
+        return databaseType === 'postgres'
+          ? new SettingsPostgresRepository(prisma)
+          : new SettingsMongoRepository(settingsModel);
+      },
+      inject: ['DATABASE_TYPE', PrismaService, getModelToken(Settings.name)],
+    },
+  ],
+  exports: [SettingsService],                // Make service available to other modules
+})
+export class SettingsModule {}
+```
+
+#### Settings Module Features
+- **Dynamic Configuration**: Manage application settings by group types
+- **File Upload Support**: Handle both text and file-based settings
+- **Caching System**: Redis-like in-memory caching for performance
+- **Public/Admin Access**: Separate endpoints for public and admin access
+- **Validation**: Strong typing and validation for settings data
+- **Internationalization**: Multi-language error messages
+
+#### Settings Repository Pattern
+```typescript
+// Interface definition
+export interface ISettingsRepository extends IRepository<Settings> {
+  findByGroupType(groupType: string): Promise<Settings[]>;
+  findByGroupTypeAndKey(groupType: string, key: string): Promise<Settings | null>;
+  upsertByGroupTypeAndKey(groupType: string, key: string, data: CreateSettingsData | UpdateSettingsData): Promise<Settings>;
+  deleteByGroupType(groupType: string): Promise<number>;
+  deleteByGroupTypeAndKey(groupType: string, key: string): Promise<boolean>;
+  bulkUpsert(settings: CreateSettingsData[]): Promise<Settings[]>;
+}
+
+// Usage in service
+export class SettingsService {
+  constructor(
+    @Inject(SETTINGS_REPOSITORY)
+    private settingsRepository: ISettingsRepository,
+    private fileManagementService: FileManagementService
+  ) {}
+
+  async getSettingsByGroupType(groupType: string): Promise<Settings[]> {
+    return this.settingsRepository.findByGroupType(groupType);
+  }
+}
+```
+
+#### File Upload Integration
+```typescript
+// Controller handling multipart form data
+@Post(':groupType/admin')
+@UseGuards(AdminJwtUserGuard)
+@UseInterceptors(FilesInterceptor('files', 20, {
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB per file
+    files: 20, // Maximum 20 files
+  },
+}))
+async createOrUpdateSettings(
+  @Param() params: GroupTypeParamDto,
+  @Body() body: any,
+  @UploadedFiles() files?: Express.Multer.File[]
+) {
+  const formData = this.combineFormData(body, files);
+  return this.settingsService.createOrUpdateSettings(params.groupType, formData);
+}
+```
+
 ### Module Dependencies
 ```
 AppModule
@@ -561,6 +646,12 @@ AppModule
 ├── UsersModule
 │   └── DatabaseModule
 ├── AdminModulesModule
+│   ├── AdminUsersModule
+│   └── SettingsModule
+│       ├── ConfigModule
+│       ├── DatabaseModule
+│       ├── FileManagementModule
+│       └── I18nModule
 └── [Other Business Modules]
 ```
 
@@ -671,6 +762,185 @@ constructor(
 ) {}
 ```
 
+### 6. File Upload Patterns
+
+The application supports robust file upload handling with validation, storage management, and integration with the Settings module.
+
+#### Basic File Upload Setup
+```typescript
+// Controller with file upload
+@Post('upload')
+@UseInterceptors(FilesInterceptor('files', 20, {
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB per file
+    files: 20, // Maximum 20 files
+  },
+}))
+async uploadFiles(
+  @UploadedFiles() files: Express.Multer.File[]
+) {
+  return this.fileService.handleUpload(files);
+}
+```
+
+#### Mixed Form Data (Text + Files)
+```typescript
+// Settings module pattern for handling mixed data
+@Post(':groupType/admin')
+@UseInterceptors(FilesInterceptor('files', 20, {
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 20 },
+}))
+async createOrUpdateSettings(
+  @Param() params: GroupTypeParamDto,
+  @Body() body: any,
+  @UploadedFiles() files?: Express.Multer.File[]
+) {
+  // Combine text data and files
+  const formData: Record<string, string | Express.Multer.File> = {};
+
+  // Add text data
+  Object.entries(body).forEach(([key, value]) => {
+    if (typeof value === 'string') {
+      formData[key] = value;
+    }
+  });
+
+  // Add files using their field names as keys
+  files?.forEach((file) => {
+    if (file.fieldname) {
+      formData[file.fieldname] = file;
+    }
+  });
+
+  return this.settingsService.createOrUpdateSettings(params.groupType, formData);
+}
+```
+
+#### File Management Service
+```typescript
+// File upload service with validation and storage
+@Injectable()
+export class FileManagementService {
+  async uploadSettingsFile(file: Express.Multer.File): Promise<{ filePath: string }> {
+    // Validate file type and size
+    this.validateFile(file);
+
+    // Generate unique filename
+    const filename = this.generateUniqueFilename(file.originalname);
+
+    // Save to storage (local, S3, etc.)
+    const filePath = await this.saveFile(file, filename);
+
+    return { filePath };
+  }
+
+  private validateFile(file: Express.Multer.File): void {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Invalid file type');
+    }
+
+    if (file.size > maxSize) {
+      throw new BadRequestException('File too large');
+    }
+  }
+}
+```
+
+#### File Storage Strategies
+```typescript
+// Local storage implementation
+async saveToLocal(file: Express.Multer.File, filename: string): Promise<string> {
+  const uploadDir = path.join(process.cwd(), 'uploads', 'settings');
+  await fs.ensureDir(uploadDir);
+
+  const filePath = path.join(uploadDir, filename);
+  await fs.writeFile(filePath, file.buffer);
+
+  return `/uploads/settings/${filename}`;
+}
+
+// AWS S3 storage implementation
+async saveToS3(file: Express.Multer.File, filename: string): Promise<string> {
+  const uploadParams = {
+    Bucket: this.configService.get('aws.s3.bucket'),
+    Key: `settings/${filename}`,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  };
+
+  const result = await this.s3.upload(uploadParams).promise();
+  return result.Location;
+}
+```
+
+#### File Cleanup and Management
+```typescript
+// Automatic cleanup of old files
+async deleteOldFile(filePath: string): Promise<void> {
+  try {
+    const fileExists = await this.fileExists(filePath);
+    if (fileExists) {
+      await this.deleteFile(filePath);
+      this.logger.debug(`Old file deleted: ${filePath}`);
+    }
+  } catch (error) {
+    this.logger.warn(`Failed to delete old file: ${filePath}`, error.stack);
+    // Don't throw error for file deletion failures
+  }
+}
+
+// File existence check
+async fileExists(filePath: string): Promise<boolean> {
+  try {
+    if (filePath.startsWith('http')) {
+      // For S3 or external URLs
+      const response = await fetch(filePath, { method: 'HEAD' });
+      return response.ok;
+    } else {
+      // For local files
+      const fullPath = path.join(process.cwd(), filePath);
+      await fs.access(fullPath);
+      return true;
+    }
+  } catch {
+    return false;
+  }
+}
+```
+
+#### Frontend Integration Example
+```javascript
+// Frontend form data preparation
+const formData = new FormData();
+
+// Add text fields
+formData.append('siteName', 'My Website');
+formData.append('primaryColor', '#000000');
+
+// Add files
+if (logoFile) {
+  formData.append('siteLogo', logoFile);
+}
+if (faviconFile) {
+  formData.append('siteFavicon', faviconFile);
+}
+
+// Send request
+const response = await fetch('/settings/site_config/admin', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    // Don't set Content-Type header - let browser set it with boundary
+  },
+  body: formData
+});
+```
+
 ---
 
 ## API Documentation
@@ -701,6 +971,39 @@ GET    /admin/users           # List all users (admin only)
 POST   /admin/users           # Create user (admin only)
 PATCH  /admin/users/:id       # Update user (admin only)
 DELETE /admin/users/:id       # Delete user (admin only)
+```
+
+#### Settings Management Endpoints
+```
+# Public endpoints (no authentication required)
+GET    /settings/:groupType/front         # Get public settings by group type
+
+# Admin endpoints (require admin authentication)
+GET    /settings/:groupType/admin         # Get admin settings by group type
+POST   /settings/:groupType/admin         # Create/update settings (supports file upload)
+DELETE /settings/:groupType/admin         # Delete all settings by group type
+
+# Cache management (admin only)
+GET    /settings/admin/cache/stats        # Get cache statistics
+DELETE /settings/admin/cache/clear/:groupType?  # Clear cache (all or by group)
+```
+
+#### Settings API Examples
+```bash
+# Get public site configuration
+curl -X GET "http://localhost:3000/settings/site_config/front"
+
+# Create/update settings with mixed data (admin)
+curl -X POST "http://localhost:3000/settings/site_config/admin" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: multipart/form-data" \
+  -F "siteName=My Website" \
+  -F "primaryColor=#000000" \
+  -F "siteLogo=@./logo.png"
+
+# Delete all settings in a group (admin)
+curl -X DELETE "http://localhost:3000/settings/site_config/admin" \
+  -H "Authorization: Bearer <admin-token>"
 ```
 
 ### Authentication Required
