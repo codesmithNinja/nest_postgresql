@@ -21,15 +21,17 @@ The Admin Settings Module provides a comprehensive settings management system fo
 ### Public Endpoints
 
 #### GET `/settings/:groupType/front`
+
 - **Description**: Get all settings for a group type (public access)
 - **Authentication**: None required
 - **Parameters**:
-  - `groupType` (string): Settings group type (e.g., 'site_config')
+  - `groupType` (string): Settings group type (e.g., 'site_setting')
 - **Response**: List of settings for the specified group type
 
 ### Admin Endpoints (Authentication Required)
 
 #### GET `/settings/:groupType/admin`
+
 - **Description**: Get all settings for a group type (admin access)
 - **Authentication**: Admin JWT required
 - **Parameters**:
@@ -37,6 +39,7 @@ The Admin Settings Module provides a comprehensive settings management system fo
 - **Response**: List of settings with full admin access
 
 #### POST `/settings/:groupType/admin`
+
 - **Description**: Create or update settings for a group type
 - **Authentication**: Admin JWT required
 - **Content-Type**: `multipart/form-data`
@@ -51,6 +54,7 @@ The Admin Settings Module provides a comprehensive settings management system fo
   - Old files are automatically deleted when updated
 
 **Example form data**:
+
 ```
 siteName: "My Website"
 primaryColor: "#000000"
@@ -58,6 +62,7 @@ siteLogo: [file upload]
 ```
 
 #### DELETE `/settings/:groupType/admin`
+
 - **Description**: Delete all settings for a group type
 - **Authentication**: Admin JWT required
 - **Parameters**:
@@ -70,13 +75,13 @@ siteLogo: [file upload]
 
 ```typescript
 interface Settings {
-  id: string;               // UUID primary key
-  groupType: string;        // Group type (e.g., 'site_config')
-  recordType: RecordType;   // 'STRING' or 'FILE'
-  key: string;             // Setting key
-  value: string;           // Setting value or file path
-  createdAt: Date;         // Creation timestamp
-  updatedAt: Date;         // Last update timestamp
+  id: string; // UUID primary key
+  groupType: string; // Group type (e.g., 'site_setting')
+  recordType: RecordType; // 'STRING' or 'FILE'
+  key: string; // Setting key
+  value: string; // Setting value or file path
+  createdAt: Date; // Creation timestamp
+  updatedAt: Date; // Last update timestamp
 }
 ```
 
@@ -119,7 +124,7 @@ No migration needed - schemas are created automatically when first accessed.
 ```bash
 # Create/update text settings
 curl -X POST \
-  http://localhost:3000/settings/site_config/admin \
+  http://localhost:3000/settings/site_setting/admin \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
   -F "siteName=My Website" \
   -F "primaryColor=#000000" \
@@ -131,7 +136,7 @@ curl -X POST \
 ```bash
 # Create/update settings with files
 curl -X POST \
-  http://localhost:3000/settings/site_config/admin \
+  http://localhost:3000/settings/site_setting/admin \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
   -F "siteName=My Website" \
   -F "siteLogo=@logo.png" \
@@ -142,11 +147,11 @@ curl -X POST \
 
 ```bash
 # Public access
-curl http://localhost:3000/settings/site_config/front
+curl http://localhost:3000/settings/site_setting/front
 
 # Admin access
 curl -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-     http://localhost:3000/settings/site_config/admin
+     http://localhost:3000/settings/site_setting/admin
 ```
 
 ## File Upload Configuration
@@ -184,6 +189,7 @@ Files are automatically renamed using a timestamp-based naming system to prevent
 ### Cache Invalidation
 
 Cache is automatically invalidated when:
+
 - Settings are created or updated
 - Settings are deleted
 - Group types are deleted
@@ -216,6 +222,7 @@ npm test -- settings.service.spec.ts
 ```
 
 The test suite covers:
+
 - Settings retrieval and filtering
 - Create/update operations
 - File upload handling
@@ -275,6 +282,7 @@ export class MyService {
 ### Cache Statistics
 
 Access cache statistics (admin only):
+
 ```
 GET /settings/admin/cache/stats
 ```
@@ -282,6 +290,7 @@ GET /settings/admin/cache/stats
 ### Clear Cache
 
 Clear all cache or specific group type:
+
 ```
 DELETE /settings/admin/cache/clear
 DELETE /settings/admin/cache/clear/:groupType

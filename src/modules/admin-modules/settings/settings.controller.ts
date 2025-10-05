@@ -24,21 +24,15 @@ import {
 } from '@nestjs/swagger';
 import * as multer from 'multer';
 import { SettingsService } from './settings.service';
-import { AdminJwtUserGuard } from '../admin-users/guards/admin-jwt-auth.guard';
+import { JwtAdminGuard } from '../../../common/guards/jwt-admin.guard';
 import { Public } from '../../../common/decorators/public.decorator';
-import { ResponseHandler } from '../../../common/utils/response.handler';
+import { I18nResponseService } from '../../../common/services/i18n-response.service';
 import { I18nResponseInterceptor } from '../../../common/interceptors/i18n-response.interceptor';
-import { I18nService } from 'nestjs-i18n';
 import {
-  SettingsResponseDto,
   SettingsListResponseDto,
   GroupTypeParamDto,
   SettingsErrorResponseDto,
 } from './dto/settings.dto';
-import {
-  SettingsRequest,
-  CreateSettingsRequest,
-} from './interfaces/settings-request.interface';
 import {
   SettingsNotFoundException,
   SettingsValidationException,
@@ -53,7 +47,7 @@ export class SettingsController {
 
   constructor(
     private readonly settingsService: SettingsService,
-    private readonly i18n: I18nService
+    private readonly i18nResponse: I18nResponseService
   ) {}
 
   @Get(':groupType/front')
@@ -66,7 +60,7 @@ export class SettingsController {
   @ApiParam({
     name: 'groupType',
     description: 'Settings group type',
-    example: 'site_config',
+    example: 'site_setting',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -99,8 +93,8 @@ export class SettingsController {
         count: settings.length,
       };
 
-      return ResponseHandler.success(
-        await this.i18n.translate('settings.retrieved_successfully'),
+      return this.i18nResponse.translateAndRespond(
+        'settings.retrieved_successfully',
         HttpStatus.OK,
         response
       );
@@ -111,18 +105,21 @@ export class SettingsController {
       );
 
       if (error instanceof SettingsNotFoundException) {
-        return ResponseHandler.error(error.message, HttpStatus.NOT_FOUND);
+        return this.i18nResponse.translateError(
+          'settings.not_found',
+          HttpStatus.NOT_FOUND
+        );
       }
 
-      return ResponseHandler.error(
-        await this.i18n.translate('settings.fetch_failed'),
+      return this.i18nResponse.translateError(
+        'settings.fetch_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   @Get(':groupType/admin')
-  @UseGuards(AdminJwtUserGuard)
+  @UseGuards(JwtAdminGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get settings by group type (Admin)',
@@ -132,26 +129,7 @@ export class SettingsController {
   @ApiParam({
     name: 'groupType',
     description: 'Settings group type',
-    example: 'site_config',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Settings retrieved successfully',
-    type: SettingsListResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Unauthorized - Admin access required',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid group type',
-    type: SettingsErrorResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Settings not found',
-    type: SettingsErrorResponseDto,
+    example: 'site_setting',
   })
   async getAdminSettingsByGroupType(@Param() params: GroupTypeParamDto) {
     try {
@@ -169,8 +147,8 @@ export class SettingsController {
         count: settings.length,
       };
 
-      return ResponseHandler.success(
-        await this.i18n.translate('settings.retrieved_successfully'),
+      return this.i18nResponse.translateAndRespond(
+        'settings.retrieved_successfully',
         HttpStatus.OK,
         response
       );
@@ -181,18 +159,21 @@ export class SettingsController {
       );
 
       if (error instanceof SettingsNotFoundException) {
-        return ResponseHandler.error(error.message, HttpStatus.NOT_FOUND);
+        return this.i18nResponse.translateError(
+          'settings.not_found',
+          HttpStatus.NOT_FOUND
+        );
       }
 
-      return ResponseHandler.error(
-        await this.i18n.translate('settings.fetch_failed'),
+      return this.i18nResponse.translateError(
+        'settings.fetch_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   @Post(':groupType/admin')
-  @UseGuards(AdminJwtUserGuard)
+  @UseGuards(JwtAdminGuard)
   @UseInterceptors(
     FilesInterceptor('files', 20, {
       storage: multer.memoryStorage(),
@@ -216,6 +197,9 @@ export class SettingsController {
     - siteName: "My Website"
     - primaryColor: "#000000"
     - siteLogo: [file]
+    - darkLogo: [file]
+    - favIcon: [file]
+    - placeholderLogo: [file]
 
     **Behavior:**
     - If setting exists: Updates the existing setting
@@ -227,7 +211,7 @@ export class SettingsController {
   @ApiParam({
     name: 'groupType',
     description: 'Settings group type',
-    example: 'site_config',
+    example: 'site_setting',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -241,7 +225,7 @@ export class SettingsController {
           settings: [
             {
               id: 'clxxxxxxxxxxxxxxx',
-              groupType: 'site_config',
+              groupType: 'site_setting',
               recordType: 'STRING',
               key: 'siteName',
               value: 'My Website',
@@ -265,7 +249,7 @@ export class SettingsController {
   })
   async createOrUpdateSettings(
     @Param() params: GroupTypeParamDto,
-    @Body() body: any,
+    @Body() body: Record<string, string>,
     @UploadedFiles() files?: Express.Multer.File[]
   ) {
     try {
@@ -319,8 +303,8 @@ export class SettingsController {
         groupType: params.groupType,
       };
 
-      return ResponseHandler.success(
-        await this.i18n.translate('settings.created_successfully'),
+      return this.i18nResponse.translateAndRespond(
+        'settings.created_successfully',
         HttpStatus.CREATED,
         response
       );
@@ -331,26 +315,38 @@ export class SettingsController {
       );
 
       if (error instanceof SettingsValidationException) {
-        return ResponseHandler.error(error.message, HttpStatus.BAD_REQUEST);
+        return this.i18nResponse.translateError(
+          'settings.validation_error',
+          HttpStatus.BAD_REQUEST,
+          error.message
+        );
       }
 
       if (error instanceof FileUploadSettingsException) {
-        return ResponseHandler.error(error.message, HttpStatus.BAD_REQUEST);
+        return this.i18nResponse.translateError(
+          'settings.file_upload_error',
+          HttpStatus.BAD_REQUEST,
+          error.message
+        );
       }
 
       if (error instanceof BadRequestException) {
-        return ResponseHandler.error(error.message, HttpStatus.BAD_REQUEST);
+        return this.i18nResponse.translateError(
+          'settings.bad_request',
+          HttpStatus.BAD_REQUEST,
+          error.message
+        );
       }
 
-      return ResponseHandler.error(
-        await this.i18n.translate('settings.creation_failed'),
+      return this.i18nResponse.translateError(
+        'settings.creation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   @Delete(':groupType/admin')
-  @UseGuards(AdminJwtUserGuard)
+  @UseGuards(JwtAdminGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete all settings by group type (Admin)',
@@ -360,7 +356,7 @@ export class SettingsController {
   @ApiParam({
     name: 'groupType',
     description: 'Settings group type to delete',
-    example: 'site_config',
+    example: 'site_setting',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -372,7 +368,7 @@ export class SettingsController {
         statusCode: 200,
         data: {
           deletedCount: 5,
-          groupType: 'site_config',
+          groupType: 'site_setting',
         },
       },
     },
@@ -405,8 +401,8 @@ export class SettingsController {
         groupType: params.groupType,
       };
 
-      return ResponseHandler.success(
-        await this.i18n.translate('settings.deleted_successfully'),
+      return this.i18nResponse.translateAndRespond(
+        'settings.deleted_successfully',
         HttpStatus.OK,
         response
       );
@@ -417,75 +413,82 @@ export class SettingsController {
       );
 
       if (error instanceof SettingsNotFoundException) {
-        return ResponseHandler.error(error.message, HttpStatus.NOT_FOUND);
+        return this.i18nResponse.translateError(
+          'settings.not_found',
+          HttpStatus.NOT_FOUND
+        );
       }
 
-      return ResponseHandler.error(
-        await this.i18n.translate('settings.deletion_failed'),
+      return this.i18nResponse.translateError(
+        'settings.deletion_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   @Get('admin/cache/stats')
-  @UseGuards(AdminJwtUserGuard)
+  @UseGuards(JwtAdminGuard)
   @ApiBearerAuth()
   @ApiExcludeEndpoint()
-  async getCacheStats() {
+  getCacheStats() {
     try {
-      const stats = await this.settingsService.getCacheStats();
-      return ResponseHandler.success(
-        'Cache stats retrieved successfully',
+      const stats = this.settingsService.getCacheStats();
+      return this.i18nResponse.translateAndRespond(
+        'settings.cache_stats_retrieved',
         HttpStatus.OK,
         stats
       );
     } catch (error) {
       this.logger.error('Failed to get cache stats', (error as Error).stack);
-      return ResponseHandler.error(
-        'Failed to get cache stats',
+      return this.i18nResponse.translateError(
+        'settings.cache_stats_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   @Delete('admin/cache/clear/:groupType')
-  @UseGuards(AdminJwtUserGuard)
+  @UseGuards(JwtAdminGuard)
   @ApiBearerAuth()
   @ApiExcludeEndpoint()
-  async clearCacheByGroup(@Param('groupType') groupType: string) {
+  clearCacheByGroup(@Param('groupType') groupType: string) {
     try {
-      await this.settingsService.clearCache(groupType);
+      this.settingsService.clearCache(groupType);
       const message = `Cache cleared for group type: ${groupType}`;
-      return ResponseHandler.success(
-        this.i18n.t('settings.cache_cleared'),
+      return this.i18nResponse.translateAndRespond(
+        'settings.cache_cleared',
         HttpStatus.OK,
         { message }
       );
     } catch (error) {
-      return ResponseHandler.error(
-        'Failed to clear cache',
+      this.logger.error(
+        'Failed to clear cache by group',
+        (error as Error).stack
+      );
+      return this.i18nResponse.translateError(
+        'settings.cache_clear_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
 
   @Delete('admin/cache/clear')
-  @UseGuards(AdminJwtUserGuard)
+  @UseGuards(JwtAdminGuard)
   @ApiBearerAuth()
   @ApiExcludeEndpoint()
-  async clearAllCache() {
+  clearAllCache() {
     try {
-      await this.settingsService.clearCache();
+      this.settingsService.clearCache();
       const message = 'All cache cleared';
-      return ResponseHandler.success(
-        this.i18n.t('settings.cache_cleared'),
+      return this.i18nResponse.translateAndRespond(
+        'settings.cache_cleared',
         HttpStatus.OK,
         { message }
       );
     } catch (error) {
       this.logger.error('Failed to clear cache', (error as Error).stack);
-      return ResponseHandler.error(
-        'Failed to clear cache',
+      return this.i18nResponse.translateError(
+        'settings.cache_clear_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

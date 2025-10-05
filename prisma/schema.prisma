@@ -143,6 +143,11 @@ enum RecordType {
   FILE
 }
 
+enum DefaultStatus {
+  YES
+  NO
+}
+
 // Equity Campaign Model
 model Equity {
   id                      String         @id @default(cuid())
@@ -375,4 +380,28 @@ model Settings {
   @@unique([groupType, key])
   @@index([groupType])
   @@map("settings")
+}
+
+// Country Model
+model Country {
+  id        String        @id @default(cuid())
+  publicId  String        @unique @default(cuid())
+  name      String
+  iso2      String        @unique @db.VarChar(2)
+  iso3      String        @unique @db.VarChar(3)
+  flag      String
+  isDefault DefaultStatus @default(NO)
+  useCount  Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([name])
+  @@index([iso2])
+  @@index([iso3])
+  @@index([isDefault])
+  @@index([useCount])
+  @@index([createdAt])
+  @@index([publicId])
+  @@index([name, iso2, iso3])
+  @@map("countries")
 }

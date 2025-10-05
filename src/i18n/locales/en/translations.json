@@ -154,5 +154,20 @@
     "invalid_group_type": "Invalid group type format",
     "file_upload_failed": "File upload failed",
     "cache_cleared": "Cache cleared successfully"
+  },
+  "countries": {
+    "retrieved": "Countries retrieved successfully",
+    "created": "Country created successfully",
+    "updated": "Country updated successfully",
+    "deleted": "Country deleted successfully",
+    "not_found": "Country not found",
+    "flag_file_required": "Country flag file is required",
+    "bulk_updated": "Countries updated successfully",
+    "bulk_deleted": "Countries deleted successfully",
+    "name_already_exists": "Country with this name already exists",
+    "iso2_already_exists": "Country with this ISO2 code already exists",
+    "iso3_already_exists": "Country with this ISO3 code already exists",
+    "country_in_use": "Cannot delete country as it is currently being used",
+    "invalid_iso_code": "Invalid ISO country code format"
   }
 }

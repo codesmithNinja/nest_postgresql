@@ -27,7 +27,7 @@ export class SettingsMongoRepository
 
   protected toEntity(doc: SettingsDocument): Settings {
     return {
-      id: doc._id?.toString() || doc.id,
+      id: (doc._id?.toString() || doc.id) as string,
       groupType: doc.groupType,
       recordType: doc.recordType,
       key: doc.key,
@@ -42,7 +42,7 @@ export class SettingsMongoRepository
       ...entity,
     };
     if (doc.id && !doc._id) {
-      doc._id = doc.id;
+      doc._id = doc.id as string;
       delete doc.id;
     }
     return doc;

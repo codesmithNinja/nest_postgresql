@@ -23,26 +23,48 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Enterprise-grade NestJS application with dual database support (PostgreSQL/MongoDB), JWT authentication, and comprehensive business modules for equity crowdfunding platform.
 
-## Project setup
+### Key Features
+
+- 🔒 **Strict TypeScript** - Zero tolerance for `any` types, enforced type safety
+- 🗄️ **Dual Database Support** - PostgreSQL (Prisma) and MongoDB (Mongoose)
+- 🔐 **JWT Authentication** - Secure token-based authentication
+- 🌐 **Internationalization** - Multi-language support with i18n
+- 📝 **Auto-generated API Docs** - Swagger/OpenAPI documentation
+- ⚡ **Rate Limiting** - Built-in API protection
+- 📧 **Email Integration** - Account activation and notifications
+
+## Project Setup
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## Development Workflow
 
 ```bash
-# development
-$ npm run start
+# Check TypeScript strict compliance
+$ npm run lint
 
-# watch mode
+# Verify build compilation
+$ npm run build
+
+# Start in watch mode (recommended)
 $ npm run start:dev
 
-# production mode
+# Production mode
 $ npm run start:prod
 ```
+
+## Type Safety Requirements
+
+This project enforces **STRICT TypeScript** with zero tolerance for `any` types:
+
+- ❌ Never use `any` type
+- ✅ Always type function parameters and return values
+- ✅ Use `unknown` for truly unknown data
+- ✅ Run `npm run lint` and `npm run build` before commits
 
 ## Run tests
 

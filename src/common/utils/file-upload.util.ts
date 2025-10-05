@@ -21,6 +21,7 @@ export function getBucketName(bucketKey: string): string {
     CAMPAIGN_CATEGORIES:
       process.env.CAMPAIGN_CATEGORIES_BUCKET || 'campaign-categories',
     CATEGORIES: process.env.CATEGORIES_BUCKET || 'categories',
+    COUNTRIES: process.env.COUNTRIES_BUCKET || 'countries',
     EXTRA_DOCUMENTS: process.env.EXTRA_DOCUMENTS_BUCKET || 'extras-documents',
     EXTRA_IMAGES: process.env.EXTRA_IMAGES_BUCKET || 'extras-images',
     TEAM_MEMBERS: process.env.TEAM_MEMBERS_BUCKET || 'team-members',

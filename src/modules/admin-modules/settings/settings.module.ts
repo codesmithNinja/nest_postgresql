@@ -6,7 +6,6 @@ import { SettingsService } from './settings.service';
 import { GroupTypeValidationMiddleware } from './middleware/group-type-validation.middleware';
 import { DatabaseModule } from '../../../database/database.module';
 import { FileManagementService } from '../../../common/services/file-management.service';
-import { I18nModule } from 'nestjs-i18n';
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ import { I18nModule } from 'nestjs-i18n';
         files: 20, // Maximum 20 files
       },
     }),
-    // I18nModule, // Temporarily disabled
   ],
   controllers: [SettingsController],
   providers: [SettingsService, FileManagementService],

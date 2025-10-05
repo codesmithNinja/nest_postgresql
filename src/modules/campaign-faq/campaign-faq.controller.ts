@@ -8,19 +8,13 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtUserGuard } from '../../common/guards/jwt-user.guard';
 import { CampaignOwnershipGuard } from '../../common/guards/campaign-ownership.guard';
 import { CampaignFaqService } from './campaign-faq.service';
 import {
   CreateCampaignFaqDto,
   UpdateCampaignFaqDto,
-  CampaignFaqResponseDto,
 } from './dto/campaign-faq.dto';
 
 @ApiTags('Campaign FAQs')
@@ -33,7 +27,6 @@ export class CampaignFaqController {
   @Get(':equityId')
   @UseGuards(CampaignOwnershipGuard)
   @ApiOperation({ summary: 'Get all FAQs for campaign' })
-  @ApiResponse({ type: [CampaignFaqResponseDto] })
   async getCampaignFaqs(@Param('equityId') equityId: string) {
     return this.campaignFaqService.getCampaignFaqsByEquityId(equityId);
   }
@@ -41,7 +34,6 @@ export class CampaignFaqController {
   @Post(':equityId')
   @UseGuards(CampaignOwnershipGuard)
   @ApiOperation({ summary: 'Create campaign FAQ' })
-  @ApiResponse({ type: CampaignFaqResponseDto, status: 201 })
   async createCampaignFaq(
     @Param('equityId') equityId: string,
     @Body() createCampaignFaqDto: CreateCampaignFaqDto
@@ -55,7 +47,6 @@ export class CampaignFaqController {
   @Patch(':equityId/:id')
   @UseGuards(CampaignOwnershipGuard)
   @ApiOperation({ summary: 'Update campaign FAQ' })
-  @ApiResponse({ type: CampaignFaqResponseDto })
   async updateCampaignFaq(
     @Param('equityId') equityId: string,
     @Param('id') id: string,
@@ -71,10 +62,6 @@ export class CampaignFaqController {
   @Delete(':equityId/:id')
   @UseGuards(CampaignOwnershipGuard)
   @ApiOperation({ summary: 'Delete campaign FAQ' })
-  @ApiResponse({
-    status: 200,
-    description: 'Campaign FAQ deleted successfully',
-  })
   async deleteCampaignFaq(
     @Param('equityId') equityId: string,
     @Param('id') id: string

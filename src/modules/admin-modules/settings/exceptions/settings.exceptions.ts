@@ -31,7 +31,7 @@ export class InvalidGroupTypeException extends HttpException {
 }
 
 export class SettingsValidationException extends HttpException {
-  constructor(message: string, validationErrors?: any) {
+  constructor(message: string, validationErrors?: unknown) {
     super(
       {
         message,

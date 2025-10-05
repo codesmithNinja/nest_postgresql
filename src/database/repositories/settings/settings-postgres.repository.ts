@@ -51,10 +51,7 @@ export class SettingsPostgresRepository
     return result as Settings[];
   }
 
-  async getDetailById(
-    id: string,
-    options?: QueryOptions
-  ): Promise<Settings | null> {
+  async getDetailById(id: string): Promise<Settings | null> {
     const result = await this.prisma.settings.findUnique({
       where: { id },
       select: this.selectFields,

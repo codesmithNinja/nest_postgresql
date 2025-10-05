@@ -154,5 +154,20 @@
     "invalid_group_type": "Formato de tipo de grupo inválido",
     "file_upload_failed": "Error al subir archivo",
     "cache_cleared": "Cache limpiado exitosamente"
+  },
+  "countries": {
+    "retrieved": "Países obtenidos exitosamente",
+    "created": "País creado exitosamente",
+    "updated": "País actualizado exitosamente",
+    "deleted": "País eliminado exitosamente",
+    "not_found": "País no encontrado",
+    "flag_file_required": "Se requiere el archivo de bandera del país",
+    "bulk_updated": "Países actualizados exitosamente",
+    "bulk_deleted": "Países eliminados exitosamente",
+    "name_already_exists": "Ya existe un país con este nombre",
+    "iso2_already_exists": "Ya existe un país con este código ISO2",
+    "iso3_already_exists": "Ya existe un país con este código ISO3",
+    "country_in_use": "No se puede eliminar el país ya que está siendo utilizado",
+    "invalid_iso_code": "Formato de código ISO de país inválido"
   }
 }

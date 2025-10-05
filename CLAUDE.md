@@ -32,6 +32,8 @@ src/
 
 ### TypeScript/NestJS Style
 
+- **Strict TypeScript**: NO `any` types allowed anywhere in the project
+- **Type Safety**: All variables, parameters, and return types must be explicitly typed
 - **Indentation**: 2 spaces (enforced by .prettierrc)
 - **Quotes**: Single quotes for strings
 - **Semicolons**: Always use semicolons
@@ -202,3 +204,16 @@ return ResponseHandler.error('Error message', 400);
 - Separate Docker targets for each service
 - Nginx configuration for routing
 - Rate limiting per service type
+
+- response this now completely working as multi lanugage. Future APIs must follow the same response style as of now.
+- entire document will be strict typescript. Do not use any type anywhere in the project
+- every API creation or updation check lint format and build and resolve all the errors you found then start the application to test weather it is working or not
+- Always start application using npm run start:dev. it will start the application using nodemon so you dont have to kill the application everytime.
+- After all task completion, if the new APIs are created or old API routes are updated then do the necessary changes in belwo files as well.
+
+. CLAUDE.md (because it contains the escence of the project itself)
+. DEVELOPER_GUIDE.md
+. Equity Crowdfunding with NestJS + PostgreSQL + MongoDB.postman_collection.json
+. README.md
+. backup script (not sure about this but if you need to do any changes, then do it)
+. swagger docs

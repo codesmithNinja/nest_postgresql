@@ -1,6 +1,7 @@
 # NestJS Multi-Database Authentication System - Developer Guide
 
 ## Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [Architecture Overview](#architecture-overview)
 3. [Getting Started](#getting-started)
@@ -21,6 +22,7 @@
 This is an enterprise-grade NestJS application that provides a robust foundation for building scalable web applications. The project features dual database support (PostgreSQL and MongoDB), JWT-based authentication, microservices architecture, and comprehensive business logic modules for investment campaigns.
 
 ### Key Features
+
 - **Dual Database Support**: Switch between PostgreSQL (Prisma) and MongoDB (Mongoose)
 - **JWT Authentication**: Secure token-based authentication with Passport
 - **Modular Architecture**: Feature-based modules for better organization
@@ -36,6 +38,7 @@ This is an enterprise-grade NestJS application that provides a robust foundation
 ## Architecture Overview
 
 ### High-Level Architecture
+
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Client App    │◄──►│   NestJS API    │◄──►│   Database      │
@@ -45,6 +48,7 @@ This is an enterprise-grade NestJS application that provides a robust foundation
 ```
 
 ### Directory Structure
+
 ```
 src/
 ├── common/              # Shared utilities, guards, interceptors
@@ -81,12 +85,14 @@ src/
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v22 or higher)
 - npm or yarn
 - PostgreSQL OR MongoDB (depending on configuration)
 - Git
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -108,6 +114,7 @@ npm run start:dev
 ```
 
 ### MongoDB-Only Installation
+
 If you only want to use MongoDB (no PostgreSQL required):
 
 ```bash
@@ -129,6 +136,7 @@ npm run start:dev
 ```
 
 **Key Points for MongoDB-Only Setup:**
+
 - ✅ PostgreSQL installation is NOT required
 - ✅ Prisma client is auto-generated on `npm install`
 - ✅ No database migrations needed
@@ -136,6 +144,7 @@ npm run start:dev
 - ✅ Just set `DATABASE_TYPE=mongodb` and start the app
 
 ### Environment Variables
+
 ```env
 # Database Configuration
 DATABASE_TYPE=postgres          # or 'mongodb'
@@ -164,25 +173,27 @@ NODE_ENV=development
 ### 1. NestJS Fundamentals
 
 #### Modules (@Module)
+
 Modules are the basic building blocks of a NestJS application. They organize related functionality together.
 
 ```typescript
 @Module({
-  imports: [ConfigModule, DatabaseModule],    // Other modules to import
-  controllers: [AuthController],              // Controllers in this module
-  providers: [AuthService, JwtStrategy],      // Services and providers
-  exports: [AuthService]                      // Services to export to other modules
+  imports: [ConfigModule, DatabaseModule], // Other modules to import
+  controllers: [AuthController], // Controllers in this module
+  providers: [AuthService, JwtStrategy], // Services and providers
+  exports: [AuthService], // Services to export to other modules
 })
 export class AuthModule {}
 ```
 
 #### Controllers (@Controller)
+
 Controllers handle incoming HTTP requests and return responses to the client.
 
 ```typescript
-@Controller('auth')  // Base route: /auth
+@Controller('auth') // Base route: /auth
 export class AuthController {
-  @Post('login')     // Full route: POST /auth/login
+  @Post('login') // Full route: POST /auth/login
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
@@ -190,6 +201,7 @@ export class AuthController {
 ```
 
 #### Services (@Injectable)
+
 Services contain business logic and can be injected into controllers or other services.
 
 ```typescript
@@ -207,6 +219,7 @@ export class AuthService {
 ```
 
 #### Dependency Injection
+
 NestJS uses dependency injection to manage dependencies between classes.
 
 ```typescript
@@ -221,17 +234,17 @@ constructor(
 
 ### 2. Decorators Used
 
-| Decorator | Purpose | Example |
-|-----------|---------|---------|
-| `@Module()` | Define a module | `@Module({ imports: [], providers: [] })` |
-| `@Controller()` | Define a controller | `@Controller('users')` |
-| `@Injectable()` | Mark class as injectable | `@Injectable()` |
-| `@Get()`, `@Post()`, etc. | HTTP method handlers | `@Get('profile')` |
-| `@Body()` | Extract request body | `@Body() createUserDto: CreateUserDto` |
-| `@Param()` | Extract route parameters | `@Param('id') id: string` |
-| `@Query()` | Extract query parameters | `@Query() paginationDto: PaginationDto` |
-| `@UseGuards()` | Apply guards | `@UseGuards(JwtAuthGuard)` |
-| `@Public()` | Mark route as public | `@Public()` (custom decorator) |
+| Decorator                 | Purpose                  | Example                                   |
+| ------------------------- | ------------------------ | ----------------------------------------- |
+| `@Module()`               | Define a module          | `@Module({ imports: [], providers: [] })` |
+| `@Controller()`           | Define a controller      | `@Controller('users')`                    |
+| `@Injectable()`           | Mark class as injectable | `@Injectable()`                           |
+| `@Get()`, `@Post()`, etc. | HTTP method handlers     | `@Get('profile')`                         |
+| `@Body()`                 | Extract request body     | `@Body() createUserDto: CreateUserDto`    |
+| `@Param()`                | Extract route parameters | `@Param('id') id: string`                 |
+| `@Query()`                | Extract query parameters | `@Query() paginationDto: PaginationDto`   |
+| `@UseGuards()`            | Apply guards             | `@UseGuards(JwtAuthGuard)`                |
+| `@Public()`               | Mark route as public     | `@Public()` (custom decorator)            |
 
 ---
 
@@ -242,14 +255,16 @@ constructor(
 The application supports both PostgreSQL and MongoDB through a unified repository pattern.
 
 #### Database Selection
+
 ```typescript
 // Environment variable determines database type
-DATABASE_TYPE=postgres  // or 'mongodb'
+DATABASE_TYPE = postgres; // or 'mongodb'
 ```
 
 #### Repository Pattern Implementation
 
 **1. Interface Definition**
+
 ```typescript
 // src/database/repositories/user/user.repository.interface.ts
 export interface IUserRepository {
@@ -263,6 +278,7 @@ export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 ```
 
 **2. PostgreSQL Implementation**
+
 ```typescript
 // src/database/repositories/user/user-postgres.repository.ts
 export class UserPostgresRepository implements IUserRepository {
@@ -276,6 +292,7 @@ export class UserPostgresRepository implements IUserRepository {
 ```
 
 **3. MongoDB Implementation**
+
 ```typescript
 // src/database/repositories/user/user-mongodb.repository.ts
 export class UserMongoRepository implements IUserRepository {
@@ -289,6 +306,7 @@ export class UserMongoRepository implements IUserRepository {
 ```
 
 **4. Dynamic Injection**
+
 ```typescript
 // src/database/database.module.ts
 providers: [
@@ -298,13 +316,14 @@ providers: [
       return new UserPostgresRepository(prismaService);
     },
     inject: [PrismaService],
-  }
-]
+  },
+];
 ```
 
 ### Database Entities vs Schemas
 
 #### PostgreSQL (Prisma Entities)
+
 ```typescript
 // src/database/entities/user.entity.ts
 export interface User {
@@ -319,6 +338,7 @@ export interface User {
 ```
 
 #### MongoDB (Mongoose Schemas)
+
 ```typescript
 // src/database/schemas/user.schema.ts
 @Schema()
@@ -343,11 +363,13 @@ export const UserSchema = SchemaFactory.createForClass(User);
 ### JWT Authentication Flow
 
 #### 1. User Registration
+
 ```
 Client → POST /auth/register → Validation → Password Hashing → Save User → Send Activation Email
 ```
 
 **Implementation (`src/modules/auth/auth.service.ts:40`)**:
+
 ```typescript
 async register(registerDto: RegisterDto, ipAddress: string) {
   // 1. Check if user already exists
@@ -376,11 +398,13 @@ async register(registerDto: RegisterDto, ipAddress: string) {
 ```
 
 #### 2. User Login
+
 ```
 Client → POST /auth/login → Validate Credentials → Generate JWT → Return Token + User Data
 ```
 
 **Implementation (`src/modules/auth/auth.service.ts:113`)**:
+
 ```typescript
 async login(loginDto: LoginDto, ipAddress: string) {
   // 1. Find user by email
@@ -404,6 +428,7 @@ async login(loginDto: LoginDto, ipAddress: string) {
 ```
 
 #### 3. Protected Routes
+
 ```typescript
 // Apply JWT guard to protect routes
 @UseGuards(JwtUserGuard)
@@ -419,6 +444,7 @@ async login() { /* ... */ }
 ```
 
 ### JWT Strategy Implementation
+
 ```typescript
 // src/modules/auth/strategies/jwt.strategy.ts
 @Injectable()
@@ -442,6 +468,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 ## Request Lifecycle
 
 ### Complete Request Flow
+
 ```
 1. HTTP Request
    ↓
@@ -471,31 +498,33 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 ```
 
 ### Global Interceptors
+
 ```typescript
 // src/app.module.ts - Global interceptors applied to all routes
 providers: [
   {
     provide: APP_INTERCEPTOR,
-    useClass: LanguagePersistenceInterceptor,  // Handle i18n language
+    useClass: LanguagePersistenceInterceptor, // Handle i18n language
   },
   {
     provide: APP_INTERCEPTOR,
-    useClass: I18nResponseInterceptor,         // Translate responses
+    useClass: I18nResponseInterceptor, // Translate responses
   },
   {
     provide: APP_INTERCEPTOR,
-    useClass: ResponseInterceptor,             // Standardize response format
+    useClass: ResponseInterceptor, // Standardize response format
   },
   {
     provide: APP_INTERCEPTOR,
-    useClass: ErrorLoggingInterceptor,         // Log errors
-  }
-]
+    useClass: ErrorLoggingInterceptor, // Log errors
+  },
+];
 ```
 
 ### Example Request Processing
 
 **Request**: `POST /auth/login`
+
 ```json
 {
   "email": "user@example.com",
@@ -504,6 +533,7 @@ providers: [
 ```
 
 **Processing Steps**:
+
 1. **CORS Check**: Allow/deny based on origin
 2. **Rate Limiting**: Check if under limit (10 requests/minute for login)
 3. **Route Matching**: `AuthController.login()` method
@@ -524,21 +554,22 @@ providers: [
 // src/modules/auth/auth.module.ts
 @Module({
   imports: [
-    ConfigModule,                              // Access to environment variables
-    DatabaseModule,                            // User repository access
+    ConfigModule, // Access to environment variables
+    DatabaseModule, // User repository access
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({                  // JWT configuration
+    JwtModule.registerAsync({
+      // JWT configuration
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '7d' }
+        signOptions: { expiresIn: '7d' },
       }),
       inject: [ConfigService],
     }),
-    EmailModule,                               // Email service for notifications
+    EmailModule, // Email service for notifications
   ],
-  providers: [AuthService, JwtStrategy],       // Business logic and JWT strategy
-  controllers: [AuthController],               // HTTP endpoints
+  providers: [AuthService, JwtStrategy], // Business logic and JWT strategy
+  controllers: [AuthController], // HTTP endpoints
   exports: [AuthService, JwtStrategy, PassportModule, JwtModule], // Available to other modules
 })
 export class AuthModule {}
@@ -550,17 +581,21 @@ export class AuthModule {}
 // src/modules/admin-modules/settings/settings.module.ts
 @Module({
   imports: [
-    ConfigModule,                              // Access to environment variables
-    DatabaseModule,                            // Settings repository access
-    FileManagementModule,                      // File upload service
-    I18nModule,                               // Internationalization
+    ConfigModule, // Access to environment variables
+    DatabaseModule, // Settings repository access
+    FileManagementModule, // File upload service
+    I18nModule, // Internationalization
   ],
-  controllers: [SettingsController],          // HTTP endpoints
+  controllers: [SettingsController], // HTTP endpoints
   providers: [
-    SettingsService,                          // Business logic
+    SettingsService, // Business logic
     {
-      provide: SETTINGS_REPOSITORY,           // Repository injection
-      useFactory: (databaseType: string, prisma: PrismaService, settingsModel: Model<SettingsDocument>) => {
+      provide: SETTINGS_REPOSITORY, // Repository injection
+      useFactory: (
+        databaseType: string,
+        prisma: PrismaService,
+        settingsModel: Model<SettingsDocument>
+      ) => {
         return databaseType === 'postgres'
           ? new SettingsPostgresRepository(prisma)
           : new SettingsMongoRepository(settingsModel);
@@ -568,12 +603,13 @@ export class AuthModule {}
       inject: ['DATABASE_TYPE', PrismaService, getModelToken(Settings.name)],
     },
   ],
-  exports: [SettingsService],                // Make service available to other modules
+  exports: [SettingsService], // Make service available to other modules
 })
 export class SettingsModule {}
 ```
 
 #### Settings Module Features
+
 - **Dynamic Configuration**: Manage application settings by group types
 - **File Upload Support**: Handle both text and file-based settings
 - **Caching System**: Redis-like in-memory caching for performance
@@ -582,12 +618,20 @@ export class SettingsModule {}
 - **Internationalization**: Multi-language error messages
 
 #### Settings Repository Pattern
+
 ```typescript
 // Interface definition
 export interface ISettingsRepository extends IRepository<Settings> {
   findByGroupType(groupType: string): Promise<Settings[]>;
-  findByGroupTypeAndKey(groupType: string, key: string): Promise<Settings | null>;
-  upsertByGroupTypeAndKey(groupType: string, key: string, data: CreateSettingsData | UpdateSettingsData): Promise<Settings>;
+  findByGroupTypeAndKey(
+    groupType: string,
+    key: string
+  ): Promise<Settings | null>;
+  upsertByGroupTypeAndKey(
+    groupType: string,
+    key: string,
+    data: CreateSettingsData | UpdateSettingsData
+  ): Promise<Settings>;
   deleteByGroupType(groupType: string): Promise<number>;
   deleteByGroupTypeAndKey(groupType: string, key: string): Promise<boolean>;
   bulkUpsert(settings: CreateSettingsData[]): Promise<Settings[]>;
@@ -608,6 +652,7 @@ export class SettingsService {
 ```
 
 #### File Upload Integration
+
 ```typescript
 // Controller handling multipart form data
 @Post(':groupType/admin')
@@ -630,6 +675,7 @@ async createOrUpdateSettings(
 ```
 
 ### Module Dependencies
+
 ```
 AppModule
 ├── ConfigModule (Global)
@@ -659,7 +705,49 @@ AppModule
 
 ## Development Patterns
 
-### 1. DTO (Data Transfer Object) Pattern
+### 1. TypeScript Coding Standards
+
+**STRICT TypeScript Enforcement**: This project enforces strict TypeScript with zero tolerance for `any` types.
+
+#### Type Safety Rules:
+- ❌ **Never use `any` type** - Use specific types or `unknown` for truly unknown data
+- ✅ **Always type function parameters and return values**
+- ✅ **Use proper generic constraints**: `<T = unknown>` instead of `<T = any>`
+- ✅ **Prefer interfaces over object literals** for complex structures
+- ✅ **Use union types for specific value sets**: `'YES' | 'NO'` instead of `string`
+
+#### Examples:
+
+```typescript
+// ❌ Bad - using any
+function processData(data: any): any {
+  return data.someProperty;
+}
+
+// ✅ Good - using proper types
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function processUserData(data: UserData): string {
+  return data.name;
+}
+
+// ✅ Good - using unknown for truly unknown data
+function parseJsonSafely(jsonString: string): unknown {
+  return JSON.parse(jsonString);
+}
+```
+
+#### Development Workflow:
+1. **Lint Check**: Run `npm run lint` to catch type issues
+2. **Build Check**: Run `npm run build` to verify TypeScript compilation
+3. **Start App**: Use `npm run start:dev` for development with nodemon
+
+### 2. DTO (Data Transfer Object) Pattern
+
 ```typescript
 // src/modules/auth/dto/auth.dto.ts
 export class RegisterDto {
@@ -672,7 +760,7 @@ export class RegisterDto {
     minLowercase: 1,
     minUppercase: 1,
     minNumbers: 1,
-    minSymbols: 1
+    minSymbols: 1,
   })
   password: string;
 
@@ -693,9 +781,10 @@ export class RegisterDto {
 ```
 
 ### 2. Response Standardization
+
 ```typescript
 // All API responses follow this pattern
-interface StandardResponse<T = any> {
+interface StandardResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
@@ -709,6 +798,7 @@ return this.i18nResponse.error('auth.invalid_credentials', 401);
 ```
 
 ### 3. Error Handling
+
 ```typescript
 // Global exception filter handles all errors
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -728,6 +818,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 ```
 
 ### 4. Configuration Management
+
 ```typescript
 // src/common/config/app.config.ts
 export default registerAs('app', () => ({
@@ -743,6 +834,7 @@ constructor(private configService: ConfigService) {
 ```
 
 ### 5. Repository Token Pattern
+
 ```typescript
 // Define token
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
@@ -767,6 +859,7 @@ constructor(
 The application supports robust file upload handling with validation, storage management, and integration with the Settings module.
 
 #### Basic File Upload Setup
+
 ```typescript
 // Controller with file upload
 @Post('upload')
@@ -785,6 +878,7 @@ async uploadFiles(
 ```
 
 #### Mixed Form Data (Text + Files)
+
 ```typescript
 // Settings module pattern for handling mixed data
 @Post(':groupType/admin')
@@ -819,11 +913,14 @@ async createOrUpdateSettings(
 ```
 
 #### File Management Service
+
 ```typescript
 // File upload service with validation and storage
 @Injectable()
 export class FileManagementService {
-  async uploadSettingsFile(file: Express.Multer.File): Promise<{ filePath: string }> {
+  async uploadSettingsFile(
+    file: Express.Multer.File
+  ): Promise<{ filePath: string }> {
     // Validate file type and size
     this.validateFile(file);
 
@@ -837,7 +934,12 @@ export class FileManagementService {
   }
 
   private validateFile(file: Express.Multer.File): void {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'application/pdf',
+    ];
     const maxSize = 10 * 1024 * 1024; // 10MB
 
     if (!allowedTypes.includes(file.mimetype)) {
@@ -852,6 +954,7 @@ export class FileManagementService {
 ```
 
 #### File Storage Strategies
+
 ```typescript
 // Local storage implementation
 async saveToLocal(file: Express.Multer.File, filename: string): Promise<string> {
@@ -879,6 +982,7 @@ async saveToS3(file: Express.Multer.File, filename: string): Promise<string> {
 ```
 
 #### File Cleanup and Management
+
 ```typescript
 // Automatic cleanup of old files
 async deleteOldFile(filePath: string): Promise<void> {
@@ -914,6 +1018,7 @@ async fileExists(filePath: string): Promise<boolean> {
 ```
 
 #### Frontend Integration Example
+
 ```javascript
 // Frontend form data preparation
 const formData = new FormData();
@@ -931,13 +1036,13 @@ if (faviconFile) {
 }
 
 // Send request
-const response = await fetch('/settings/site_config/admin', {
+const response = await fetch('/settings/site_setting/admin', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
     // Don't set Content-Type header - let browser set it with boundary
   },
-  body: formData
+  body: formData,
 });
 ```
 
@@ -948,6 +1053,7 @@ const response = await fetch('/settings/site_config/admin', {
 ### Available Endpoints
 
 #### Authentication Endpoints
+
 ```
 POST   /auth/register         # User registration
 POST   /auth/login            # User login
@@ -957,6 +1063,7 @@ POST   /auth/reset-password   # Reset password with token
 ```
 
 #### User Management Endpoints
+
 ```
 GET    /users/profile         # Get current user profile
 PATCH  /users/profile         # Update user profile
@@ -966,6 +1073,7 @@ DELETE /users/deactivate      # Deactivate user account
 ```
 
 #### Admin Endpoints
+
 ```
 GET    /admin/users           # List all users (admin only)
 POST   /admin/users           # Create user (admin only)
@@ -974,6 +1082,7 @@ DELETE /admin/users/:id       # Delete user (admin only)
 ```
 
 #### Settings Management Endpoints
+
 ```
 # Public endpoints (no authentication required)
 GET    /settings/:groupType/front         # Get public settings by group type
@@ -989,12 +1098,13 @@ DELETE /settings/admin/cache/clear/:groupType?  # Clear cache (all or by group)
 ```
 
 #### Settings API Examples
+
 ```bash
 # Get public site configuration
-curl -X GET "http://localhost:3000/settings/site_config/front"
+curl -X GET "http://localhost:3000/settings/site_setting/front"
 
 # Create/update settings with mixed data (admin)
-curl -X POST "http://localhost:3000/settings/site_config/admin" \
+curl -X POST "http://localhost:3000/settings/site_setting/admin" \
   -H "Authorization: Bearer <admin-token>" \
   -H "Content-Type: multipart/form-data" \
   -F "siteName=My Website" \
@@ -1002,24 +1112,29 @@ curl -X POST "http://localhost:3000/settings/site_config/admin" \
   -F "siteLogo=@./logo.png"
 
 # Delete all settings in a group (admin)
-curl -X DELETE "http://localhost:3000/settings/site_config/admin" \
+curl -X DELETE "http://localhost:3000/settings/site_setting/admin" \
   -H "Authorization: Bearer <admin-token>"
 ```
 
 ### Authentication Required
+
 Most endpoints require JWT authentication. Include the token in the Authorization header:
+
 ```
 Authorization: Bearer <jwt-token>
 ```
 
 ### Rate Limiting
+
 The API implements rate limiting:
+
 - **General**: 50 requests per minute
 - **Login**: 10 requests per minute
 - **Registration**: 5 requests per minute
 - **Password Reset**: 3 requests per minute
 
 ### Swagger Documentation
+
 Access interactive API documentation at: `http://localhost:3000/api/docs`
 
 ---
@@ -1027,6 +1142,7 @@ Access interactive API documentation at: `http://localhost:3000/api/docs`
 ## Development Workflow
 
 ### 1. Setup Development Environment
+
 ```bash
 # Install dependencies
 npm install
@@ -1047,6 +1163,7 @@ npm run start:dev
 ### 2. Creating a New Feature Module
 
 **Step 1: Generate Module**
+
 ```bash
 nest g module modules/feature-name
 nest g controller modules/feature-name
@@ -1054,6 +1171,7 @@ nest g service modules/feature-name
 ```
 
 **Step 2: Create DTOs**
+
 ```typescript
 // src/modules/feature-name/dto/feature.dto.ts
 export class CreateFeatureDto {
@@ -1064,6 +1182,7 @@ export class CreateFeatureDto {
 ```
 
 **Step 3: Create Repository Interface**
+
 ```typescript
 // src/database/repositories/feature/feature.repository.interface.ts
 export interface IFeatureRepository {
@@ -1075,6 +1194,7 @@ export const FEATURE_REPOSITORY = Symbol('FEATURE_REPOSITORY');
 ```
 
 **Step 4: Implement Repository**
+
 ```typescript
 // src/database/repositories/feature/feature-postgres.repository.ts
 export class FeaturePostgresRepository implements IFeatureRepository {
@@ -1087,6 +1207,7 @@ export class FeaturePostgresRepository implements IFeatureRepository {
 ```
 
 **Step 5: Register Repository in DatabaseModule**
+
 ```typescript
 // Add to database.module.ts
 {
@@ -1099,6 +1220,7 @@ export class FeaturePostgresRepository implements IFeatureRepository {
 ```
 
 **Step 6: Implement Service**
+
 ```typescript
 // src/modules/feature-name/feature.service.ts
 @Injectable()
@@ -1114,6 +1236,7 @@ export class FeatureService {
 ```
 
 **Step 7: Implement Controller**
+
 ```typescript
 // src/modules/feature-name/feature.controller.ts
 @Controller('features')
@@ -1131,6 +1254,7 @@ export class FeatureController {
 ### 3. Database Operations
 
 #### PostgreSQL (Prisma)
+
 ```bash
 # Generate Prisma client after schema changes
 npm run prisma:generate
@@ -1149,6 +1273,7 @@ npm run prisma:studio
 ```
 
 #### MongoDB (Mongoose)
+
 ```bash
 # Start MongoDB service
 mongod
@@ -1160,6 +1285,7 @@ mongo
 ```
 
 ### 4. Testing
+
 ```bash
 # Run unit tests
 npm run test
@@ -1175,6 +1301,7 @@ npm run test:e2e
 ```
 
 ### 5. Code Quality
+
 ```bash
 # Lint code
 npm run lint
@@ -1193,50 +1320,64 @@ npx tsc --noEmit
 ### Common Issues
 
 #### 1. Database Connection Issues
+
 **Problem**: Cannot connect to database
 **Solutions**:
+
 - Check `DATABASE_URL` or `MONGODB_URI` in `.env`
 - Ensure database server is running
 - Verify database credentials and permissions
 - Check firewall settings
 
 #### 2. JWT Secret Missing
+
 **Problem**: `JWT_SECRET is not defined in environment variables`
 **Solution**: Add `JWT_SECRET` to your `.env` file
+
 ```env
 JWT_SECRET=your-super-secret-jwt-key-here
 ```
 
 #### 3. Prisma Client Not Generated (MongoDB-Only Users)
+
 **Problem**: `Cannot find module '@prisma/client'` even when using MongoDB only
 **Explanation**: The application imports Prisma types for TypeScript compilation, even in MongoDB mode
 **Solution**: This is now handled automatically by the `postinstall` script. For manual generation:
+
 ```bash
 npm run prisma:generate
 ```
+
 **Note**: You do NOT need to run `prisma migrate` for MongoDB - only `prisma generate` is required for TypeScript compilation.
 
 #### 4. Port Already in Use
+
 **Problem**: `EADDRINUSE: address already in use :::3000`
 **Solutions**:
+
 - Change port in `.env`: `PORT=3001`
 - Kill process using port: `kill -9 $(lsof -ti:3000)`
 
 #### 5. Module Import Errors
+
 **Problem**: Circular dependency or module not found
 **Solutions**:
+
 - Check import paths
 - Ensure proper module exports
 - Use `forwardRef()` for circular dependencies
 
 #### 6. Validation Errors
+
 **Problem**: Request validation fails
 **Solutions**:
+
 - Check DTO definitions
 - Ensure all required fields are provided
 - Verify data types match DTO expectations
 
 ### Debug Mode
+
 ```bash
 # Start in debug mode
 npm run start:debug
@@ -1246,12 +1387,15 @@ npm run test:debug
 ```
 
 ### Logging
+
 The application includes comprehensive logging:
+
 - **Error Logging**: All errors are logged with stack traces
 - **Request Logging**: HTTP requests and responses
 - **Database Logging**: Database queries (in development)
 
 ### Performance Monitoring
+
 - **Health Checks**: `/health` endpoint
 - **Metrics**: `/metrics` endpoint (Prometheus format)
 - **Rate Limiting**: Automatic throttling
@@ -1261,18 +1405,21 @@ The application includes comprehensive logging:
 ## Additional Resources
 
 ### Documentation Links
+
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [Prisma Documentation](https://www.prisma.io/docs/)
 - [Mongoose Documentation](https://mongoosejs.com/docs/)
 - [Passport JWT Documentation](http://www.passportjs.org/packages/passport-jwt/)
 
 ### Development Tools
+
 - **Prisma Studio**: Database GUI (`npm run prisma:studio`)
 - **Swagger UI**: API documentation (`/api/docs`)
 - **Health Check**: Application status (`/health`)
 - **Metrics**: Application metrics (`/metrics`)
 
 ### Best Practices
+
 1. **Always use DTOs** for request/response validation
 2. **Implement proper error handling** with try-catch blocks
 3. **Use repository pattern** for database abstraction

@@ -47,7 +47,7 @@ export interface CacheKey {
 }
 
 export interface SettingsCacheEntry {
-  data: any;
+  data: Record<string, string | number | boolean>;
   timestamp: number;
   ttl: number;
 }

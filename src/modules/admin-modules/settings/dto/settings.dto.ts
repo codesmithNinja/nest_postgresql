@@ -14,7 +14,7 @@ import { RecordType } from '../../../../common/enums/database-type.enum';
 export class CreateSettingsDto {
   @ApiProperty({
     description: 'Settings group type',
-    example: 'site_config',
+    example: 'site_setting',
     minLength: 1,
     maxLength: 100,
   })
@@ -87,7 +87,7 @@ export class SettingsResponseDto {
 
   @ApiProperty({
     description: 'Settings group type',
-    example: 'site_config',
+    example: 'site_setting',
   })
   groupType!: string;
 
@@ -126,7 +126,7 @@ export class SettingsResponseDto {
 export class GroupTypeParamDto {
   @ApiProperty({
     description: 'Settings group type',
-    example: 'site_config',
+    example: 'site_setting',
   })
   @IsString()
   @IsNotEmpty()
@@ -157,7 +157,7 @@ export class SettingsListResponseDto {
 
   @ApiProperty({
     description: 'Group type',
-    example: 'site_config',
+    example: 'site_setting',
   })
   groupType!: string;
 

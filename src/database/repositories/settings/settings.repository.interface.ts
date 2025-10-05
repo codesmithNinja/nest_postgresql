@@ -3,7 +3,6 @@ import {
   Settings,
   CreateSettingsData,
   UpdateSettingsData,
-  SettingsFilter,
 } from '../../entities/settings.entity';
 
 export const SETTINGS_REPOSITORY = 'SETTINGS_REPOSITORY';

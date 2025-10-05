@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { SettingsService } from './settings.service';
 import {
@@ -38,37 +39,35 @@ describe('SettingsService', () => {
   };
 
   beforeEach(async () => {
-    const mockRepository: Partial<jest.Mocked<ISettingsRepository>> = {
+    mockSettingsRepository = {
       findByGroupType: jest.fn(),
       findByGroupTypeAndKey: jest.fn(),
       upsertByGroupTypeAndKey: jest.fn(),
       deleteByGroupTypeAndKey: jest.fn(),
       deleteByGroupType: jest.fn(),
-    };
+    } as jest.Mocked<ISettingsRepository>;
 
-    const mockFileService: Partial<jest.Mocked<FileManagementService>> = {
+    mockFileManagementService = {
       uploadSettingsFile: jest.fn(),
       fileExists: jest.fn(),
       deleteFile: jest.fn(),
-    };
+    } as jest.Mocked<FileManagementService>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SettingsService,
         {
           provide: SETTINGS_REPOSITORY,
-          useValue: mockRepository,
+          useValue: mockSettingsRepository,
         },
         {
           provide: FileManagementService,
-          useValue: mockFileService,
+          useValue: mockFileManagementService,
         },
       ],
     }).compile();
 
     service = module.get<SettingsService>(SettingsService);
-    mockSettingsRepository = module.get(SETTINGS_REPOSITORY);
-    mockFileManagementService = module.get(FileManagementService);
 
     // Reset all mocks before each test
     jest.clearAllMocks();
@@ -334,8 +333,8 @@ describe('SettingsService', () => {
   });
 
   describe('caching functionality', () => {
-    it('should have cache stats method', async () => {
-      const stats = await service.getCacheStats();
+    it('should have cache stats method', () => {
+      const stats = service.getCacheStats();
       expect(stats).toBeDefined();
       expect(typeof stats.keys).toBe('number');
     });

@@ -45,15 +45,15 @@ export class SettingsService implements OnModuleInit {
     this.logger.log('Settings service initialized with caching enabled');
 
     // Set up cache event listeners
-    this.cache.on('set', (key: string, value: unknown) => {
+    this.cache.on('set', (key: string) => {
       this.logger.debug(`Cache SET: ${key}`);
     });
 
-    this.cache.on('del', (key: string, value: unknown) => {
+    this.cache.on('del', (key: string) => {
       this.logger.debug(`Cache DELETE: ${key}`);
     });
 
-    this.cache.on('expired', (key: string, value: unknown) => {
+    this.cache.on('expired', (key: string) => {
       this.logger.debug(`Cache EXPIRED: ${key}`);
     });
   }
@@ -318,7 +318,7 @@ export class SettingsService implements OnModuleInit {
     }
   }
 
-  async getCacheStats(): Promise<NodeCache.Stats> {
+  getCacheStats(): NodeCache.Stats {
     const stats = this.cache.getStats();
     return {
       keys: stats.keys,
@@ -329,7 +329,7 @@ export class SettingsService implements OnModuleInit {
     };
   }
 
-  async clearCache(groupType?: string): Promise<void> {
+  clearCache(groupType?: string): void {
     try {
       if (groupType) {
         this.invalidateGroupTypeCache(groupType);
