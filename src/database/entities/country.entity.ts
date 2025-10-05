@@ -6,6 +6,7 @@ export interface Country {
   iso3: string;
   flag: string;
   isDefault: 'YES' | 'NO';
+  status: boolean;
   useCount: number;
   createdAt: Date;
   updatedAt: Date;

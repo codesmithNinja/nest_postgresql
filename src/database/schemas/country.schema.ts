@@ -57,6 +57,9 @@ export class Country {
   })
   isDefault!: 'YES' | 'NO';
 
+  @Prop({ required: true, default: true })
+  status!: boolean;
+
   @Prop({ required: true, default: 0, min: 0 })
   useCount!: number;
 
@@ -71,6 +74,7 @@ CountrySchema.index({ name: 1 });
 CountrySchema.index({ iso2: 1 }, { unique: true });
 CountrySchema.index({ iso3: 1 }, { unique: true });
 CountrySchema.index({ isDefault: 1 });
+CountrySchema.index({ status: 1 });
 CountrySchema.index({ useCount: 1 });
 CountrySchema.index({ createdAt: -1 });
 CountrySchema.index({ name: 1, iso2: 1, iso3: 1 });

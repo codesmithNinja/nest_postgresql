@@ -42,6 +42,14 @@ export class DefaultCountryException extends BadRequestException {
   }
 }
 
+export class DefaultCountryDeletionException extends BadRequestException {
+  constructor(countryName: string) {
+    super(
+      `Cannot delete country '${countryName}' as it is set as the default country. Please set another country as default before deletion.`
+    );
+  }
+}
+
 export class CountryFileUploadException extends BadRequestException {
   constructor(message: string) {
     super(`Country flag upload error: ${message}`);

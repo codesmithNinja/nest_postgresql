@@ -1013,7 +1013,6 @@
                         "exec": [
                           "if (pm.response.code === 200) {",
                           "    const response = pm.response.json();",
-                          "    console.log(response);",
                           "    if (response.data.access_token) {",
                           "        pm.environment.set('ADMIN_JWT', response.data.access_token);",
                           "        console.log('Admin JWT token saved to environment variables');",
@@ -2253,7 +2252,6 @@
                         "exec": [
                           "if (pm.response.code === 200) {",
                           "    const response = pm.response.json();",
-                          "    console.log(response.data);",
                           "    if (response.data && response.data.token) {",
                           "        pm.environment.set('FRONT_JWT', response.data.token);",
                           "        console.log('JWT token and user ID saved to collection variables');",

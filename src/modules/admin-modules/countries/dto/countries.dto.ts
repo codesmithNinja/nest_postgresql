@@ -9,9 +9,10 @@ import {
   ArrayNotEmpty,
   IsUUID,
   Length,
+  IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class CreateCountryDto {
   @ApiProperty({ description: 'Country name', minLength: 2, maxLength: 100 })
@@ -57,6 +58,26 @@ export class CreateCountryDto {
   @IsString()
   @IsIn(['YES', 'NO'])
   isDefault?: 'YES' | 'NO' = 'NO';
+
+  @ApiPropertyOptional({
+    description: 'Country status (active/inactive)',
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) {
+      return true;
+    }
+    if (typeof value === 'string') {
+      const lowerValue = value.toLowerCase();
+      const result = lowerValue === 'true' || lowerValue === '1';
+      return result;
+    }
+    const result = Boolean(value);
+    return result;
+  })
+  status?: boolean;
 
   publicId!: string; // Set internally
 }
@@ -108,6 +129,21 @@ export class UpdateCountryDto {
   @IsString()
   @IsIn(['YES', 'NO'])
   isDefault?: 'YES' | 'NO';
+
+  @ApiPropertyOptional({
+    description: 'Country status (active/inactive)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // don't change existing value for update
+    if (typeof value === 'string') {
+      const lowerValue = value.toLowerCase();
+      return lowerValue === 'true' || lowerValue === '1';
+    }
+    return Boolean(value);
+  })
+  status?: boolean;
 }
 
 export class CountryFilterDto {
@@ -137,6 +173,21 @@ export class CountryFilterDto {
   @IsIn(['YES', 'NO'])
   isDefault?: 'YES' | 'NO';
 
+  @ApiPropertyOptional({
+    description: 'Filter by status (active/inactive)',
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined; // no filter if not provided
+    if (typeof value === 'string') {
+      const lowerValue = value.toLowerCase();
+      return lowerValue === 'true' || lowerValue === '1';
+    }
+    return Boolean(value);
+  })
+  status?: boolean;
+
   @ApiPropertyOptional({ description: 'Page number', default: 1, minimum: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -163,14 +214,12 @@ export class BulkUpdateCountryDto {
   @IsUUID(4, { each: true })
   ids!: string[];
 
-  @ApiPropertyOptional({
-    description: 'Is default country',
-    enum: ['YES', 'NO'],
+  @ApiProperty({
+    description: 'Country status (active/inactive)',
   })
-  @IsOptional()
-  @IsString()
-  @IsIn(['YES', 'NO'])
-  isDefault?: 'YES' | 'NO';
+  @IsNotEmpty()
+  @IsBoolean()
+  status!: boolean;
 }
 
 export class BulkDeleteCountryDto {
@@ -208,6 +257,9 @@ export class CountryResponseDto {
     enum: ['YES', 'NO'],
   })
   isDefault!: 'YES' | 'NO';
+
+  @ApiProperty({ description: 'Country status (active/inactive)' })
+  status!: boolean;
 
   @ApiProperty({ description: 'Number of times this country is used' })
   useCount!: number;

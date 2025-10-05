@@ -31,6 +31,7 @@ export class CountriesPostgresRepository
       iso3: true,
       flag: true,
       isDefault: true,
+      status: true,
       useCount: true,
       createdAt: true,
       updatedAt: true,

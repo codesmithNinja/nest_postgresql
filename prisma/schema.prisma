@@ -391,6 +391,7 @@ model Country {
   iso3      String        @unique @db.VarChar(3)
   flag      String
   isDefault DefaultStatus @default(NO)
+  status    Boolean       @default(true)
   useCount  Int           @default(0)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -399,6 +400,7 @@ model Country {
   @@index([iso2])
   @@index([iso3])
   @@index([isDefault])
+  @@index([status])
   @@index([useCount])
   @@index([createdAt])
   @@index([publicId])

@@ -26,6 +26,7 @@ import {
   CountryInUseException,
   CountryIsoCodeConflictException,
   InvalidCountryDataException,
+  DefaultCountryDeletionException,
 } from './exceptions/countries.exceptions';
 
 @Injectable()
@@ -77,10 +78,10 @@ export class CountriesService {
   }
 
   async getFrontCountries() {
-    this.logger.log('Retrieving all countries for frontend');
+    this.logger.log('Retrieving active countries for frontend');
 
     const countries = await this.countriesRepository.findMany(
-      {},
+      { status: true },
       {
         sort: { name: 1 },
       }
@@ -94,6 +95,9 @@ export class CountriesService {
 
   async createCountry(createCountryDto: CreateCountryDto) {
     this.logger.log(`Creating country: ${createCountryDto.name}`);
+    this.logger.log(
+      `Status value received: ${createCountryDto.status} (type: ${typeof createCountryDto.status})`
+    );
 
     // Validate business logic FIRST (before file upload)
     await this.validateCountryCreation(createCountryDto);
@@ -168,6 +172,11 @@ export class CountriesService {
       throw new CountryInUseException(country.name, country.useCount);
     }
 
+    // Check if country is set as default
+    if (country.isDefault === 'YES') {
+      throw new DefaultCountryDeletionException(country.name);
+    }
+
     // Clean up country flag if exists
     if (country.flag) {
       try {
@@ -188,16 +197,9 @@ export class CountriesService {
   async bulkUpdateCountries(bulkUpdateDto: BulkUpdateCountryDto) {
     this.logger.log(`Bulk updating ${bulkUpdateDto.ids.length} countries`);
 
-    const updateData: Partial<Country> = {};
-
-    if (bulkUpdateDto.isDefault !== undefined) {
-      updateData.isDefault = bulkUpdateDto.isDefault;
-
-      // If setting any to default, set all others to non-default first
-      if (bulkUpdateDto.isDefault === 'YES') {
-        await this.countriesRepository.setAllNonDefault();
-      }
-    }
+    const updateData: Partial<Country> = {
+      status: bulkUpdateDto.status,
+    };
 
     const result = await this.countriesRepository.bulkUpdateByPublicIds(
       bulkUpdateDto.ids,
@@ -225,6 +227,12 @@ export class CountriesService {
       if (country.useCount > 0) {
         this.logger.warn(
           `Skipping deletion of country '${country.name}' due to useCount: ${country.useCount}`
+        );
+        return false;
+      }
+      if (country.isDefault === 'YES') {
+        this.logger.warn(
+          `Skipping deletion of country '${country.name}' as it is set as default`
         );
         return false;
       }
@@ -409,6 +417,7 @@ export class CountriesService {
       iso3: country.iso3,
       flag: country.flag,
       isDefault: country.isDefault,
+      status: country.status,
       useCount: country.useCount,
       createdAt: country.createdAt,
       updatedAt: country.updatedAt,
