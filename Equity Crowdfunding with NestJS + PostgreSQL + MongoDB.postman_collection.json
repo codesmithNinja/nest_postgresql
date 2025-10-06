@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "a3a6da1d-c40b-4117-b3e8-c2b87041bba6",
+    "_postman_id": "e9d78f98-b91e-49f9-9311-403c971c482e",
     "name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
-    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
+    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, file uploads, and multi-language support (English, Spanish, French, Arabic).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "15694815"
   },
@@ -686,6 +686,344 @@
               "description": "Settings management endpoints for dynamic application configuration."
             },
             {
+              "name": "🌐 Languages Management",
+              "item": [
+                {
+                  "name": "Get All Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "name",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "folder",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "disabled": true
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all languages with pagination and filtering."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Language by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve a specific language by its public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "English",
+                          "type": "text"
+                        },
+                        {
+                          "key": "folder",
+                          "value": "en",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "EN",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "ENG",
+                          "type": "text"
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "type": "text"
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flagImage",
+                          "value": "",
+                          "description": "Language flag image (PNG, JPG, JPEG, SVG)",
+                          "type": "file"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages"]
+                    },
+                    "description": "Admin endpoint to create a new language with flag image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "English (US)",
+                          "type": "text"
+                        },
+                        {
+                          "key": "folder",
+                          "value": "en-us",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "EN",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "ENG",
+                          "type": "text"
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "type": "text"
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flagImage",
+                          "value": "",
+                          "description": "Updated language flag image (PNG, JPG, JPEG, SVG)",
+                          "type": "file",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update a language with optional flag image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete a language (only if isDefault is NO)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"ids\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"status\": false\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "bulk-update"]
+                    },
+                    "description": "Admin endpoint to update multiple languages status at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"ids\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "bulk-delete"]
+                    },
+                    "description": "Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Languages management endpoints for dynamic language configuration with flag uploads and bulk operations. Supports multi-language application features with ISO codes and text direction settings."
+            },
+            {
               "name": "🌍 Countries Management",
               "item": [
                 {
@@ -829,9 +1167,9 @@
                         },
                         {
                           "key": "flag",
+                          "value": "",
                           "description": "Country flag image (PNG, JPG, JPEG)",
-                          "type": "file",
-                          "src": ""
+                          "type": "file"
                         }
                       ]
                     },
@@ -884,9 +1222,9 @@
                         },
                         {
                           "key": "flag",
+                          "value": "",
                           "description": "Updated country flag image (PNG, JPG, JPEG)",
                           "type": "file",
-                          "src": "",
                           "disabled": true
                         }
                       ]
@@ -1120,6 +1458,28 @@
                 }
               ],
               "description": "Settings management endpoints for dynamic application configuration."
+            },
+            {
+              "name": "🌐 Languages Management",
+              "item": [
+                {
+                  "name": "Get Languages",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "front"]
+                    },
+                    "description": "Public endpoint to retrieve all active languages for frontend usage."
+                  },
+                  "response": []
+                }
+              ]
             }
           ],
           "description": "Public admin endpoints that do not require authentication."

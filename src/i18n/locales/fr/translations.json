@@ -169,5 +169,26 @@
     "iso3_already_exists": "Un pays avec ce code ISO3 existe déjà",
     "country_in_use": "Impossible de supprimer le pays car il est actuellement utilisé",
     "invalid_iso_code": "Format de code ISO de pays invalide"
+  },
+  "languages": {
+    "retrieved": "Langues récupérées avec succès",
+    "created": "Langue créée avec succès",
+    "updated": "Langue mise à jour avec succès",
+    "deleted": "Langue supprimée avec succès",
+    "not_found": "Langue non trouvée",
+    "flag_file_required": "Le fichier drapeau de la langue est requis",
+    "bulk_updated": "Langues mises à jour avec succès",
+    "bulk_deleted": "Langues supprimées avec succès",
+    "name_already_exists": "Une langue avec ce nom existe déjà",
+    "folder_already_exists": "Une langue avec ce nom de dossier existe déjà",
+    "iso2_already_exists": "Une langue avec ce code ISO2 existe déjà",
+    "iso3_already_exists": "Une langue avec ce code ISO3 existe déjà",
+    "cannot_delete_default": "Impossible de supprimer la langue par défaut",
+    "invalid_iso_code": "Format de code ISO de langue invalide",
+    "file_upload_failed": "Échec du téléchargement du fichier drapeau de la langue",
+    "invalid_direction": "Direction de langue invalide. Doit être LTR ou RTL",
+    "invalid_status": "Statut de langue invalide",
+    "default_language_required": "Au moins une langue par défaut est requise",
+    "language_in_use": "Impossible de supprimer la langue car elle est actuellement utilisée"
   }
 }

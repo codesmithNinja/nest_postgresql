@@ -22,13 +22,30 @@ model UserType {
 }
 
 model Language {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String        @id @default(cuid())
+  publicId  String        @unique @default(cuid())
+  name      String        @unique
+  folder    String
+  iso2      String        @unique @db.VarChar(2)
+  iso3      String        @unique @db.VarChar(3)
+  flagImage String
+  direction String        @default("ltr") @db.VarChar(3)
+  status    Boolean       @default(true)
+  isDefault DefaultStatus @default(YES)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   users     User[]
 
+  @@index([name])
+  @@index([folder])
+  @@index([iso2])
+  @@index([iso3])
+  @@index([direction])
+  @@index([status])
+  @@index([isDefault])
+  @@index([createdAt])
+  @@index([publicId])
+  @@index([name, iso2, iso3])
   @@map("languages")
 }
 
@@ -407,3 +424,4 @@ model Country {
   @@index([name, iso2, iso3])
   @@map("countries")
 }
+

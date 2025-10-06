@@ -44,8 +44,8 @@ import {
   BulkDeleteCountryDto,
   CountryResponseDto,
   CountryPaginationResponseDto,
-  BulkOperationResponseDto,
 } from './dto/countries.dto';
+import { BulkOperationResponseDto } from '../../../common/dto/bulk-operation.dto';
 
 @ApiTags('Countries')
 @Controller('countries')

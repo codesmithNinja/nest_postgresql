@@ -28,7 +28,12 @@ export class JwtAdminGuard extends AuthGuard('admin-jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TAdmin = any>(
+  handleRequest<
+    TAdmin = Pick<Admin, 'id' | 'email' | 'firstName' | 'lastName'> & {
+      ip: string;
+      userAgent: string;
+    },
+  >(
     err: Error | null,
     admin: Pick<Admin, 'id' | 'email' | 'firstName' | 'lastName'> | false,
     info: unknown,

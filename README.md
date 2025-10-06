@@ -30,10 +30,33 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - 🔒 **Strict TypeScript** - Zero tolerance for `any` types, enforced type safety
 - 🗄️ **Dual Database Support** - PostgreSQL (Prisma) and MongoDB (Mongoose)
 - 🔐 **JWT Authentication** - Secure token-based authentication
-- 🌐 **Internationalization** - Multi-language support with i18n
+- 🌐 **Internationalization** - Multi-language support with i18n (English, Spanish, French, Arabic)
 - 📝 **Auto-generated API Docs** - Swagger/OpenAPI documentation
 - ⚡ **Rate Limiting** - Built-in API protection
 - 📧 **Email Integration** - Account activation and notifications
+
+### Available Modules
+
+#### Admin Modules
+- **🌍 Languages Management** - Multi-language support with flag images, ISO codes, and direction settings (English, Spanish, French, Arabic)
+- **🏳️ Countries Management** - Country data management with flags and usage tracking
+- **⚙️ Settings Management** - Dynamic application configuration by groups
+- **👤 Admin Users** - Administrative user management and authentication
+
+#### Public API Endpoints
+```
+GET /languages/front          # Get active languages for frontend
+```
+
+#### Admin API Endpoints (Authentication Required)
+```
+/languages                     # Languages management
+/countries                     # Countries management
+/settings                      # Settings management
+/admin-users                   # Admin user management
+```
+
+**📖 Documentation:** Access full API documentation at `http://localhost:3000/api/docs` when running the application.
 
 ## Project Setup
 

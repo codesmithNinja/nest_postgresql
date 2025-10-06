@@ -3,13 +3,42 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import * as yaml from 'js-yaml';
 
-export default registerAs('security', () => {
+interface SecurityConfig {
+  helmet: {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: string[];
+        styleSrc: string[];
+        scriptSrc: string[];
+        imgSrc: string[];
+        connectSrc: string[];
+        fontSrc: string[];
+        objectSrc: string[];
+        mediaSrc: string[];
+        frameSrc: string[];
+      };
+    };
+    crossOriginEmbedderPolicy: boolean;
+  };
+  rateLimit: {
+    windowMs: number;
+    max: number;
+    message: string;
+  };
+  jwt: {
+    expiresIn: string;
+    issuer: string;
+    audience: string;
+  };
+}
+
+export default registerAs('security', (): SecurityConfig => {
   try {
     const configPath = join(process.cwd(), 'security-config.yml');
     const configFile = readFileSync(configPath, 'utf8');
-    const config = yaml.load(configFile) as Record<string, any>;
+    const config = yaml.load(configFile) as { security: SecurityConfig };
 
-    return config.security as Record<string, any>;
+    return config.security;
   } catch {
     // Fallback configuration if YAML file is not found
     return {

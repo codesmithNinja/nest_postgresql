@@ -27,7 +27,7 @@ This is an enterprise-grade NestJS application that provides a robust foundation
 - **JWT Authentication**: Secure token-based authentication with Passport
 - **Modular Architecture**: Feature-based modules for better organization
 - **Repository Pattern**: Database abstraction layer for flexibility
-- **Internationalization (i18n)**: Multi-language support
+- **Internationalization (i18n)**: Multi-language support (English, Spanish, French, Arabic)
 - **Rate Limiting**: Built-in throttling for API protection
 - **Comprehensive Validation**: Input validation using class-validator
 - **Swagger Documentation**: Auto-generated API documentation
@@ -69,7 +69,7 @@ src/
 │   └── schemas/        # Mongoose schemas
 ├── email/              # Email service module
 ├── health/             # Health check endpoints
-├── i18n/               # Internationalization
+├── i18n/               # Internationalization (en, es, fr, ar)
 ├── metrics/            # Application metrics
 ├── modules/            # Feature modules
 │   ├── auth/          # Authentication module
@@ -617,6 +617,56 @@ export class SettingsModule {}
 - **Validation**: Strong typing and validation for settings data
 - **Internationalization**: Multi-language error messages
 
+### Feature Module Example: LanguagesModule
+
+```typescript
+// src/modules/admin-modules/languages/languages.module.ts
+@Module({
+  imports: [
+    ConfigModule, // Access to environment variables
+    MongooseModule.forFeature([
+      { name: Language.name, schema: LanguageSchema },
+    ]), // MongoDB schema registration
+    AdminUsersModule, // Admin authentication
+  ],
+  controllers: [LanguagesController], // HTTP endpoints
+  providers: [
+    LanguagesService, // Business logic
+    PrismaService, // PostgreSQL service
+    I18nResponseService, // Response internationalization
+    {
+      provide: LANGUAGES_REPOSITORY, // Repository injection token
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        languagesMongodbRepository: LanguagesMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return languagesMongodbRepository;
+        }
+        return new LanguagesPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+    },
+    LanguagesMongodbRepository, // MongoDB repository implementation
+  ],
+  exports: [LanguagesService, LANGUAGES_REPOSITORY], // Available to other modules
+})
+export class LanguagesModule {}
+```
+
+#### Languages Module Features
+
+- **Multi-Language Support**: Manage application languages and locales
+- **Flag Image Upload**: Handle flag image files with validation and AWS/local storage
+- **Default Language Logic**: Automatic handling of single default language constraint
+- **Dual Database Support**: MongoDB and PostgreSQL repository implementations
+- **Bulk Operations**: Bulk update and delete with business rule enforcement
+- **Public/Admin Endpoints**: Separate access levels for frontend and admin use
+- **Validation**: Strict typing with ISO codes, direction, and status validation
+- **File Management**: Upload, update, and cleanup of flag image files
+
 #### Settings Repository Pattern
 
 ```typescript
@@ -710,6 +760,7 @@ AppModule
 **STRICT TypeScript Enforcement**: This project enforces strict TypeScript with zero tolerance for `any` types.
 
 #### Type Safety Rules:
+
 - ❌ **Never use `any` type** - Use specific types or `unknown` for truly unknown data
 - ✅ **Always type function parameters and return values**
 - ✅ **Use proper generic constraints**: `<T = unknown>` instead of `<T = any>`
@@ -742,6 +793,7 @@ function parseJsonSafely(jsonString: string): unknown {
 ```
 
 #### Development Workflow:
+
 1. **Lint Check**: Run `npm run lint` to catch type issues
 2. **Build Check**: Run `npm run build` to verify TypeScript compilation
 3. **Start App**: Use `npm run start:dev` for development with nodemon
@@ -1045,6 +1097,72 @@ const response = await fetch('/settings/site_setting/admin', {
   body: formData,
 });
 ```
+
+---
+
+## Internationalization (i18n)
+
+### Supported Languages
+
+The application provides comprehensive multi-language support with the following languages:
+
+- **English (en)** - Default/fallback language
+- **Spanish (es)** - Complete translation support
+- **French (fr)** - Complete translation support
+- **Arabic (ar)** - Complete translation support with RTL considerations
+
+### Translation Files Structure
+
+```
+src/i18n/locales/
+├── en/translations.json    # English translations
+├── es/translations.json    # Spanish translations
+├── fr/translations.json    # French translations
+└── ar/translations.json    # Arabic translations
+```
+
+### Translation Categories
+
+Each language file contains organized translation keys for:
+
+- **auth**: Authentication messages (login, register, tokens)
+- **user**: User management messages
+- **validation**: Form validation messages
+- **common**: General system messages
+- **campaign**: Campaign-related messages
+- **languages**: Languages module messages
+- **countries**: Countries module messages
+- **settings**: Settings module messages
+- **admin**: Admin-specific messages
+
+### Usage Examples
+
+```typescript
+// In services using I18nResponseService
+return this.i18nResponse.success('languages.created', 201, language);
+return this.i18nResponse.error('languages.not_found', 404);
+
+// Parameterized translations
+return this.i18nResponse.error('validation.required_field', 400, null, {
+  field: 'name',
+});
+```
+
+### Language Detection
+
+- Uses `lang` query parameter from any APIs called.
+- Falls back to English for missing translation keys
+- Cached translation loading for optimal performance
+- Language persistence through request interceptors
+
+### Arabic Language Support
+
+Arabic language support includes:
+
+- Complete translation coverage for all modules
+- RTL (Right-to-Left) language direction support
+- Proper Arabic text formatting and cultural considerations
+- Integrated with the Languages management module for dynamic configuration
 
 ---
 

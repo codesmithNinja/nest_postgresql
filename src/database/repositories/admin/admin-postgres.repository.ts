@@ -104,8 +104,10 @@ export class AdminPostgresRepository
     };
   }
 
-  protected convertFilterToPrisma(filter: Partial<Admin>): Record<string, any> {
-    const prismaFilter: Record<string, any> = {};
+  protected convertFilterToPrisma(
+    filter: Partial<Admin>
+  ): Record<string, unknown> {
+    const prismaFilter: Record<string, unknown> = {};
 
     Object.entries(filter).forEach(([key, value]) => {
       if (key === 'firstName' || key === 'lastName' || key === 'email') {

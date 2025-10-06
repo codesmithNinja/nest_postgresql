@@ -24,8 +24,13 @@ src/
 │   └── schemas/     # Mongoose schemas
 ├── email/           # Email service module
 └── modules/         # Feature modules
-    ├── auth/       # Authentication module
-    └── users/      # Users module
+    ├── auth/           # Authentication module
+    ├── users/          # Users module
+    └── admin-modules/  # Admin modules
+        ├── admin-users/  # Admin users management
+        ├── countries/    # Countries management
+        ├── languages/    # Languages management
+        └── settings/     # Settings management
 ```
 
 ## Code Conventions
@@ -122,6 +127,16 @@ src/
   PATCH  /change-password
   GET    /slug/:slug
   DELETE /deactivate
+
+/languages (admin-modules)
+  GET    /front                    # Public: Get active languages
+  GET    /                         # Admin: Get all languages with pagination
+  GET    /:publicId                # Admin: Get single language
+  POST   /                         # Admin: Create new language with flag upload
+  PATCH  /:publicId                # Admin: Update language with optional flag upload
+  DELETE /:publicId                # Admin: Delete language (only if isDefault=NO)
+  PATCH  /bulk-update              # Admin: Bulk update language status
+  PATCH  /bulk-delete              # Admin: Bulk delete languages (isDefault=NO only)
 ```
 
 ## Email Templates
@@ -129,6 +144,37 @@ src/
 - Account Activation Email
 - Password Reset Email
 - Use nodemailer with HTML templates
+
+## Internationalization (i18n)
+
+The application supports comprehensive multi-language functionality:
+
+### Supported Languages
+
+- **English (en)** - Default/Fallback language
+- **Spanish (es)** - Full translation support
+- **French (fr)** - Full translation support
+- **Arabic (ar)** - Full translation support with RTL considerations
+
+### Translation Structure
+
+- Translation files: `src/i18n/locales/{lang}/translations.json`
+- Organized by feature modules (auth, user, admin, languages, countries, etc.)
+- Consistent message keys across all languages
+- Support for parameterized translations using `{{variable}}` syntax
+
+### Usage in Controllers
+
+```typescript
+return this.i18nResponse.success('languages.created', 201, language);
+return this.i18nResponse.error('languages.not_found', 404);
+```
+
+### Language Detection
+
+- Uses `lang` query parameter from any APIs called.
+- Falls back to English for missing translations
+- Cached translation loading for performance
 
 ## Environment Variables
 
@@ -140,6 +186,13 @@ JWT_SECRET=...
 JWT_EXPIRES_IN=7d
 EMAIL_HOST=...
 EMAIL_PORT=...
+
+# File Upload Buckets
+ADMIN_BUCKET=admins
+COUNTRIES_BUCKET=countries
+LANGUAGES_BUCKET=languages
+SETTINGS_BUCKET=settings
+...
 ```
 
 ## Docker Configuration
@@ -205,7 +258,7 @@ return ResponseHandler.error('Error message', 400);
 - Nginx configuration for routing
 - Rate limiting per service type
 
-- response this now completely working as multi lanugage. Future APIs must follow the same response style as of now.
+- Response system now completely working as multi-language including Arabic (ar), English (en), Spanish (es), and French (fr). Future APIs must follow the same response style as of now.
 - entire document will be strict typescript. Do not use any type anywhere in the project
 - every API creation or updation check lint format and build and resolve all the errors you found then start the application to test weather it is working or not
 - Always start application using npm run start:dev. it will start the application using nodemon so you dont have to kill the application everytime.
