@@ -27,10 +27,11 @@ src/
     ├── auth/           # Authentication module
     ├── users/          # Users module
     └── admin-modules/  # Admin modules
-        ├── admin-users/  # Admin users management
-        ├── countries/    # Countries management
-        ├── languages/    # Languages management
-        └── settings/     # Settings management
+        ├── admin-users/     # Admin users management
+        ├── countries/       # Countries management
+        ├── languages/       # Languages management
+        ├── manage-dropdown/ # Master dropdown management
+        └── settings/        # Settings management
 ```
 
 ## Code Conventions
@@ -137,6 +138,15 @@ src/
   DELETE /:publicId                # Admin: Delete language (only if isDefault=NO)
   PATCH  /bulk-update              # Admin: Bulk update language status
   PATCH  /bulk-delete              # Admin: Bulk delete languages (isDefault=NO only)
+
+/manage-dropdown (admin-modules)
+  GET    /:optionType              # Public: Get dropdown options by type
+  GET    /:optionType/admin        # Admin: Get dropdown options with pagination
+  POST   /:optionType              # Admin: Create new dropdown option
+  GET    /:optionType/:publicId    # Admin: Get single dropdown option
+  PATCH  /:optionType/:publicId    # Admin: Update dropdown option
+  DELETE /:optionType/:publicId    # Admin: Delete dropdown option
+  PATCH  /:optionType/bulk         # Admin: Bulk operations on dropdown options
 ```
 
 ## Email Templates

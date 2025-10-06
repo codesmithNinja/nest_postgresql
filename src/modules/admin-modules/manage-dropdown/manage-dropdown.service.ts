@@ -9,25 +9,18 @@ import {
 import {
   IManageDropdownRepository,
   MANAGE_DROPDOWN_REPOSITORY,
-} from '../../../../database/repositories/manage-dropdown/manage-dropdown.repository.interface';
-import {
-  ILanguageRepository,
-  LANGUAGE_REPOSITORY,
-} from '../../../../database/repositories/language/language.repository.interface';
+} from '../../../database/repositories/manage-dropdown/manage-dropdown.repository.interface';
 import {
   ManageDropdown,
   CreateManageDropdownDto,
-  UpdateManageDropdownDto,
   ManageDropdownWithLanguage,
-  BulkOperationDto,
-} from '../../../../database/entities/manage-dropdown.entity';
-import { MasterDropdownCacheService } from '../utils/cache.service';
-import { LanguageDetectionService } from '../utils/language-detection.service';
+} from '../../../database/entities/manage-dropdown.entity';
 import {
   CreateManageDropdownDto as CreateManageDropdownDtoValidated,
   UpdateManageDropdownDto as UpdateManageDropdownDtoValidated,
   BulkOperationDto as BulkOperationDtoValidated,
 } from './dto/manage-dropdown.dto';
+import { I18nResponseService } from '../../../common/services/i18n-response.service';
 
 @Injectable()
 export class ManageDropdownService {
@@ -36,109 +29,43 @@ export class ManageDropdownService {
   constructor(
     @Inject(MANAGE_DROPDOWN_REPOSITORY)
     private readonly manageDropdownRepository: IManageDropdownRepository,
-    @Inject(LANGUAGE_REPOSITORY)
-    private readonly languageRepository: ILanguageRepository,
-    private readonly cacheService: MasterDropdownCacheService,
-    private readonly languageDetectionService: LanguageDetectionService
+    private readonly i18nResponse: I18nResponseService
   ) {}
 
   async create(
     dropdownType: string,
-    createDropdownDto: CreateManageDropdownDtoValidated,
-    detectedLanguageCode?: string
+    createDropdownDto: CreateManageDropdownDtoValidated
   ): Promise<ManageDropdown[]> {
     try {
-      // Validate and normalize dropdown type
-      const normalizedDropdownType =
-        this.languageDetectionService.normalizeDropdownType(dropdownType);
-      if (
-        !this.languageDetectionService.validateDropdownType(
-          normalizedDropdownType
-        )
-      ) {
+      // Validate dropdown type
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
-      // Get all active languages for multi-language creation
-      const activeLanguages =
-        await this.languageRepository.findActiveLanguages();
-      if (activeLanguages.length === 0) {
-        throw new BadRequestException(
-          'No active languages found. Please create at least one active language first.'
+      // Check for existing dropdown with same name and type
+      const existingDropdowns =
+        await this.manageDropdownRepository.findByTypeAndLanguage(
+          normalizedDropdownType,
+          createDropdownDto.languageId || ''
         );
-      }
 
-      // If languageId is not provided, auto-detect from request or use default
-      let targetLanguageIds: string[] = [];
-
-      if (createDropdownDto.languageId) {
-        // Validate provided language ID
-        const language = await this.languageRepository.getDetailById(
-          createDropdownDto.languageId
-        );
-        if (!language || !language.status) {
-          throw new BadRequestException(
-            'Invalid or inactive language ID provided'
-          );
-        }
-        targetLanguageIds = [language.id];
-      } else {
-        // Auto-detect language and create for all active languages
-        let primaryLanguage;
-
-        if (detectedLanguageCode) {
-          try {
-            primaryLanguage =
-              await this.languageRepository.findByCode(detectedLanguageCode);
-          } catch (error) {
-            this.logger.warn(
-              `Detected language code ${detectedLanguageCode} not found, using default`
-            );
-          }
-        }
-
-        if (!primaryLanguage) {
-          primaryLanguage =
-            await this.languageRepository.findByIsDefault('YES');
-        }
-
-        if (!primaryLanguage) {
-          throw new BadRequestException(
-            'No default language found. Please set a default language first.'
-          );
-        }
-
-        // Create entries for all active languages
-        targetLanguageIds = activeLanguages.map((lang) => lang.id);
-      }
-
-      // Check for existing dropdown with same name and type in target languages
-      const existingDropdowns = await Promise.all(
-        targetLanguageIds.map((languageId) =>
-          this.manageDropdownRepository.findByTypeAndLanguage(
-            normalizedDropdownType,
-            languageId
-          )
-        )
+      const existingByName = existingDropdowns.find(
+        (dropdown) =>
+          dropdown.name.toLowerCase() === createDropdownDto.name.toLowerCase()
       );
-
-      for (const languageDropdowns of existingDropdowns) {
-        const existingByName = languageDropdowns.find(
-          (dropdown) =>
-            dropdown.name.toLowerCase() === createDropdownDto.name.toLowerCase()
+      if (existingByName) {
+        throw new ConflictException(
+          `Dropdown option with name '${createDropdownDto.name}' already exists for type '${normalizedDropdownType}'`
         );
-        if (existingByName) {
-          throw new ConflictException(
-            `Dropdown option with name '${createDropdownDto.name}' already exists for type '${normalizedDropdownType}'`
-          );
-        }
       }
 
-      // If this is set as default, unset other defaults in the same type and language
+      // If this is set as default, unset other defaults in the same type
       if (createDropdownDto.isDefault === 'YES') {
-        for (const languageId of targetLanguageIds) {
-          await this.unsetDefaultsForType(normalizedDropdownType, languageId);
-        }
+        await this.unsetDefaultsForType(
+          normalizedDropdownType,
+          createDropdownDto.languageId || ''
+        );
       }
 
       // Prepare create data
@@ -148,20 +75,14 @@ export class ManageDropdownService {
         status: createDropdownDto.status ?? true,
       };
 
-      // Create dropdown entries for all target languages
-      const createdDropdowns =
-        await this.manageDropdownRepository.createMultiLanguage(
-          createData,
-          targetLanguageIds
-        );
-
-      // Invalidate cache for this dropdown type
-      this.cacheService.invalidateDropdownCache(normalizedDropdownType);
+      // Create dropdown entry
+      const createdDropdown =
+        await this.manageDropdownRepository.insert(createData);
 
       this.logger.log(
-        `Created ${createdDropdowns.length} dropdown entries for type ${normalizedDropdownType}: ${createData.name}`
+        `Created dropdown entry for type ${normalizedDropdownType}: ${createData.name}`
       );
-      return createdDropdowns;
+      return [createdDropdown];
     } catch (error) {
       this.logger.error(
         `Failed to create dropdown for type ${dropdownType}:`,
@@ -177,56 +98,14 @@ export class ManageDropdownService {
   ): Promise<ManageDropdownWithLanguage[]> {
     try {
       // Validate and normalize dropdown type
-      const normalizedDropdownType =
-        this.languageDetectionService.normalizeDropdownType(dropdownType);
-      if (
-        !this.languageDetectionService.validateDropdownType(
-          normalizedDropdownType
-        )
-      ) {
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
-      }
-
-      // Try to get from cache first
-      const cachedDropdowns = await this.cacheService.getDropdownsByType(
-        normalizedDropdownType,
-        languageCode
-      );
-      if (cachedDropdowns) {
-        return cachedDropdowns;
       }
 
       // Get dropdowns from repository
       const dropdowns = await this.manageDropdownRepository.findByTypeForPublic(
         normalizedDropdownType,
-        languageCode
-      );
-
-      // If no dropdowns found for specific language, try default language
-      if (dropdowns.length === 0 && languageCode) {
-        const defaultLanguage =
-          await this.languageRepository.findByIsDefault('YES');
-        if (defaultLanguage && defaultLanguage.code !== languageCode) {
-          const fallbackDropdowns =
-            await this.manageDropdownRepository.findByTypeForPublic(
-              normalizedDropdownType,
-              defaultLanguage.code
-            );
-
-          // Cache and return fallback dropdowns
-          this.cacheService.setDropdownsByType(
-            normalizedDropdownType,
-            fallbackDropdowns,
-            defaultLanguage.code
-          );
-          return fallbackDropdowns;
-        }
-      }
-
-      // Cache the result
-      this.cacheService.setDropdownsByType(
-        normalizedDropdownType,
-        dropdowns,
         languageCode
       );
 
@@ -259,24 +138,9 @@ export class ManageDropdownService {
       }
 
       // Validate and normalize dropdown type
-      const normalizedDropdownType =
-        this.languageDetectionService.normalizeDropdownType(dropdownType);
-      if (
-        !this.languageDetectionService.validateDropdownType(
-          normalizedDropdownType
-        )
-      ) {
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
-      }
-
-      // Try to get from cache first
-      const cachedResult = await this.cacheService.getDropdownsForAdmin(
-        normalizedDropdownType,
-        page,
-        limit
-      );
-      if (cachedResult) {
-        return cachedResult;
       }
 
       const result =
@@ -287,14 +151,6 @@ export class ManageDropdownService {
           includeInactive,
           languageCode
         );
-
-      // Cache the result
-      this.cacheService.setDropdownsForAdmin(
-        normalizedDropdownType,
-        result,
-        page,
-        limit
-      );
 
       return result;
     } catch (error) {
@@ -308,13 +164,6 @@ export class ManageDropdownService {
 
   async findByPublicId(publicId: string): Promise<ManageDropdownWithLanguage> {
     try {
-      // Try to get from cache first
-      const cachedDropdown =
-        await this.cacheService.getDropdownByPublicId(publicId);
-      if (cachedDropdown) {
-        return cachedDropdown;
-      }
-
       const dropdown =
         await this.manageDropdownRepository.findByPublicId(publicId);
       if (!dropdown) {
@@ -322,9 +171,6 @@ export class ManageDropdownService {
           `Dropdown with public ID '${publicId}' not found`
         );
       }
-
-      // Cache the result
-      this.cacheService.setDropdownByPublicId(dropdown);
 
       return dropdown;
     } catch (error) {
@@ -343,13 +189,8 @@ export class ManageDropdownService {
   ): Promise<ManageDropdown> {
     try {
       // Validate and normalize dropdown type
-      const normalizedDropdownType =
-        this.languageDetectionService.normalizeDropdownType(dropdownType);
-      if (
-        !this.languageDetectionService.validateDropdownType(
-          normalizedDropdownType
-        )
-      ) {
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
@@ -401,12 +242,6 @@ export class ManageDropdownService {
         updateDropdownDto
       );
 
-      // Invalidate cache
-      this.cacheService.invalidateDropdownCache(
-        normalizedDropdownType,
-        existingDropdown
-      );
-
       this.logger.log(
         `Updated dropdown ${publicId} in type ${normalizedDropdownType}`
       );
@@ -426,13 +261,8 @@ export class ManageDropdownService {
   ): Promise<ManageDropdown> {
     try {
       // Validate and normalize dropdown type
-      const normalizedDropdownType =
-        this.languageDetectionService.normalizeDropdownType(dropdownType);
-      if (
-        !this.languageDetectionService.validateDropdownType(
-          normalizedDropdownType
-        )
-      ) {
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
@@ -460,12 +290,6 @@ export class ManageDropdownService {
         throw new Error('Failed to delete dropdown option');
       }
 
-      // Invalidate cache
-      this.cacheService.invalidateDropdownCache(
-        normalizedDropdownType,
-        existingDropdown
-      );
-
       this.logger.log(
         `Deleted dropdown ${publicId} from type ${normalizedDropdownType}`
       );
@@ -485,13 +309,8 @@ export class ManageDropdownService {
   ): Promise<number> {
     try {
       // Validate and normalize dropdown type
-      const normalizedDropdownType =
-        this.languageDetectionService.normalizeDropdownType(dropdownType);
-      if (
-        !this.languageDetectionService.validateDropdownType(
-          normalizedDropdownType
-        )
-      ) {
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
@@ -536,9 +355,6 @@ export class ManageDropdownService {
       const operationCount =
         await this.manageDropdownRepository.bulkOperation(bulkOperationDto);
 
-      // Invalidate cache for this dropdown type
-      this.cacheService.invalidateDropdownCache(normalizedDropdownType);
-
       this.logger.log(
         `Bulk ${bulkOperationDto.action} operation completed: ${operationCount} dropdowns affected in type ${normalizedDropdownType}`
       );
@@ -556,12 +372,6 @@ export class ManageDropdownService {
     try {
       const dropdown = await this.findByPublicId(publicId);
       await this.manageDropdownRepository.incrementUseCount(dropdown.id);
-
-      // Invalidate cache to reflect updated use count
-      this.cacheService.invalidateDropdownCache(
-        dropdown.dropdownType,
-        dropdown
-      );
 
       this.logger.debug(`Incremented use count for dropdown ${publicId}`);
     } catch (error) {
@@ -599,5 +409,15 @@ export class ManageDropdownService {
         error
       );
     }
+  }
+
+  private normalizeDropdownType(dropdownType: string): string {
+    return dropdownType.toLowerCase().trim();
+  }
+
+  private validateDropdownType(dropdownType: string): boolean {
+    // Add validation logic for supported dropdown types
+    const supportedTypes = ['industry', 'category', 'status', 'type'];
+    return supportedTypes.includes(dropdownType);
   }
 }

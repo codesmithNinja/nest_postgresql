@@ -104,7 +104,7 @@ export class ManageDropdownPostgresRepository
 
     if (languageCode) {
       whereClause.language = {
-        code: languageCode,
+        iso2: languageCode,
         status: true,
       };
     }
@@ -188,7 +188,7 @@ export class ManageDropdownPostgresRepository
 
     if (languageCode) {
       whereClause.language = {
-        code: languageCode,
+        iso2: languageCode,
         status: true,
       };
     }

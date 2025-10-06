@@ -11,8 +11,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { PaginationDto } from '../../../../../common/dto/pagination.dto';
-import { LanguageResponseDto } from '../../language/dto/language.dto';
+import { PaginationDto } from '../../../../common/dto/pagination.dto';
 
 export class CreateManageDropdownDto {
   @ApiProperty({
@@ -96,19 +95,13 @@ export class CreateManageDropdownDto {
   isDefault?: string;
 
   @ApiPropertyOptional({
-    description:
-      'Language ID (if not provided, will create for ALL active languages automatically)',
+    description: 'Language ID for this dropdown option',
     example: 'clm1234567890',
     examples: {
       specific: {
         summary: 'Specific Language',
         description: 'Create only for this language',
         value: 'clm1234567890',
-      },
-      autoDetect: {
-        summary: 'Auto-Detect (Recommended)',
-        description: 'Leave empty to create for all active languages',
-        value: null,
       },
     },
   })
@@ -297,8 +290,8 @@ export class ManageDropdownResponseDto {
   @ApiPropertyOptional({ description: 'Is default option', example: 'NO' })
   isDefault?: string;
 
-  @ApiProperty({ description: 'Language details', type: LanguageResponseDto })
-  languageId!: LanguageResponseDto;
+  @ApiProperty({ description: 'Language ID', example: 'clm1234567890' })
+  languageId!: string;
 
   @ApiProperty({ description: 'Dropdown option status', example: true })
   status!: boolean;

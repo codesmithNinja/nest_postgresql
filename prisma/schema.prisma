@@ -34,7 +34,8 @@ model Language {
   isDefault DefaultStatus @default(YES)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  users     User[]
+  users           User[]
+  manageDropdowns ManageDropdown[]
 
   @@index([name])
   @@index([folder])

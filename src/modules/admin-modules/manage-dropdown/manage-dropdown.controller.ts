@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   Query,
-  Req,
   UseGuards,
   HttpStatus,
   ValidationPipe,
@@ -31,27 +30,16 @@ import {
   ManageDropdownResponseDto,
   PaginatedManageDropdownResponseDto,
 } from './dto/manage-dropdown.dto';
-import { AdminJwtUserGuard } from '../../admin-users/guards/admin-jwt-auth.guard';
-import { Public } from '../../../../common/decorators/public.decorator';
-import { PaginationDto } from '../../../../common/dto/pagination.dto';
-import { LanguageDetectionService } from '../utils/language-detection.service';
-import { LanguageResponseDto } from '../language/dto/language.dto';
-
-interface RequestWithLanguage extends Request {
-  language?: string;
-  i18nLang?: string;
-  detectedLanguageCode?: string;
-}
+import { ManageDropdownWithLanguage } from '../../../database/entities/manage-dropdown.entity';
+import { AdminJwtUserGuard } from '../admin-users/guards/admin-jwt-auth.guard';
+import { Public } from '../../../common/decorators/public.decorator';
 
 @ApiTags('Master Dropdown Management')
 @Controller('manage-dropdown')
 export class ManageDropdownController {
-  constructor(
-    private readonly manageDropdownService: ManageDropdownService,
-    private readonly languageDetectionService: LanguageDetectionService
-  ) {}
+  constructor(private readonly manageDropdownService: ManageDropdownService) {}
 
-  private transformToResponseDto(dropdown: any): ManageDropdownResponseDto {
+  private transformToResponseDto(dropdown: ManageDropdownWithLanguage): ManageDropdownResponseDto {
     return {
       id: dropdown.id,
       publicId: dropdown.publicId,
@@ -59,7 +47,7 @@ export class ManageDropdownController {
       uniqueCode: dropdown.uniqueCode,
       dropdownType: dropdown.dropdownType,
       isDefault: dropdown.isDefault,
-      languageId: dropdown.language as LanguageResponseDto,
+      languageId: dropdown.languageId,
       status: dropdown.status,
       useCount: dropdown.useCount,
       createdAt: dropdown.createdAt,
@@ -72,7 +60,7 @@ export class ManageDropdownController {
   @ApiOperation({
     summary: 'Get dropdown options for public use',
     description:
-      'Retrieve active dropdown options by type for public access. No authentication required. Supports language detection from headers.',
+      'Retrieve active dropdown options by type for public access. No authentication required.',
   })
   @ApiParam({
     name: 'optionType',
@@ -96,24 +84,15 @@ export class ManageDropdownController {
   })
   async getDropdownsForPublic(
     @Param('optionType') optionType: string,
-    @Query('lang') languageCode?: string,
-    @Req() request?: RequestWithLanguage
+    @Query('lang') languageCode?: string
   ): Promise<{
     message: string;
     statusCode: number;
     data: ManageDropdownResponseDto[];
   }> {
-    // Auto-detect language if not provided
-    let detectedLanguageCode = languageCode;
-    if (!detectedLanguageCode && request) {
-      detectedLanguageCode =
-        this.languageDetectionService.detectLanguageFromRequest(request);
-    }
-
-    // Get regular dropdowns
     const dropdowns = await this.manageDropdownService.findByTypeForPublic(
       optionType,
-      detectedLanguageCode
+      languageCode
     );
 
     // Increment use count for accessed dropdowns (fire-and-forget)
@@ -128,7 +107,7 @@ export class ManageDropdownController {
     return {
       message: 'Dropdown options retrieved successfully',
       statusCode: HttpStatus.OK,
-      data: dropdowns.map(dropdown => this.transformToResponseDto(dropdown)),
+      data: dropdowns.map((dropdown) => this.transformToResponseDto(dropdown)),
     };
   }
 
@@ -162,7 +141,12 @@ export class ManageDropdownController {
     statusCode: number;
     data: PaginatedManageDropdownResponseDto;
   }> {
-    const { page = 1, limit = 10, includeInactive = true, lang } = adminQueryDto;
+    const {
+      page = 1,
+      limit = 10,
+      includeInactive = true,
+      lang,
+    } = adminQueryDto;
     const result = await this.manageDropdownService.findByTypeForAdmin(
       optionType,
       page,
@@ -175,7 +159,9 @@ export class ManageDropdownController {
       message: 'Dropdown options retrieved successfully',
       statusCode: HttpStatus.OK,
       data: {
-        data: result.data.map(dropdown => this.transformToResponseDto(dropdown)),
+        data: result.data.map((dropdown) =>
+          this.transformToResponseDto(dropdown)
+        ),
         total: result.total,
         page: result.page,
         limit: result.limit,
@@ -188,8 +174,7 @@ export class ManageDropdownController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create new dropdown option',
-    description:
-      'Create a new dropdown option. Admin authentication required. Automatically detects language and creates entries for all active languages if languageId not provided.',
+    description: 'Create a new dropdown option. Admin authentication required.',
   })
   @ApiParam({
     name: 'optionType',
@@ -222,42 +207,36 @@ export class ManageDropdownController {
   })
   async createDropdown(
     @Param('optionType') optionType: string,
-    @Body(ValidationPipe) createDropdownDto: CreateManageDropdownDto,
-    @Req() request?: RequestWithLanguage
+    @Body(ValidationPipe) createDropdownDto: CreateManageDropdownDto
   ): Promise<{
     message: string;
     statusCode: number;
     data: ManageDropdownResponseDto[];
   }> {
-    // Auto-detect language for multi-language creation
-    let detectedLanguageCode;
-    if (request && !createDropdownDto.languageId) {
-      detectedLanguageCode =
-        this.languageDetectionService.detectLanguageFromRequest(request);
-    }
-
     const dropdowns = await this.manageDropdownService.create(
       optionType,
-      createDropdownDto,
-      detectedLanguageCode
+      createDropdownDto
     );
 
     return {
-      message: `Dropdown option created successfully for ${dropdowns.length} language(s)`,
+      message: `Dropdown option created successfully`,
       statusCode: HttpStatus.CREATED,
-      data: dropdowns.map(dropdown => ({
-        id: dropdown.id,
-        publicId: dropdown.publicId,
-        name: dropdown.name,
-        uniqueCode: dropdown.uniqueCode,
-        dropdownType: dropdown.dropdownType,
-        isDefault: dropdown.isDefault,
-        languageId: dropdown.languageId as any, // For created dropdowns, we don't have language object populated
-        status: dropdown.status,
-        useCount: dropdown.useCount,
-        createdAt: dropdown.createdAt,
-        updatedAt: dropdown.updatedAt,
-      } as ManageDropdownResponseDto)),
+      data: dropdowns.map(
+        (dropdown) =>
+          ({
+            id: dropdown.id,
+            publicId: dropdown.publicId,
+            name: dropdown.name,
+            uniqueCode: dropdown.uniqueCode,
+            dropdownType: dropdown.dropdownType,
+            isDefault: dropdown.isDefault,
+            languageId: dropdown.languageId as any,
+            status: dropdown.status,
+            useCount: dropdown.useCount,
+            createdAt: dropdown.createdAt,
+            updatedAt: dropdown.updatedAt,
+          }) as ManageDropdownResponseDto
+      ),
     };
   }
 
@@ -370,7 +349,7 @@ export class ManageDropdownController {
         uniqueCode: dropdown.uniqueCode,
         dropdownType: dropdown.dropdownType,
         isDefault: dropdown.isDefault,
-        languageId: dropdown.languageId as any, // Updated dropdown doesn't have language object populated
+        languageId: dropdown.languageId as any,
         status: dropdown.status,
         useCount: dropdown.useCount,
         createdAt: dropdown.createdAt,
@@ -433,7 +412,7 @@ export class ManageDropdownController {
         uniqueCode: dropdown.uniqueCode,
         dropdownType: dropdown.dropdownType,
         isDefault: dropdown.isDefault,
-        languageId: dropdown.languageId as any, // Deleted dropdown doesn't have language object populated
+        languageId: dropdown.languageId as any,
         status: dropdown.status,
         useCount: dropdown.useCount,
         createdAt: dropdown.createdAt,
@@ -483,7 +462,8 @@ export class ManageDropdownController {
   })
   async bulkOperation(
     @Param('optionType') optionType: string,
-    @Body(new ValidationPipe({ transform: true, whitelist: true })) bulkOperationDto: BulkOperationDto
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    bulkOperationDto: BulkOperationDto
   ): Promise<{
     message: string;
     statusCode: number;
