@@ -44,36 +44,43 @@ export class TeamMemberController {
   @ApiOperation({ summary: 'Get all team members for campaign' })
   @ApiResponse({ type: [TeamMemberResponseDto] })
   async getTeamMembers(@Param('equityId') equityId: string) {
-    return this.teamMemberService.getTeamMembersByEquityId(equityId);
+    return this.teamMemberService.findByEquityId(equityId);
   }
 
   @Post(':equityId')
   @UseGuards(CampaignOwnershipGuard)
-  @ApiOperation({ summary: 'Create team member' })
+  @UseInterceptors(FileInterceptor('memberPhoto', multerConfig.imageUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Create team member with photo upload' })
   @ApiResponse({ type: TeamMemberResponseDto, status: 201 })
   async createTeamMember(
     @Param('equityId') equityId: string,
-    @Body() createTeamMemberDto: CreateTeamMemberDto
+    @Body() createTeamMemberDto: CreateTeamMemberDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
-    return this.teamMemberService.createTeamMember(
-      equityId,
-      createTeamMemberDto
-    );
+    if (!file) {
+      return this.i18nResponse.badRequest('team_member.photo_file_required');
+    }
+    return this.teamMemberService.create(equityId, createTeamMemberDto, file);
   }
 
   @Patch(':equityId/:id')
   @UseGuards(CampaignOwnershipGuard)
-  @ApiOperation({ summary: 'Update team member' })
+  @UseInterceptors(FileInterceptor('memberPhoto', multerConfig.imageUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Update team member with optional photo upload' })
   @ApiResponse({ type: TeamMemberResponseDto })
   async updateTeamMember(
     @Param('equityId') equityId: string,
     @Param('id') id: string,
-    @Body() updateTeamMemberDto: UpdateTeamMemberDto
+    @Body() updateTeamMemberDto: UpdateTeamMemberDto,
+    @UploadedFile() file?: Express.Multer.File
   ) {
-    return this.teamMemberService.updateTeamMember(
+    return this.teamMemberService.update(
       equityId,
       id,
-      updateTeamMemberDto
+      updateTeamMemberDto,
+      file
     );
   }
 
@@ -85,17 +92,6 @@ export class TeamMemberController {
     @Param('equityId') equityId: string,
     @Param('id') id: string
   ) {
-    return this.teamMemberService.deleteTeamMember(equityId, id);
-  }
-
-  @Post('upload/photo')
-  @UseInterceptors(FileInterceptor('photo', multerConfig.imageUpload))
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload member photo' })
-  async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      return this.i18nResponse.badRequest('team_member.photo_file_required');
-    }
-    return this.teamMemberService.uploadFile(file);
+    return this.teamMemberService.delete(equityId, id);
   }
 }

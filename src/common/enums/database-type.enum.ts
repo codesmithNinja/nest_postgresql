@@ -42,3 +42,8 @@ export enum TermSlug {
   EQUITY = 'EQUITY',
   DEBT = 'DEBT',
 }
+
+export enum RecordType {
+  STRING = 'STRING',
+  FILE = 'FILE',
+}

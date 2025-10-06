@@ -44,36 +44,47 @@ export class LeadInvestorController {
   @ApiOperation({ summary: 'Get all lead investors for campaign' })
   @ApiResponse({ type: [LeadInvestorResponseDto] })
   async getLeadInvestors(@Param('equityId') equityId: string) {
-    return this.leadInvestorService.getLeadInvestorsByEquityId(equityId);
+    return this.leadInvestorService.findByEquityId(equityId);
   }
 
   @Post(':equityId')
   @UseGuards(CampaignOwnershipGuard)
-  @ApiOperation({ summary: 'Create lead investor' })
+  @UseInterceptors(FileInterceptor('investorPhoto', multerConfig.imageUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Create lead investor with photo upload' })
   @ApiResponse({ type: LeadInvestorResponseDto, status: 201 })
   async createLeadInvestor(
     @Param('equityId') equityId: string,
-    @Body() createLeadInvestorDto: CreateLeadInvestorDto
+    @Body() createLeadInvestorDto: CreateLeadInvestorDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
-    return this.leadInvestorService.createLeadInvestor(
+    if (!file) {
+      return this.i18nResponse.badRequest('lead_investor.photo_file_required');
+    }
+    return this.leadInvestorService.create(
       equityId,
-      createLeadInvestorDto
+      createLeadInvestorDto,
+      file
     );
   }
 
   @Patch(':equityId/:id')
   @UseGuards(CampaignOwnershipGuard)
-  @ApiOperation({ summary: 'Update lead investor' })
+  @UseInterceptors(FileInterceptor('investorPhoto', multerConfig.imageUpload))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Update lead investor with optional photo upload' })
   @ApiResponse({ type: LeadInvestorResponseDto })
   async updateLeadInvestor(
     @Param('equityId') equityId: string,
     @Param('id') id: string,
-    @Body() updateLeadInvestorDto: UpdateLeadInvestorDto
+    @Body() updateLeadInvestorDto: UpdateLeadInvestorDto,
+    @UploadedFile() file?: Express.Multer.File
   ) {
-    return this.leadInvestorService.updateLeadInvestor(
+    return this.leadInvestorService.update(
       equityId,
       id,
-      updateLeadInvestorDto
+      updateLeadInvestorDto,
+      file
     );
   }
 
@@ -88,17 +99,6 @@ export class LeadInvestorController {
     @Param('equityId') equityId: string,
     @Param('id') id: string
   ) {
-    return this.leadInvestorService.deleteLeadInvestor(equityId, id);
-  }
-
-  @Post('upload/photo')
-  @UseInterceptors(FileInterceptor('photo', multerConfig.imageUpload))
-  @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload investor photo' })
-  async uploadPhoto(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      return this.i18nResponse.badRequest('lead_investor.photo_file_required');
-    }
-    return this.leadInvestorService.uploadFile(file);
+    return this.leadInvestorService.delete(equityId, id);
   }
 }

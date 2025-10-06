@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
-import { ICampaignFaqRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { ICampaignFaqRepository } from './campaign-faq.repository.interface';
 import {
   CampaignFaq,
   CampaignFaqDocument,

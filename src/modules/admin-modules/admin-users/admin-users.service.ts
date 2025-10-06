@@ -12,7 +12,7 @@ import {
   IAdminRepository,
   ADMIN_REPOSITORY,
 } from '../../../database/repositories/admin/admin.repository.interface';
-import { DiscardUnderscores } from '../../../common/utils/discard-underscores.util';
+import { discardUnderscores } from '../../../common/utils/discard-underscores.util';
 import { EmailService } from '../../../email/email.service';
 import { FileUploadUtil } from '../../../common/utils/file-upload.util';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
@@ -77,7 +77,7 @@ export class AdminUsersService {
     const publicId = uuidv4();
 
     const { passwordConfirm, ...adminDataInput } = createAdminDto;
-    DiscardUnderscores(passwordConfirm);
+    discardUnderscores(passwordConfirm);
 
     const adminData = {
       ...adminDataInput,

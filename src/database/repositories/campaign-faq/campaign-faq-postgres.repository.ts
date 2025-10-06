@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PostgresRepository } from '../base/postgres.repository';
-import { ICampaignFaqRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { ICampaignFaqRepository } from './campaign-faq.repository.interface';
 import { CampaignFaq } from '../../entities/campaign-faq.entity';
 
 @Injectable()

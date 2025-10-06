@@ -1,39 +1,29 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsUrl,
-  Length,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateLeadInvestorDto {
-  @IsString()
-  @IsNotEmpty()
-  @IsUrl()
-  investorPhoto!: string;
-
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
   name!: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
   investorType!: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(50, 2000)
   bio!: string;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  investorPhoto!: string;
 }
-
 export class UpdateLeadInvestorDto {
-  @IsOptional()
-  @IsString()
-  @IsUrl()
-  investorPhoto?: string;
-
   @IsOptional()
   @IsString()
   @Length(2, 100)
@@ -48,6 +38,9 @@ export class UpdateLeadInvestorDto {
   @IsString()
   @Length(50, 2000)
   bio?: string;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  investorPhoto?: string;
 }
 
 export class LeadInvestorResponseDto {

@@ -16,7 +16,7 @@ interface RequestWithLanguage extends Request {
 export class LanguagePersistenceInterceptor implements NestInterceptor {
   private static languageStore = new Map<string, string>();
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<RequestWithLanguage>();
 
     const sessionId = this.getSessionId(request);

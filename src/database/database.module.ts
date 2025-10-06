@@ -1,4 +1,4 @@
-import { Module, Global, DynamicModule, Provider } from '@nestjs/common';
+import { Module, Global, DynamicModule, Provider, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,6 +12,14 @@ import { ADMIN_REPOSITORY } from './repositories/admin/admin.repository.interfac
 import { AdminPostgresRepository } from './repositories/admin/admin-postgres.repository';
 import { AdminMongoRepository } from './repositories/admin/admin-mongodb.repository';
 import { Admin, AdminDocument, AdminSchema } from './schemas/admin.schema';
+import { SETTINGS_REPOSITORY } from './repositories/settings/settings.repository.interface';
+import { SettingsPostgresRepository } from './repositories/settings/settings-postgres.repository';
+import { SettingsMongoRepository } from './repositories/settings/settings-mongodb.repository';
+import {
+  Settings,
+  SettingsDocument,
+  SettingsSchema,
+} from './schemas/settings.schema';
 import { DatabaseType } from '../common/enums/database-type.enum';
 
 @Global()
@@ -67,9 +75,9 @@ export class DatabaseModule {
     const dbType =
       (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
 
-    const imports: any[] = [];
+    const imports: Array<Type<unknown> | DynamicModule> = [];
     const providers: Provider[] = [];
-    const exports: any[] = [];
+    const exports: Array<string | Provider | Type<unknown>> = [];
 
     if (dbType === DatabaseType.POSTGRES) {
       // PostgreSQL setup only
@@ -89,6 +97,13 @@ export class DatabaseModule {
             return new AdminPostgresRepository(prismaService);
           },
           inject: [PrismaService],
+        },
+        {
+          provide: SETTINGS_REPOSITORY,
+          useFactory: (prismaService: PrismaService) => {
+            return new SettingsPostgresRepository(prismaService);
+          },
+          inject: [PrismaService],
         }
       );
     } else if (dbType === DatabaseType.MONGODB) {
@@ -103,6 +118,7 @@ export class DatabaseModule {
         MongooseModule.forFeature([
           { name: User.name, schema: UserSchema },
           { name: Admin.name, schema: AdminSchema },
+          { name: Settings.name, schema: SettingsSchema },
         ])
       );
 
@@ -120,11 +136,18 @@ export class DatabaseModule {
             return new AdminMongoRepository(adminModel);
           },
           inject: [getModelToken(Admin.name)],
+        },
+        {
+          provide: SETTINGS_REPOSITORY,
+          useFactory: (settingsModel: Model<SettingsDocument>) => {
+            return new SettingsMongoRepository(settingsModel);
+          },
+          inject: [getModelToken(Settings.name)],
         }
       );
     }
 
-    exports.push(USER_REPOSITORY, ADMIN_REPOSITORY);
+    exports.push(USER_REPOSITORY, ADMIN_REPOSITORY, SETTINGS_REPOSITORY);
 
     return {
       module: DatabaseModule,

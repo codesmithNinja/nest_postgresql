@@ -1,5 +1,4 @@
-import { Module, DynamicModule } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { DynamicModule, Provider, Type } from '@nestjs/common';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
@@ -12,7 +11,7 @@ import {
   EquitySchema,
   EquityDocument,
 } from '../../database/schemas/equity.schema';
-import { EQUITY_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
+import { EQUITY_REPOSITORY } from '../../database/repositories/equity/equity.repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 
@@ -20,8 +19,10 @@ export class EquityModule {
   static register(): DynamicModule {
     const dbType =
       (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
-    const imports: any[] = [DatabaseModule.forRootConditional()];
-    const providers: any[] = [EquityService];
+    const imports: Array<Type<unknown> | DynamicModule> = [
+      DatabaseModule.forRootConditional(),
+    ];
+    const providers: Provider[] = [EquityService];
 
     if (dbType === DatabaseType.MONGODB) {
       imports.push(

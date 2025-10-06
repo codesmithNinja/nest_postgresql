@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   ITeamMemberRepository,
   TEAM_MEMBER_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/team-member/team-member.repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileManagementService } from '../../common/services/file-management.service';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
@@ -23,7 +23,7 @@ export class TeamMemberService {
     private fileManagementService: FileManagementService
   ) {}
 
-  async getTeamMembersByEquityId(equityId: string) {
+  async findByEquityId(equityId: string) {
     try {
       const cacheKey = CacheUtil.getCampaignRelationsKey(
         equityId,
@@ -53,13 +53,19 @@ export class TeamMemberService {
     }
   }
 
-  async createTeamMember(
+  async create(
     equityId: string,
-    createTeamMemberDto: CreateTeamMemberDto
+    createTeamMemberDto: CreateTeamMemberDto,
+    file: Express.Multer.File
   ) {
     try {
+      // Upload the file first
+      const uploadResult =
+        await this.fileManagementService.uploadTeamMemberImage(file);
+
       const teamMemberData: Partial<TeamMember> = {
         ...createTeamMemberDto,
+        memberPhoto: uploadResult.filePath,
         equityId,
       };
 
@@ -78,10 +84,11 @@ export class TeamMemberService {
     }
   }
 
-  async updateTeamMember(
+  async update(
     equityId: string,
     id: string,
-    updateTeamMemberDto: UpdateTeamMemberDto
+    updateTeamMemberDto: UpdateTeamMemberDto,
+    file?: Express.Multer.File
   ) {
     try {
       const teamMember =
@@ -91,9 +98,46 @@ export class TeamMemberService {
         throw new NotFoundException();
       }
 
+      const updateData: Partial<TeamMember> = {
+        ...updateTeamMemberDto,
+      };
+
+      // Handle file upload if a file is provided - validation first approach
+      if (file) {
+        // Upload the new file first
+        const uploadResult =
+          await this.fileManagementService.uploadTeamMemberImage(file);
+
+        updateData.memberPhoto = uploadResult.filePath;
+
+        // Clean up old file after successful upload and validation
+        if (teamMember.memberPhoto) {
+          try {
+            const fileExists = await this.fileManagementService.fileExists(
+              teamMember.memberPhoto
+            );
+            if (fileExists) {
+              await this.fileManagementService.deleteFile(
+                teamMember.memberPhoto
+              );
+              this.logger.log(
+                `Old team member photo deleted: ${teamMember.memberPhoto}`
+              );
+            }
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : 'Unknown error';
+            this.logger.error(
+              `Failed to delete old team member photo: ${teamMember.memberPhoto}. Error: ${errorMessage}`
+            );
+            // Don't throw here as the main update was successful
+          }
+        }
+      }
+
       const updatedTeamMember = await this.teamMemberRepository.updateById(
         teamMember.id,
-        updateTeamMemberDto
+        updateData
       );
 
       CacheUtil.delPattern(`campaign:${equityId}:teamMembers`);
@@ -112,13 +156,45 @@ export class TeamMemberService {
     }
   }
 
-  async deleteTeamMember(equityId: string, id: string) {
+  async delete(equityId: string, id: string) {
     try {
       const teamMember =
         await this.teamMemberRepository.findByEquityIdAndPublicId(equityId, id);
 
       if (!teamMember) {
         throw new NotFoundException();
+      }
+
+      // Clean up team member photo if exists
+      if (teamMember.memberPhoto) {
+        try {
+          this.logger.log(
+            `Attempting to delete team member photo: ${teamMember.memberPhoto}`
+          );
+
+          // Check if file exists before attempting deletion
+          const fileExists = await this.fileManagementService.fileExists(
+            teamMember.memberPhoto
+          );
+          if (!fileExists) {
+            this.logger.warn(
+              `Team member photo file does not exist: ${teamMember.memberPhoto}`
+            );
+          } else {
+            await this.fileManagementService.deleteFile(teamMember.memberPhoto);
+            this.logger.log(
+              `Team member photo successfully deleted: ${teamMember.memberPhoto}`
+            );
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error';
+          this.logger.error(
+            `Failed to delete team member photo: ${teamMember.memberPhoto}. Error: ${errorMessage}`,
+            error
+          );
+          // Continue with record deletion even if file deletion fails
+        }
       }
 
       await this.teamMemberRepository.deleteById(teamMember.id);
@@ -132,27 +208,6 @@ export class TeamMemberService {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Error deleting team member: ${errorMessage}`);
-      throw error;
-    }
-  }
-
-  async uploadFile(file: Express.Multer.File) {
-    try {
-      const uploadResult =
-        await this.fileManagementService.uploadTeamMemberImage(file);
-
-      return this.i18nResponse.success('common.file_uploaded', {
-        filename: uploadResult.filePath,
-        url:
-          uploadResult.url ||
-          this.fileManagementService.getFileUrl(uploadResult.filePath),
-        mimetype: uploadResult.mimetype,
-        size: uploadResult.size,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error uploading file: ${errorMessage}`);
       throw error;
     }
   }

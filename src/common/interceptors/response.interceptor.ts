@@ -8,14 +8,14 @@ import { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { Response, Request } from 'express';
 import { ResponseHandler } from '../utils/response.handler';
-import { DiscardUnderscores } from '../utils/discard-underscores.util';
+import { discardUnderscores } from '../utils/discard-underscores.util';
 import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
+export class ResponseInterceptor<T> implements NestInterceptor<T, unknown> {
   constructor(private readonly i18n: I18nService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     return next.handle().pipe(
       mergeMap(async (data: unknown) => {
         const response = context.switchToHttp().getResponse<Response>();
@@ -44,7 +44,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
           // Always remove statusCode from response body since it should only be in HTTP status
           const { statusCode, ...responseWithoutStatusCode } =
             responseWithStatusCode;
-          DiscardUnderscores(statusCode);
+          discardUnderscores(statusCode);
 
           // If it's already a formatted response (has success property), return as is
           if ('success' in responseWithoutStatusCode) {
@@ -67,7 +67,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
           const result = ResponseHandler.success(data, statusCode);
           // Remove statusCode from the final result since we're setting HTTP status
           const { statusCode: _statusCode, ...finalResult } = result;
-          DiscardUnderscores(_statusCode);
+          discardUnderscores(_statusCode);
           return finalResult;
         }
 
@@ -81,7 +81,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
           );
           // Remove statusCode from the final result since we're setting HTTP status
           const { statusCode: _statusCode, ...finalResult } = result;
-          DiscardUnderscores(_statusCode);
+          discardUnderscores(_statusCode);
           return finalResult;
         }
 
@@ -95,7 +95,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
         );
         // Remove statusCode from the final result since we're setting HTTP status
         const { statusCode: _statusCode, ...finalResult } = result;
-        DiscardUnderscores(_statusCode);
+        discardUnderscores(_statusCode);
         return finalResult;
       })
     );

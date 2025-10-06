@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
-import { ITeamMemberRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { ITeamMemberRepository } from './team-member.repository.interface';
 import {
   TeamMember,
   TeamMemberDocument,

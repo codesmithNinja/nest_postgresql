@@ -9,15 +9,15 @@ import performanceConfig from './common/config/performance.config';
 import securityConfig from './common/config/security.config';
 import { ErrorLoggingInterceptor } from './common/interceptors/error-logging.interceptor';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor';
+import { I18nResponseInterceptor } from './common/interceptors/i18n-response.interceptor'; // Temporarily disabled
 import { LanguagePersistenceInterceptor } from './common/interceptors/language-persistence.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
-import { I18nModule } from './i18n/i18n.module';
+import { I18nModule } from './i18n/i18n.module'; // Temporarily disabled
 import { MetricsModule } from './metrics/metrics.module';
-import { AdminModulesModule } from './modules/adminModules/admin-modules.module';
+import { AdminModule } from './modules/admin-modules/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CampaignFaqModule } from './modules/campaign-faq/campaign-faq.module';
 import { EquityModule } from './modules/equity/equity.module';
@@ -45,7 +45,7 @@ import { UsersModule } from './modules/users/users.module';
     EmailModule,
     AuthModule,
     UsersModule,
-    AdminModulesModule,
+    AdminModule,
     EquityModule.register(),
     CampaignFaqModule.register(),
     LeadInvestorModule.register(),

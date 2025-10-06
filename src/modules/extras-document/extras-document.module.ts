@@ -1,5 +1,4 @@
-import { Module, DynamicModule } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { DynamicModule, Provider, Type } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
@@ -12,7 +11,7 @@ import {
   ExtrasDocumentSchema,
   ExtrasDocumentDocument,
 } from '../../database/schemas/extras-document.schema';
-import { EXTRAS_DOCUMENT_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
+import { EXTRAS_DOCUMENT_REPOSITORY } from '../../database/repositories/extras-document/extras-document.repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { EquityModule } from '../equity/equity.module';
@@ -21,11 +20,11 @@ export class ExtrasDocumentModule {
   static register(): DynamicModule {
     const dbType =
       (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
-    const imports: any[] = [
+    const imports: Array<Type<unknown> | DynamicModule> = [
       DatabaseModule.forRootConditional(),
       EquityModule.register(),
     ];
-    const providers: any[] = [ExtrasDocumentService];
+    const providers: Provider[] = [ExtrasDocumentService];
 
     if (dbType === DatabaseType.MONGODB) {
       imports.push(

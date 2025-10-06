@@ -1,12 +1,1510 @@
 {
   "info": {
-    "_postman_id": "429a72e2-5498-40a0-b098-21b42ef630c9",
+    "_postman_id": "e9d78f98-b91e-49f9-9311-403c971c482e",
     "name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
-    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
+    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, file uploads, and multi-language support (English, Spanish, French, Arabic).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "15694815"
   },
   "item": [
+    {
+      "name": "ADMIN",
+      "item": [
+        {
+          "name": "Authorized",
+          "item": [
+            {
+              "name": "👤 Admin Management",
+              "item": [
+                {
+                  "name": "Get Admin Profile",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/me",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", "me"]
+                    },
+                    "description": "Get current admin profile information including personal details and settings."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get All Admins",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "firstName",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "lastName",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "email",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "active",
+                          "value": "true",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Get all admins with pagination and filtering options. Supports filtering by name, email, and active status."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Admin by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "5058000e-7238-4230-8d3c-0eb30e4542a8"
+                        }
+                      ]
+                    },
+                    "description": "Get admin details by their public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Admin",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "firstName",
+                          "value": "Bhavesh",
+                          "type": "text"
+                        },
+                        {
+                          "key": "lastName",
+                          "value": "Admin",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email",
+                          "value": "bhavesh.admin@example.com",
+                          "type": "text"
+                        },
+                        {
+                          "key": "password",
+                          "value": "Test@123",
+                          "type": "text"
+                        },
+                        {
+                          "key": "passwordConfirm",
+                          "value": "Test@123",
+                          "type": "text"
+                        },
+                        {
+                          "key": "active",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "twoFactorAuthVerified",
+                          "value": "false",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "photo",
+                          "description": "Admin profile photo (PNG, JPG, JPEG)",
+                          "type": "file",
+                          "src": "/C:/Users/DELL/Downloads/wallpapers/1328396.png"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins"]
+                    },
+                    "description": "Create a new admin with optional photo upload. Supports multipart form data."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Admin",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"firstName\": \"Jane Updated\",\n  \"lastName\": \"Smith Updated\",\n  \"email\": \"jane.updated@example.com\",\n  \"photo\": \"https://example.com/new-photo.jpg\",\n  \"active\": true,\n  \"twoFactorAuthVerified\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "pub-admin-123"
+                        }
+                      ]
+                    },
+                    "description": "Update admin information (excluding password). All fields are optional."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Admin",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "pub-admin-123"
+                        }
+                      ]
+                    },
+                    "description": "Delete admin by public ID. Also cleans up associated files."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Admin Password",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"currentPassword\": \"CurrentAdminPass123\",\n  \"newPassword\": \"NewAdminPass123\",\n  \"confirmPassword\": \"NewAdminPass123\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/update-password",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", "update-password"]
+                    },
+                    "description": "Update admin password. Requires current password verification."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Logout Admin",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/logout",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", "logout"]
+                    },
+                    "description": "Logout current admin session. Logs the logout action for audit purposes."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Admin profile management endpoints for authenticated admins. Includes profile operations, password management, and admin CRUD functionality."
+            },
+            {
+              "name": "🔧 Settings Management",
+              "item": [
+                {
+                  "name": "Get Admin Settings",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/:groupType/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["settings", ":groupType", "admin"],
+                      "variable": [
+                        {
+                          "key": "groupType",
+                          "value": "site_setting"
+                        }
+                      ]
+                    },
+                    "description": "Get admin settings for a specific group type with authentication."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create/Update Settings (Form Data)",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "siteName",
+                          "value": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
+                          "type": "text"
+                        },
+                        {
+                          "key": "sitePrimaryColor",
+                          "value": "#253cc6",
+                          "type": "text"
+                        },
+                        {
+                          "key": "siteSecondaryColor",
+                          "value": "#9013fe",
+                          "type": "text"
+                        },
+                        {
+                          "key": "siteLogo",
+                          "type": "file",
+                          "src": "postman-cloud:///1f09d166-e116-4340-9be3-d1a8d8081ce6"
+                        },
+                        {
+                          "key": "darkLogo",
+                          "type": "file",
+                          "src": "postman-cloud:///1f09d166-e50b-4630-99a0-6a398a75e662"
+                        },
+                        {
+                          "key": "favIcon",
+                          "type": "file",
+                          "src": "postman-cloud:///1f09d166-e4b8-4610-96ef-49d88b132369"
+                        },
+                        {
+                          "key": "placeholderLogo",
+                          "type": "file",
+                          "src": "postman-cloud:///1f09d166-e5dd-4590-a9e2-7e86b5a03b57"
+                        },
+                        {
+                          "key": "googleMapKey",
+                          "value": "t8detFxPYvTWyQcHYN7gbwdPre7ShQSaZTXIKOz+gEi8sgJx/alAQsB6GKPCbzz5",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableWalletModule",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableMangoPayModule",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableAchModule",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableNowPaymentModule",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enablePlaidDwollaModule",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableRestrictMapCountry",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableSSNMasking",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableWebviewForPaymentInApp",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enablePDFGeneration",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableShareCertificate",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableWebNotification",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableSecondaryMarket",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableCryptoModule",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableMaintainanceMode",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableOnlyAdminCreateCampaign",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableTwoFactorAuthMandatory",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableUserTypeWiseRegistration",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableWalletInvestmentRestriction",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "enableSendEmailCron",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "googleAnalyticsCode",
+                          "value": "UA-233200250-1",
+                          "type": "text"
+                        },
+                        {
+                          "key": "currencyId",
+                          "value": "602364e4b1fa9f2cc81e2c98",
+                          "type": "text"
+                        },
+                        {
+                          "key": "currencySymbolSide",
+                          "value": "leftSpaceCode",
+                          "type": "text"
+                        },
+                        {
+                          "key": "decimalPoints",
+                          "value": "2,",
+                          "type": "text"
+                        },
+                        {
+                          "key": "timezone",
+                          "value": "Asia/Kolkata",
+                          "type": "text"
+                        },
+                        {
+                          "key": "timezoneLabel",
+                          "value": "(GMT+5:30) Chennai, Kolkata, Mumbai, New Delhi",
+                          "type": "text"
+                        },
+                        {
+                          "key": "dateFormat",
+                          "value": "DD MMMM, YYYY",
+                          "type": "text"
+                        },
+                        {
+                          "key": "timeFormat",
+                          "value": "HH:mm",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_from",
+                          "value": "info@ticketingsoftwares.com",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_host",
+                          "value": "sh205.hostgator.in",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_password",
+                          "value": "3ar2FdNwhq7MFeA5zgQmYw==",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_port",
+                          "value": "465",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_provider",
+                          "value": "SMTP",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_service",
+                          "value": "hostgator",
+                          "type": "text"
+                        },
+                        {
+                          "key": "email_username",
+                          "value": "leQhySfmR3yuY5esVy81zUFXI8zl67TcjqarTkIFaiQ=",
+                          "type": "text"
+                        },
+                        {
+                          "key": "cronPreference",
+                          "value": "afterGoalReached",
+                          "type": "text"
+                        },
+                        {
+                          "key": "projectScriptType",
+                          "value": "0,",
+                          "type": "text"
+                        },
+                        {
+                          "key": "exceptIP",
+                          "value": "180.211.118.243",
+                          "type": "text"
+                        },
+                        {
+                          "key": "mangoPayCurrencyId",
+                          "value": "612f74aba0f7c304e524de91",
+                          "type": "text"
+                        },
+                        {
+                          "key": "defaultCountry",
+                          "value": "US",
+                          "type": "text"
+                        },
+                        {
+                          "key": "defaultKyc",
+                          "value": "northkyc",
+                          "type": "text"
+                        },
+                        {
+                          "key": "paymentMethod",
+                          "value": "normal-payment",
+                          "type": "text"
+                        },
+                        {
+                          "key": "editorType",
+                          "value": "ckeditorMode",
+                          "type": "text"
+                        },
+                        {
+                          "key": "tinymceAIToken",
+                          "value": "CpQLtUFu8EXxw5RYxlPqWg==",
+                          "type": "text"
+                        },
+                        {
+                          "key": "tinymceAIURL",
+                          "value": "https://api.openai.com/v1/chat/completions",
+                          "type": "text"
+                        },
+                        {
+                          "key": "tinymceToken",
+                          "value": "mW03B5rmZkRGvfFHHqndohXaV4GL/z2yHZxI2eGHIvGP70aBzHsK1sJCUamKqCWjs9abEsc1qNWNIA5brgewGA==",
+                          "type": "text"
+                        },
+                        {
+                          "key": "cryptoPaymentCurrencyId",
+                          "value": "673abcea9d6aa4a7379953f3\"",
+                          "type": "text"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/:groupType/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["settings", ":groupType", "admin"],
+                      "variable": [
+                        {
+                          "key": "groupType",
+                          "value": "site_setting"
+                        }
+                      ]
+                    },
+                    "description": "Create or update settings with mixed form data (text + files)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Settings by Group",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/:groupType/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["settings", ":groupType", "admin"],
+                      "variable": [
+                        {
+                          "key": "groupType",
+                          "value": "site_setting"
+                        }
+                      ]
+                    },
+                    "description": "Delete all settings for a specific group type."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Settings management endpoints for dynamic application configuration."
+            },
+            {
+              "name": "🌐 Languages Management",
+              "item": [
+                {
+                  "name": "Get All Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "name",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "folder",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "disabled": true
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all languages with pagination and filtering."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Language by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve a specific language by its public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "English",
+                          "type": "text"
+                        },
+                        {
+                          "key": "folder",
+                          "value": "en",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "EN",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "ENG",
+                          "type": "text"
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "type": "text"
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flagImage",
+                          "value": "",
+                          "description": "Language flag image (PNG, JPG, JPEG, SVG)",
+                          "type": "file"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages"]
+                    },
+                    "description": "Admin endpoint to create a new language with flag image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "English (US)",
+                          "type": "text"
+                        },
+                        {
+                          "key": "folder",
+                          "value": "en-us",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "EN",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "ENG",
+                          "type": "text"
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "type": "text"
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flagImage",
+                          "value": "",
+                          "description": "Updated language flag image (PNG, JPG, JPEG, SVG)",
+                          "type": "file",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update a language with optional flag image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete a language (only if isDefault is NO)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"ids\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"status\": false\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "bulk-update"]
+                    },
+                    "description": "Admin endpoint to update multiple languages status at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"ids\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "bulk-delete"]
+                    },
+                    "description": "Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Languages management endpoints for dynamic language configuration with flag uploads and bulk operations. Supports multi-language application features with ISO codes and text direction settings."
+            },
+            {
+              "name": "🌍 Countries Management",
+              "item": [
+                {
+                  "name": "Get Countries (Frontend)",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", "front"]
+                    },
+                    "description": "Public endpoint to retrieve all countries for frontend usage."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get All Countries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "name",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all countries with pagination and filtering."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Country by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve a specific country by its public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Country",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "United States",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "US",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "USA",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flag",
+                          "value": "",
+                          "description": "Country flag image (PNG, JPG, JPEG)",
+                          "type": "file"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries"]
+                    },
+                    "description": "Admin endpoint to create a new country with flag upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Country",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "United States of America",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "US",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "USA",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flag",
+                          "value": "",
+                          "description": "Updated country flag image (PNG, JPG, JPEG)",
+                          "type": "file",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update a country with optional flag upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Country",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete a country (only if useCount is 0)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Countries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"data\": {\n    \"isDefault\": \"NO\"\n  }\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", "bulk-update"]
+                    },
+                    "description": "Admin endpoint to update multiple countries at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Countries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", "bulk-delete"]
+                    },
+                    "description": "Admin endpoint to delete multiple countries at once (only if useCount is 0 for each)."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Countries management endpoints for dynamic country configuration with flag uploads and bulk operations."
+            }
+          ],
+          "description": "Protected admin endpoints that require admin authentication using JWT tokens."
+        },
+        {
+          "name": "Non-Authorized",
+          "item": [
+            {
+              "name": "🔐 Admin Authentication",
+              "item": [
+                {
+                  "name": "Admin Login",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "if (pm.response.code === 200) {",
+                          "    const response = pm.response.json();",
+                          "    if (response.data.access_token) {",
+                          "        pm.environment.set('ADMIN_JWT', response.data.access_token);",
+                          "        console.log('Admin JWT token saved to environment variables');",
+                          "    }",
+                          "}"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Test@123\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/login?lang=en",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", "login"],
+                      "query": [
+                        {
+                          "key": "lang",
+                          "value": "en"
+                        }
+                      ]
+                    },
+                    "description": "Admin login with email and password. Returns JWT access token for admin authentication."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Admin Forgot Password",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"admin@example.com\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/forgot-password",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", "forgot-password"]
+                    },
+                    "description": "Request admin password reset token. Sends reset token via email."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Admin Reset Password",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"token\": \"{{ADMIN_RESET_TOKEN}}\",\n  \"password\": \"NewAdminPassword123\",\n  \"confirmPassword\": \"NewAdminPassword123\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/admins/reset-password",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["admins", "reset-password"]
+                    },
+                    "description": "Reset admin password using token received via email."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Admin authentication endpoints including login and password recovery. Login automatically sets ADMIN_JWT environment variable."
+            },
+            {
+              "name": "🔧 Settings Management",
+              "item": [
+                {
+                  "name": "Get Public Settings",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/:groupType/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["settings", ":groupType", "front"],
+                      "variable": [
+                        {
+                          "key": "groupType",
+                          "value": "site_setting"
+                        }
+                      ]
+                    },
+                    "description": "Get public settings for a specific group type. No authentication required."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Settings management endpoints for dynamic application configuration."
+            },
+            {
+              "name": "🌐 Languages Management",
+              "item": [
+                {
+                  "name": "Get Languages",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "front"]
+                    },
+                    "description": "Public endpoint to retrieve all active languages for frontend usage."
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ],
+          "description": "Public admin endpoints that do not require authentication."
+        }
+      ],
+      "description": "Complete admin management system with JWT authentication, CRUD operations, and password management. Supports dual database architecture and file uploads.",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "exec": [""]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "exec": [""]
+          }
+        }
+      ]
+    },
     {
       "name": "FRONT",
       "item": [
@@ -30,16 +1528,11 @@
                       ]
                     },
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/users/profile",
+                      "raw": "{{BASE_URL}}/users/me",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["users", "profile"]
+                      "path": ["users", "me"]
                     },
                     "description": "Get authenticated user's profile information including personal details and settings."
                   },
@@ -59,16 +1552,7 @@
                       ]
                     },
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
@@ -96,16 +1580,7 @@
                       ]
                     },
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
@@ -133,12 +1608,7 @@
                       ]
                     },
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
                       "raw": "{{BASE_URL}}/users/slug/:userSlug",
                       "host": ["{{BASE_URL}}"],
@@ -168,12 +1638,7 @@
                       ]
                     },
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
                       "raw": "{{BASE_URL}}/users/deactivate",
                       "host": ["{{BASE_URL}}"],
@@ -203,36 +1668,36 @@
                       ]
                     },
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/equity?page=1&limit=10&search=&sortBy=createdAt&sortOrder=desc",
+                      "raw": "{{BASE_URL}}/equity",
                       "host": ["{{BASE_URL}}"],
                       "path": ["equity"],
                       "query": [
                         {
                           "key": "page",
-                          "value": "1"
+                          "value": "1",
+                          "disabled": true
                         },
                         {
                           "key": "limit",
-                          "value": "10"
+                          "value": "10",
+                          "disabled": true
                         },
                         {
                           "key": "search",
-                          "value": ""
+                          "value": "",
+                          "disabled": true
                         },
                         {
                           "key": "sortBy",
-                          "value": "createdAt"
+                          "value": "createdAt",
+                          "disabled": true
                         },
                         {
                           "key": "sortOrder",
-                          "value": "desc"
+                          "value": "desc",
+                          "disabled": true
                         }
                       ]
                     },
@@ -248,22 +1713,24 @@
                       "script": {
                         "exec": [""],
                         "type": "text/javascript",
-                        "packages": {}
+                        "packages": {},
+                        "requests": {}
                       }
                     }
                   ],
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/equity/68c93bfd0aa85cc3e523c34b",
+                      "raw": "{{BASE_URL}}/equity/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["equity", "68c93bfd0aa85cc3e523c34b"]
+                      "path": ["equity", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Get detailed campaign information with all relations (team, investors, FAQs, etc.). Requires campaign ownership."
                   },
@@ -293,16 +1760,7 @@
                       ]
                     },
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n    \"companyLogo\": \"https://example.com/logo.jpg\",\n    \"companyName\": \"TechStartup Inc.\",\n    \"companyTagline\": \"Revolutionary tech solution for modern businesses\",\n    \"companyEmail\": \"company@example.com\",\n    \"companyPhoneNumber\": \"+919876543210\",\n    \"companyAddress\": \"Vadodara, Gujarat, India\",\n    \"yearFounded\": 2025,\n    \"website\": \"https://example.com/\",\n    \"companyCategory\": \"Technology\",\n    \"companyIndustry\": \"Software Development\",\n    \"companyDescription\": \"We are building the future of business automation with cutting-edge AI solutions\"\n}"
@@ -320,16 +1778,7 @@
                   "name": "Update Campaign (Steps 3)",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "formdata",
                       "formdata": [
@@ -353,9 +1802,15 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/equity/68c93bfd0aa85cc3e523c34b",
+                      "raw": "{{BASE_URL}}/equity/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["equity", "68c93bfd0aa85cc3e523c34b"]
+                      "path": ["equity", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Update existing campaign (Steps 2-6). Only accessible for campaigns in DRAFT or PENDING status."
                   },
@@ -365,108 +1820,19 @@
                   "name": "Delete Campaign",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/equity/{{equityId}}",
+                      "raw": "{{BASE_URL}}/equity/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["equity", "{{equityId}}"]
+                      "path": ["equity", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Delete campaign (only DRAFT/PENDING campaigns can be deleted). Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Company Logo",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "logo",
-                          "value": "",
-                          "description": "Company logo image file (PNG, JPG, JPEG)",
-                          "type": "file"
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/equity/upload/logo",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["equity", "upload", "logo"]
-                    },
-                    "description": "Upload company logo image. Accepts PNG, JPG, JPEG formats. Max file size configured in multer settings."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Campaign Image",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "image",
-                          "value": "",
-                          "description": "Campaign image file (PNG, JPG, JPEG)",
-                          "type": "file"
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/equity/upload/image",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["equity", "upload", "image"]
-                    },
-                    "description": "Upload campaign promotional image. Accepts PNG, JPG, JPEG formats."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Campaign Video",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "video",
-                          "value": "",
-                          "description": "Campaign video file (MP4, AVI, MOV)",
-                          "type": "file"
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/equity/upload/video",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["equity", "upload", "video"]
-                    },
-                    "description": "Upload campaign promotional video. Accepts MP4, AVI, MOV formats."
                   },
                   "response": []
                 }
@@ -498,16 +1864,17 @@
                   "name": "Get Lead Investors",
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}",
+                      "raw": "{{BASE_URL}}/leadInvestor/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", "{{equityId}}"]
+                      "path": ["leadInvestor", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Get all lead investors for a specific campaign. Requires campaign ownership."
                   },
@@ -517,24 +1884,42 @@
                   "name": "Create Lead Investor",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"Sarah Johnson\",\n  \"title\": \"Senior Investment Partner\",\n  \"company\": \"Venture Capital Partners\",\n  \"bio\": \"15+ years experience in tech investments with successful exits in SaaS and fintech\",\n  \"linkedIn\": \"https://linkedin.com/in/sarahjohnson\",\n  \"email\": \"sarah.johnson@vcpartners.com\",\n  \"phone\": \"+1-555-0123\",\n  \"investmentAmount\": 100000,\n  \"investmentDate\": \"2024-01-15\",\n  \"photo\": \"https://example.com/sarah-photo.jpg\",\n  \"isPublic\": true\n}"
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "Sarah Johnson",
+                          "type": "text"
+                        },
+                        {
+                          "key": "investorType",
+                          "value": "Bank and Government Agencies",
+                          "type": "text"
+                        },
+                        {
+                          "key": "bio",
+                          "value": "This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio. This is test Bio.",
+                          "type": "text"
+                        },
+                        {
+                          "key": "investorPhoto",
+                          "type": "file",
+                          "src": "/C:/Users/DELL/Downloads/wallpapers/jin woo.jpg"
+                        }
+                      ]
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}",
+                      "raw": "{{BASE_URL}}/leadInvestor/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", "{{equityId}}"]
+                      "path": ["leadInvestor", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Add a new lead investor to a campaign. Requires campaign ownership."
                   },
@@ -544,27 +1929,45 @@
                   "name": "Update Lead Investor",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"Sarah Johnson Updated\",\n  \"investmentAmount\": 150000,\n  \"bio\": \"Updated bio with recent achievements and portfolio companies\",\n  \"isPublic\": false\n}"
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "Sarah Johnson Updated",
+                          "type": "text"
+                        },
+                        {
+                          "key": "investorType",
+                          "value": "Bank and Government Agencies",
+                          "type": "text"
+                        },
+                        {
+                          "key": "bio",
+                          "value": "Updated bio with recent achievements and portfolio companies",
+                          "type": "text"
+                        },
+                        {
+                          "key": "investorPhoto",
+                          "type": "file",
+                          "src": "/C:/Users/DELL/Downloads/wallpapers/1061827.png"
+                        }
+                      ]
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}/{{investor_id}}",
+                      "raw": "{{BASE_URL}}/leadInvestor/:equityId/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "leadInvestor",
-                        "{{equityId}}",
-                        "{{investor_id}}"
+                      "path": ["leadInvestor", ":equityId", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        },
+                        {
+                          "key": "publicId",
+                          "value": "68d534212782e59a22163d15"
+                        }
                       ]
                     },
                     "description": "Update lead investor information. Requires campaign ownership."
@@ -575,19 +1978,20 @@
                   "name": "Delete Lead Investor",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/{{equityId}}/{{investor_id}}",
+                      "raw": "{{BASE_URL}}/leadInvestor/:equityId/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "leadInvestor",
-                        "{{equityId}}",
-                        "{{investor_id}}"
+                      "path": ["leadInvestor", ":equityId", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        },
+                        {
+                          "key": "publicId",
+                          "value": "68d534212782e59a22163d15"
+                        }
                       ]
                     },
                     "description": "Remove lead investor from campaign. Requires campaign ownership."
@@ -598,12 +2002,7 @@
                   "name": "Upload Investor Photo",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "formdata",
                       "formdata": [
@@ -634,16 +2033,17 @@
                   "name": "Get Team Members",
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/{{equityId}}",
+                      "raw": "{{BASE_URL}}/teamMember/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", "{{equityId}}"]
+                      "path": ["teamMember", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Get all team members for a specific campaign. Requires campaign ownership."
                   },
@@ -653,24 +2053,21 @@
                   "name": "Create Team Member",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"name\": \"Michael Chen\",\n  \"title\": \"Chief Technology Officer\",\n  \"bio\": \"Former senior engineer at Google with 12 years of experience in scalable systems\",\n  \"linkedIn\": \"https://linkedin.com/in/michaelchen\",\n  \"email\": \"michael.chen@company.com\",\n  \"phone\": \"+1-555-0456\",\n  \"experience\": \"12 years\",\n  \"education\": \"MS Computer Science, Stanford University\",\n  \"previousCompanies\": \"Google, Microsoft, Amazon\",\n  \"photo\": \"https://example.com/michael-photo.jpg\",\n  \"isFounder\": false,\n  \"equityPercentage\": 5.0,\n  \"displayOrder\": 2\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/{{equityId}}",
+                      "raw": "{{BASE_URL}}/teamMember/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", "{{equityId}}"]
+                      "path": ["teamMember", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Add a new team member to a campaign. Requires campaign ownership."
                   },
@@ -680,24 +2077,25 @@
                   "name": "Update Team Member",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Chief Technology Officer & Co-Founder\",\n  \"bio\": \"Updated bio with recent achievements and new role\",\n  \"isFounder\": true,\n  \"equityPercentage\": 8.0,\n  \"displayOrder\": 1\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/{{equityId}}/{{member_id}}",
+                      "raw": "{{BASE_URL}}/teamMember/:equityId/:teamMemberId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", "{{equityId}}", "{{member_id}}"]
+                      "path": ["teamMember", ":equityId", ":teamMemberId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        },
+                        {
+                          "key": "teamMemberId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Update team member information. Requires campaign ownership."
                   },
@@ -707,48 +2105,23 @@
                   "name": "Delete Team Member",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/{{equityId}}/{{member_id}}",
+                      "raw": "{{BASE_URL}}/teamMember/:equityId/:teamMemberId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", "{{equityId}}", "{{member_id}}"]
-                    },
-                    "description": "Remove team member from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Member Photo",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
+                      "path": ["teamMember", ":equityId", ":teamMemberId"],
+                      "variable": [
                         {
-                          "key": "photo",
-                          "value": "",
-                          "description": "Team member photo (PNG, JPG, JPEG)",
-                          "type": "file"
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "teamMemberId",
+                          "value": ""
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/teamMember/upload/photo",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", "upload", "photo"]
-                    },
-                    "description": "Upload team member profile photo. Use returned URL in member creation/update."
+                    "description": "Remove team member from campaign. Requires campaign ownership."
                   },
                   "response": []
                 }
@@ -762,16 +2135,17 @@
                   "name": "Get Campaign FAQs",
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}",
+                      "raw": "{{BASE_URL}}/campaignFaq/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", "{{equityId}}"]
+                      "path": ["campaignFaq", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Get all FAQs for a specific campaign. Requires campaign ownership."
                   },
@@ -781,24 +2155,21 @@
                   "name": "Create Campaign FAQ",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"question\": \"What is the minimum investment amount?\",\n  \"answer\": \"The minimum investment amount is $1,000. This allows smaller investors to participate in our equity crowdfunding campaign while keeping administrative costs manageable.\",\n  \"category\": \"Investment Terms\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}",
+                      "raw": "{{BASE_URL}}/campaignFaq/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", "{{equityId}}"]
+                      "path": ["campaignFaq", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Add a new FAQ to a campaign. Requires campaign ownership."
                   },
@@ -808,24 +2179,25 @@
                   "name": "Update Campaign FAQ",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"question\": \"What is the minimum investment amount for early investors?\",\n  \"answer\": \"Updated answer with early bird discount information: The minimum investment amount is $1,000, but early investors (first 30 days) can invest with a minimum of $500.\",\n  \"displayOrder\": 1\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}/{{faq_id}}",
+                      "raw": "{{BASE_URL}}/campaignFaq/:equityId/:faqId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", "{{equityId}}", "{{faq_id}}"]
+                      "path": ["campaignFaq", ":equityId", ":faqId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "faqId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Update FAQ information. Requires campaign ownership."
                   },
@@ -835,16 +2207,21 @@
                   "name": "Delete Campaign FAQ",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/{{equityId}}/{{faq_id}}",
+                      "raw": "{{BASE_URL}}/campaignFaq/:equityId/:faqId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", "{{equityId}}", "{{faq_id}}"]
+                      "path": ["campaignFaq", ":equityId", ":faqId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "faqId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Remove FAQ from campaign. Requires campaign ownership."
                   },
@@ -860,16 +2237,17 @@
                   "name": "Get Extras Videos",
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}",
+                      "raw": "{{BASE_URL}}/extrasVideo/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", "{{equityId}}"]
+                      "path": ["extrasVideo", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Get all extras videos for a specific campaign. Requires campaign ownership."
                   },
@@ -879,24 +2257,21 @@
                   "name": "Create Extras Video",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Product Demo - Core Features\",\n  \"description\": \"Comprehensive demonstration of our platform's key features and user interface\",\n  \"videoUrl\": \"https://example.com/videos/product-demo.mp4\",\n  \"thumbnailUrl\": \"https://example.com/thumbnails/product-demo.jpg\",\n  \"duration\": 180,\n  \"category\": \"Product Demo\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}",
+                      "raw": "{{BASE_URL}}/extrasVideo/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", "{{equityId}}"]
+                      "path": ["extrasVideo", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Add a new extras video to a campaign. Requires campaign ownership."
                   },
@@ -906,24 +2281,25 @@
                   "name": "Update Extras Video",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Product Demo - Updated Features\",\n  \"description\": \"Updated demo showcasing new features released in v2.0\",\n  \"displayOrder\": 1\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}/{{video_id}}",
+                      "raw": "{{BASE_URL}}/extrasVideo/:equityId/:extraVideoId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", "{{equityId}}", "{{video_id}}"]
+                      "path": ["extrasVideo", ":equityId", ":extraVideoId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraVideoId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Update extras video information. Requires campaign ownership."
                   },
@@ -933,48 +2309,23 @@
                   "name": "Delete Extras Video",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/{{equityId}}/{{video_id}}",
+                      "raw": "{{BASE_URL}}/extrasVideo/:equityId/:extraVideoId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", "{{equityId}}", "{{video_id}}"]
-                    },
-                    "description": "Remove extras video from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Extras Video",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
+                      "path": ["extrasVideo", ":equityId", ":extraVideoId"],
+                      "variable": [
                         {
-                          "key": "video",
-                          "value": "",
-                          "description": "Video file (MP4, AVI, MOV)",
-                          "type": "file"
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraVideoId",
+                          "value": ""
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/upload/video",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", "upload", "video"]
-                    },
-                    "description": "Upload extras video file. Use returned URL in video creation/update."
+                    "description": "Remove extras video from campaign. Requires campaign ownership."
                   },
                   "response": []
                 }
@@ -988,16 +2339,17 @@
                   "name": "Get Extras Images",
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/{{equityId}}",
+                      "raw": "{{BASE_URL}}/extrasImage/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", "{{equityId}}"]
+                      "path": ["extrasImage", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Get all extras images for a specific campaign. Requires campaign ownership."
                   },
@@ -1007,24 +2359,21 @@
                   "name": "Create Extras Image",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Product Interface Screenshot\",\n  \"description\": \"Main dashboard showing key metrics and analytics features\",\n  \"imageUrl\": \"https://example.com/images/dashboard-screenshot.jpg\",\n  \"altText\": \"Product dashboard interface with analytics charts\",\n  \"category\": \"Product Screenshots\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/{{equityId}}",
+                      "raw": "{{BASE_URL}}/extrasImage/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", "{{equityId}}"]
+                      "path": ["extrasImage", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
                     },
                     "description": "Add a new extras image to a campaign. Requires campaign ownership."
                   },
@@ -1034,24 +2383,25 @@
                   "name": "Update Extras Image",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Updated Product Interface\",\n  \"description\": \"Updated dashboard with new v2.0 features and improved UX\",\n  \"displayOrder\": 1\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/{{equityId}}/{{image_id}}",
+                      "raw": "{{BASE_URL}}/extrasImage/:equityId/:extraImageId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", "{{equityId}}", "{{image_id}}"]
+                      "path": ["extrasImage", ":equityId", ":extraImageId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraImageId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Update extras image information. Requires campaign ownership."
                   },
@@ -1061,48 +2411,23 @@
                   "name": "Delete Extras Image",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/{{equityId}}/{{image_id}}",
+                      "raw": "{{BASE_URL}}/extrasImage/:equityId/:extraImageId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", "{{equityId}}", "{{image_id}}"]
-                    },
-                    "description": "Remove extras image from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Extras Image",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
+                      "path": ["extrasImage", ":equityId", ":extraImageId"],
+                      "variable": [
                         {
-                          "key": "image",
-                          "value": "",
-                          "description": "Image file (PNG, JPG, JPEG)",
-                          "type": "file"
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraImageId",
+                          "value": ""
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/upload/image",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", "upload", "image"]
-                    },
-                    "description": "Upload extras image file. Use returned URL in image creation/update."
+                    "description": "Remove extras image from campaign. Requires campaign ownership."
                   },
                   "response": []
                 }
@@ -1116,16 +2441,17 @@
                   "name": "Get Extras Documents",
                   "request": {
                     "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}",
+                      "raw": "{{BASE_URL}}/extrasDocument/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasDocument", "{{equityId}}"]
+                      "path": ["extrasDocument", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Get all extras documents for a specific campaign. Requires campaign ownership."
                   },
@@ -1135,24 +2461,21 @@
                   "name": "Create Extras Document",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Financial Projections 2024-2027\",\n  \"description\": \"Detailed financial projections including revenue forecasts, expense breakdowns, and profitability timeline\",\n  \"documentUrl\": \"https://example.com/documents/financial-projections.pdf\",\n  \"fileType\": \"PDF\",\n  \"fileSize\": 2048000,\n  \"category\": \"Financial Documents\",\n  \"displayOrder\": 1,\n  \"isPublic\": true,\n  \"requiresAccess\": false\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}",
+                      "raw": "{{BASE_URL}}/extrasDocument/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasDocument", "{{equityId}}"]
+                      "path": ["extrasDocument", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
                     },
                     "description": "Add a new extras document to a campaign. Requires campaign ownership."
                   },
@@ -1162,27 +2485,28 @@
                   "name": "Update Extras Document",
                   "request": {
                     "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"title\": \"Updated Financial Projections 2024-2027\",\n  \"description\": \"Revised financial projections with Q1 2024 actual results incorporated\",\n  \"isPublic\": false,\n  \"requiresAccess\": true\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}/{{document_id}}",
+                      "raw": "{{BASE_URL}}/extrasDocument/:equityId/:extraDocumentId",
                       "host": ["{{BASE_URL}}"],
                       "path": [
                         "extrasDocument",
-                        "{{equityId}}",
-                        "{{document_id}}"
+                        ":equityId",
+                        ":extraDocumentId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraDocumentId",
+                          "value": ""
+                        }
                       ]
                     },
                     "description": "Update extras document information. Requires campaign ownership."
@@ -1193,52 +2517,27 @@
                   "name": "Delete Extras Document",
                   "request": {
                     "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
+                    "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/{{equityId}}/{{document_id}}",
+                      "raw": "{{BASE_URL}}/extrasDocument/:equityId/:extraDocumentId",
                       "host": ["{{BASE_URL}}"],
                       "path": [
                         "extrasDocument",
-                        "{{equityId}}",
-                        "{{document_id}}"
-                      ]
-                    },
-                    "description": "Remove extras document from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Upload Extras Document",
-                  "request": {
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{FRONT_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
+                        ":equityId",
+                        ":extraDocumentId"
+                      ],
+                      "variable": [
                         {
-                          "key": "document",
-                          "value": "",
-                          "description": "Document file (PDF, DOC, DOCX, XLS, XLSX)",
-                          "type": "file"
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraDocumentId",
+                          "value": ""
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/upload/document",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasDocument", "upload", "document"]
-                    },
-                    "description": "Upload extras document file. Use returned URL in document creation/update."
+                    "description": "Remove extras document from campaign. Requires campaign ownership."
                   },
                   "response": []
                 }
@@ -1260,12 +2559,7 @@
                       "type": "noauth"
                     },
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"firstName\": \"Divyang\",\n  \"lastName\": \"Patel\",\n  \"email\": \"divyang.rockersinfo@gmail.com\",\n  \"password\": \"Test@123\",\n  \"phoneNumber\": \"+919601000507\",\n  \"userLocation\": \"Vadodara, Gujarat, India\",\n  \"zipcode\": \"390001\",\n  \"aboutYourself\": \"Experienced entrepreneur and investor\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"LinkedIn\",\n      \"url\": \"https://linkedin.com/in/divyang\"\n    },\n    {\n      \"title\": \"Portfolio\",\n      \"url\": \"https://divyang.com\"\n    }\n  ]\n}"
@@ -1334,12 +2628,7 @@
                       "type": "noauth"
                     },
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"divyang.rockersinfo@gmail.com\",\n  \"password\": \"Test@123\"\n}"
@@ -1363,12 +2652,7 @@
                   "name": "Forgot Password",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
@@ -1386,12 +2670,7 @@
                   "name": "Reset Password",
                   "request": {
                     "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
+                    "header": [],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"token\": \"{{RESET_TOKEN}}\",\n  \"password\": \"NewSecurePassword123\"\n}"
@@ -1519,503 +2798,6 @@
         }
       ],
       "description": "Prometheus metrics endpoint for application monitoring. Provides insights into HTTP requests, response times, database connections, active users, and campaign statistics for operational visibility."
-    },
-    {
-      "name": "ADMIN",
-      "item": [
-        {
-          "name": "Authorized",
-          "item": [
-            {
-              "name": "👤 Admin Management",
-              "item": [
-                {
-                  "name": "Get Admin Profile",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/me",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "me"]
-                    },
-                    "description": "Get current admin profile information including personal details and settings."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get All Admins",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins?page=1&limit=10&firstName=&lastName=&email=&active=true",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins"],
-                      "query": [
-                        {
-                          "key": "page",
-                          "value": "1"
-                        },
-                        {
-                          "key": "limit",
-                          "value": "10"
-                        },
-                        {
-                          "key": "firstName",
-                          "value": ""
-                        },
-                        {
-                          "key": "lastName",
-                          "value": ""
-                        },
-                        {
-                          "key": "email",
-                          "value": ""
-                        },
-                        {
-                          "key": "active",
-                          "value": "true"
-                        }
-                      ]
-                    },
-                    "description": "Get all admins with pagination and filtering options. Supports filtering by name, email, and active status."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get Admin by Public ID",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "pub-admin-123"
-                        }
-                      ]
-                    },
-                    "description": "Get admin details by their public ID."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Admin",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      }
-                    ],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "firstName",
-                          "value": "Jane",
-                          "type": "text"
-                        },
-                        {
-                          "key": "lastName",
-                          "value": "Smith",
-                          "type": "text"
-                        },
-                        {
-                          "key": "email",
-                          "value": "jane.smith@example.com",
-                          "type": "text"
-                        },
-                        {
-                          "key": "password",
-                          "value": "SecureAdminPass123",
-                          "type": "text"
-                        },
-                        {
-                          "key": "passwordConfirm",
-                          "value": "SecureAdminPass123",
-                          "type": "text"
-                        },
-                        {
-                          "key": "active",
-                          "value": "true",
-                          "type": "text"
-                        },
-                        {
-                          "key": "loginIpAddress",
-                          "value": "192.168.1.100",
-                          "type": "text"
-                        },
-                        {
-                          "key": "currentLoginDateTime",
-                          "value": "2023-01-01T12:00:00.000Z",
-                          "type": "text"
-                        },
-                        {
-                          "key": "lastLoginDateTime",
-                          "value": "2023-01-01T12:00:00.000Z",
-                          "type": "text"
-                        },
-                        {
-                          "key": "twoFactorAuthVerified",
-                          "value": "false",
-                          "type": "text"
-                        },
-                        {
-                          "key": "photo",
-                          "description": "Admin profile photo (PNG, JPG, JPEG)",
-                          "type": "file"
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins"]
-                    },
-                    "description": "Create a new admin with optional photo upload. Supports multipart form data."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Admin",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"firstName\": \"Jane Updated\",\n  \"lastName\": \"Smith Updated\",\n  \"email\": \"jane.updated@example.com\",\n  \"photo\": \"https://example.com/new-photo.jpg\",\n  \"active\": true,\n  \"twoFactorAuthVerified\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "pub-admin-123"
-                        }
-                      ]
-                    },
-                    "description": "Update admin information (excluding password). All fields are optional."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Delete Admin",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "pub-admin-123"
-                        }
-                      ]
-                    },
-                    "description": "Delete admin by public ID. Also cleans up associated files."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Admin Password",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      },
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"currentPassword\": \"CurrentAdminPass123\",\n  \"newPassword\": \"NewAdminPass123\",\n  \"confirmPassword\": \"NewAdminPass123\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/update-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "update-password"]
-                    },
-                    "description": "Update admin password. Requires current password verification."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Logout Admin",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Authorization",
-                        "value": "Bearer {{ADMIN_JWT}}"
-                      }
-                    ],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/logout",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "logout"]
-                    },
-                    "description": "Logout current admin session. Logs the logout action for audit purposes."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Admin profile management endpoints for authenticated admins. Includes profile operations, password management, and admin CRUD functionality."
-            }
-          ],
-          "description": "Protected admin endpoints that require admin authentication using JWT tokens."
-        },
-        {
-          "name": "Non-Authorized",
-          "item": [
-            {
-              "name": "🔐 Admin Authentication",
-              "item": [
-                {
-                  "name": "Admin Login",
-                  "event": [
-                    {
-                      "listen": "test",
-                      "script": {
-                        "exec": [
-                          "if (pm.response.code === 200) {",
-                          "    const response = pm.response.json();",
-                          "    console.log(response);",
-                          "    if (response.access_token) {",
-                          "        pm.environment.set('ADMIN_JWT', response.access_token);",
-                          "        console.log('Admin JWT token saved to environment variables');",
-                          "    }",
-                          "}"
-                        ],
-                        "type": "text/javascript",
-                        "packages": {}
-                      }
-                    }
-                  ],
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"securepassword123\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/login",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "login"]
-                    },
-                    "description": "Admin login with email and password. Returns JWT access token for admin authentication."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Admin Forgot Password",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"email\": \"admin@example.com\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/forgot-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "forgot-password"]
-                    },
-                    "description": "Request admin password reset token. Sends reset token via email."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Admin Reset Password",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"token\": \"{{ADMIN_RESET_TOKEN}}\",\n  \"password\": \"NewAdminPassword123\",\n  \"confirmPassword\": \"NewAdminPassword123\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/reset-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "reset-password"]
-                    },
-                    "description": "Reset admin password using token received via email."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Admin authentication endpoints including login and password recovery. Login automatically sets ADMIN_JWT environment variable."
-            }
-          ],
-          "description": "Public admin endpoints that do not require authentication."
-        }
-      ],
-      "description": "Complete admin management system with JWT authentication, CRUD operations, and password management. Supports dual database architecture and file uploads.",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "packages": {},
-            "exec": [""]
-          }
-        },
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "packages": {},
-            "exec": [""]
-          }
-        }
-      ]
     }
   ],
   "event": [

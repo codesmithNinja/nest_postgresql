@@ -26,7 +26,7 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
 
   async getAll(filter?: Partial<T>, options?: QueryOptions): Promise<T[]> {
     const queryOptions: {
-      where?: Record<string, any>;
+      where?: Record<string, unknown>;
       select?: Record<string, boolean | object>;
       skip?: number;
       take?: number;
@@ -78,7 +78,7 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
     options?: QueryOptions
   ): Promise<T | null> {
     const queryOptions: {
-      where?: Record<string, any>;
+      where?: Record<string, unknown>;
       select?: Record<string, boolean | object>;
     } = {
       where: this.convertFilterToPrisma(filter),
@@ -195,13 +195,13 @@ export abstract class PostgresRepository<T> extends BaseRepository<T> {
     return delegate;
   }
 
-  protected convertFilterToPrisma(filter: Partial<T>): Record<string, any> {
+  protected convertFilterToPrisma(filter: Partial<T>): Record<string, unknown> {
     // Default implementation - subclasses can override for custom filtering
-    return filter as Record<string, any>;
+    return filter as Record<string, unknown>;
   }
 
-  protected convertDataToPrisma(data: Partial<T>): Record<string, any> {
+  protected convertDataToPrisma(data: Partial<T>): Record<string, unknown> {
     // Default implementation - subclasses can override for custom data mapping
-    return data as Record<string, any>;
+    return data as Record<string, unknown>;
   }
 }

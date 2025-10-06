@@ -3,13 +3,50 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import * as yaml from 'js-yaml';
 
-export default registerAs('performance', () => {
+interface PerformanceConfig {
+  database: {
+    postgres: {
+      max: number;
+      idleTimeoutMillis: number;
+      connectionTimeoutMillis: number;
+    };
+    mongodb: {
+      maxPoolSize: number;
+      minPoolSize: number;
+      maxIdleTimeMS: number;
+      serverSelectionTimeoutMS: number;
+    };
+  };
+  cache: {
+    redis: {
+      host: string;
+      port: number;
+      ttl: number;
+      maxMemoryPolicy: string;
+    };
+    nodeCache: {
+      stdTTL: number;
+      checkperiod: number;
+      maxKeys: number;
+    };
+  };
+  upload: {
+    maxFileSize: number;
+    allowedMimeTypes: {
+      images: string[];
+      videos: string[];
+      documents: string[];
+    };
+  };
+}
+
+export default registerAs('performance', (): PerformanceConfig => {
   try {
     const configPath = join(process.cwd(), 'performance-config.yml');
     const configFile = readFileSync(configPath, 'utf8');
-    const config = yaml.load(configFile) as Record<string, any>;
+    const config = yaml.load(configFile) as { performance: PerformanceConfig };
 
-    return config.performance as Record<string, any>;
+    return config.performance;
   } catch {
     // Fallback configuration if YAML file is not found
     return {

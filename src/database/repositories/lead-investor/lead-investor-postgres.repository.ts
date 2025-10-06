@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PostgresRepository } from '../base/postgres.repository';
-import { ILeadInvestorRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { ILeadInvestorRepository } from './lead-investor.repository.interface';
 import { LeadInvestor } from '../../entities/lead-investor.entity';
 
 @Injectable()

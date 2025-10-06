@@ -40,7 +40,7 @@ export class I18nResponseInterceptor implements NestInterceptor {
       return; // Already loaded
     }
 
-    const languages = ['en', 'es', 'fr'];
+    const languages = ['en', 'es', 'fr', 'ar'];
     const basePath = path.join(__dirname, '../../i18n/locales');
 
     languages.forEach((lang) => {

@@ -3,42 +3,39 @@ import {
   IsNotEmpty,
   IsEmail,
   IsOptional,
-  IsUrl,
   Length,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTeamMemberDto {
-  @IsString()
-  @IsNotEmpty()
-  @IsUrl()
-  memberPhoto!: string;
-
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
   name!: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(2, 100)
   role!: string;
 
+  @ApiProperty()
   @IsEmail()
   @IsNotEmpty()
   email!: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   @Length(50, 2000)
   bio!: string;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  memberPhoto!: string;
 }
 
 export class UpdateTeamMemberDto {
-  @IsOptional()
-  @IsString()
-  @IsUrl()
-  memberPhoto?: string;
-
   @IsOptional()
   @IsString()
   @Length(2, 100)
@@ -57,6 +54,9 @@ export class UpdateTeamMemberDto {
   @IsString()
   @Length(50, 2000)
   bio?: string;
+
+  @ApiProperty({ type: 'string', format: 'binary' })
+  memberPhoto?: string;
 }
 
 export class TeamMemberResponseDto {

@@ -28,7 +28,12 @@ export class JwtUserGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = any>(
+  handleRequest<
+    TUser = Pick<User, 'id' | 'email' | 'firstName' | 'lastName'> & {
+      ip: string;
+      userAgent: string;
+    },
+  >(
     err: Error | null,
     user: Pick<User, 'id' | 'email' | 'firstName' | 'lastName'> | false,
     info: unknown,

@@ -28,23 +28,50 @@ export class Language {
   @Prop({ required: true, unique: true })
   publicId!: string;
 
-  @Prop({ required: true, unique: true, trim: true })
+  @Prop({ required: true, trim: true, maxlength: 100, unique: true })
   name!: string;
 
-  @Prop({ required: true, unique: true, lowercase: true, trim: true })
-  code!: string;
+  @Prop({ required: true, trim: true, maxlength: 50 })
+  folder!: string;
 
-  @Prop({ default: 'ltr', enum: ['ltr', 'rtl'] })
-  direction!: string;
+  @Prop({
+    required: true,
+    uppercase: true,
+    trim: true,
+    maxlength: 2,
+    unique: true,
+  })
+  iso2!: string;
 
-  @Prop()
-  flagImage?: string;
+  @Prop({
+    required: true,
+    uppercase: true,
+    trim: true,
+    maxlength: 3,
+    unique: true,
+  })
+  iso3!: string;
 
-  @Prop({ default: 'NO', enum: ['YES', 'NO'] })
-  isDefault!: string;
+  @Prop({ required: true })
+  flagImage!: string;
 
-  @Prop({ default: true })
+  @Prop({
+    required: true,
+    enum: ['ltr', 'rtl'],
+    default: 'ltr',
+    trim: true,
+  })
+  direction!: 'ltr' | 'rtl';
+
+  @Prop({ required: true, default: true })
   status!: boolean;
+
+  @Prop({
+    required: true,
+    enum: ['YES', 'NO'],
+    default: 'YES',
+  })
+  isDefault!: 'YES' | 'NO';
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -52,9 +79,10 @@ export class Language {
 
 export const LanguageSchema = SchemaFactory.createForClass(Language);
 
-// Indexes for performance optimization
-LanguageSchema.index({ code: 1 });
-LanguageSchema.index({ isDefault: 1 });
+// Additional composite indexes for performance optimization
+LanguageSchema.index({ folder: 1 });
+LanguageSchema.index({ direction: 1 });
 LanguageSchema.index({ status: 1 });
-LanguageSchema.index({ status: 1, isDefault: 1 });
-LanguageSchema.index({ publicId: 1 }, { unique: true });
+LanguageSchema.index({ isDefault: 1 });
+LanguageSchema.index({ createdAt: -1 });
+LanguageSchema.index({ name: 1, iso2: 1, iso3: 1 });

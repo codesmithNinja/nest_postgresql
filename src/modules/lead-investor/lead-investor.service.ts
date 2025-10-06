@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   ILeadInvestorRepository,
   LEAD_INVESTOR_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/lead-investor/lead-investor.repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileManagementService } from '../../common/services/file-management.service';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
@@ -23,7 +23,7 @@ export class LeadInvestorService {
     private fileManagementService: FileManagementService
   ) {}
 
-  async getLeadInvestorsByEquityId(equityId: string) {
+  async findByEquityId(equityId: string) {
     try {
       const cacheKey = CacheUtil.getCampaignRelationsKey(
         equityId,
@@ -53,13 +53,19 @@ export class LeadInvestorService {
     }
   }
 
-  async createLeadInvestor(
+  async create(
     equityId: string,
-    createLeadInvestorDto: CreateLeadInvestorDto
+    createLeadInvestorDto: CreateLeadInvestorDto,
+    file: Express.Multer.File
   ) {
     try {
+      // Upload the file first
+      const uploadResult =
+        await this.fileManagementService.uploadLeadInvestorImage(file);
+
       const leadInvestorData: Partial<LeadInvestor> = {
         ...createLeadInvestorDto,
+        investorPhoto: uploadResult.filePath,
         equityId,
       };
 
@@ -80,10 +86,11 @@ export class LeadInvestorService {
     }
   }
 
-  async updateLeadInvestor(
+  async update(
     equityId: string,
     id: string,
-    updateLeadInvestorDto: UpdateLeadInvestorDto
+    updateLeadInvestorDto: UpdateLeadInvestorDto,
+    file?: Express.Multer.File
   ) {
     try {
       const leadInvestor =
@@ -96,9 +103,46 @@ export class LeadInvestorService {
         throw new NotFoundException();
       }
 
+      const updateData: Partial<LeadInvestor> = {
+        ...updateLeadInvestorDto,
+      };
+
+      // Handle file upload if a file is provided - validation first approach
+      if (file) {
+        // Upload the new file first
+        const uploadResult =
+          await this.fileManagementService.uploadLeadInvestorImage(file);
+
+        updateData.investorPhoto = uploadResult.filePath;
+
+        // Clean up old file after successful upload and validation
+        if (leadInvestor.investorPhoto) {
+          try {
+            const fileExists = await this.fileManagementService.fileExists(
+              leadInvestor.investorPhoto
+            );
+            if (fileExists) {
+              await this.fileManagementService.deleteFile(
+                leadInvestor.investorPhoto
+              );
+              this.logger.log(
+                `Old lead investor photo deleted: ${leadInvestor.investorPhoto}`
+              );
+            }
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : 'Unknown error';
+            this.logger.error(
+              `Failed to delete old lead investor photo: ${leadInvestor.investorPhoto}. Error: ${errorMessage}`
+            );
+            // Don't throw here as the main update was successful
+          }
+        }
+      }
+
       const updatedLeadInvestor = await this.leadInvestorRepository.updateById(
         leadInvestor.id,
-        updateLeadInvestorDto
+        updateData
       );
 
       // Clear related caches
@@ -118,7 +162,7 @@ export class LeadInvestorService {
     }
   }
 
-  async deleteLeadInvestor(equityId: string, id: string) {
+  async delete(equityId: string, id: string) {
     try {
       const leadInvestor =
         await this.leadInvestorRepository.findByEquityIdAndPublicId(
@@ -128,6 +172,40 @@ export class LeadInvestorService {
 
       if (!leadInvestor) {
         throw new NotFoundException();
+      }
+
+      // Clean up lead investor photo if exists
+      if (leadInvestor.investorPhoto) {
+        try {
+          this.logger.log(
+            `Attempting to delete lead investor photo: ${leadInvestor.investorPhoto}`
+          );
+
+          // Check if file exists before attempting deletion
+          const fileExists = await this.fileManagementService.fileExists(
+            leadInvestor.investorPhoto
+          );
+          if (!fileExists) {
+            this.logger.warn(
+              `Lead investor photo file does not exist: ${leadInvestor.investorPhoto}`
+            );
+          } else {
+            await this.fileManagementService.deleteFile(
+              leadInvestor.investorPhoto
+            );
+            this.logger.log(
+              `Lead investor photo successfully deleted: ${leadInvestor.investorPhoto}`
+            );
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error';
+          this.logger.error(
+            `Failed to delete lead investor photo: ${leadInvestor.investorPhoto}. Error: ${errorMessage}`,
+            error
+          );
+          // Continue with record deletion even if file deletion fails
+        }
       }
 
       await this.leadInvestorRepository.deleteById(leadInvestor.id);
@@ -142,27 +220,6 @@ export class LeadInvestorService {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Error deleting lead investor: ${errorMessage}`);
-      throw error;
-    }
-  }
-
-  async uploadFile(file: Express.Multer.File) {
-    try {
-      const uploadResult =
-        await this.fileManagementService.uploadTeamMemberImage(file);
-
-      return this.i18nResponse.success('common.file_uploaded', {
-        filename: uploadResult.filePath,
-        url:
-          uploadResult.url ||
-          this.fileManagementService.getFileUrl(uploadResult.filePath),
-        mimetype: uploadResult.mimetype,
-        size: uploadResult.size,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error uploading file: ${errorMessage}`);
       throw error;
     }
   }

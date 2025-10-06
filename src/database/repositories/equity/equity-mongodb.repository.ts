@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
-import { IEquityRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { IEquityRepository } from './equity.repository.interface';
 import { Equity, EquityDocument } from '../../schemas/equity.schema';
 import {
   Equity as EquityEntity,
@@ -143,7 +143,7 @@ export class EquityMongoRepository
       .filter((entity): entity is EquityEntity => entity !== null);
   }
 
-  async findWithRelations(id: string): Promise<EquityEntity | null> {
+  async findRelations(id: string): Promise<EquityEntity | null> {
     const doc = await this.model.findById(id).exec();
     return this.toEntity(doc);
   }

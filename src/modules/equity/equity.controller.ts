@@ -33,9 +33,8 @@ import {
   UpdateEquityDto,
   UpdateEquityFormDataDto,
   EquityResponseDto,
-  EquityWithRelationsResponseDto,
+  EquityRelationsResponseDto,
 } from './dto/equity.dto';
-import { FileUploadResponseDto } from '../../common/dto/file-upload.dto';
 import { getFileUploadConfig } from '../../common/config/multer.config';
 
 @ApiTags('Equity Campaigns')
@@ -73,9 +72,9 @@ export class EquityController {
   @UseGuards(JwtUserGuard, CampaignOwnershipGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get single campaign with relations' })
-  @ApiResponse({ type: EquityWithRelationsResponseDto })
+  @ApiResponse({ type: EquityRelationsResponseDto })
   async getCampaignById(@Param('id') id: string) {
-    return await this.equityService.getCampaignWithRelations(id);
+    return await this.equityService.getCampaignRelations(id);
   }
 
   @Post()
@@ -126,7 +125,6 @@ export class EquityController {
   @UseInterceptors(FileInterceptor('logo', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload company logo' })
-  @ApiResponse({ type: FileUploadResponseDto })
   async uploadLogo(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       return this.i18nResponse.badRequest('equity.logo_file_required');
@@ -140,7 +138,6 @@ export class EquityController {
   @UseInterceptors(FileInterceptor('image', getFileUploadConfig(5)))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload campaign image' })
-  @ApiResponse({ type: FileUploadResponseDto })
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       return this.i18nResponse.badRequest('equity.image_file_required');

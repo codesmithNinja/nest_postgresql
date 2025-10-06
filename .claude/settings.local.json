@@ -37,7 +37,22 @@
       "Bash(cmd /c:*)",
       "Bash(/dev/null)",
       "Bash(findstr:*)",
-      "Bash(set)"
+      "Bash(set)",
+      "Bash(tree:*)",
+      "Bash(mv:*)",
+      "Bash(npm ls:*)",
+      "Read(//d/**)",
+      "Bash(test:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(for file in \"src/modules/extras-image/extras-image.controller.ts\" \"src/modules/extras-video/extras-video.controller.ts\" \"src/modules/team-member/team-member.controller.ts\" \"src/modules/lead-investor/lead-investor.controller.ts\")",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(for:*)",
+      "Bash(if ! grep -q \"@ApiResponse\" \"$file\")",
+      "Bash(then)",
+      "Bash(fi)",
+      "Bash(git checkout:*)",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []

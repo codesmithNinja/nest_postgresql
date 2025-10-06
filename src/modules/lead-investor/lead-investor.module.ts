@@ -1,5 +1,4 @@
-import { Module, DynamicModule } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { DynamicModule, Provider, Type } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DatabaseModule } from '../../database/database.module';
@@ -12,7 +11,7 @@ import {
   LeadInvestorSchema,
   LeadInvestorDocument,
 } from '../../database/schemas/lead-investor.schema';
-import { LEAD_INVESTOR_REPOSITORY } from '../../common/interfaces/campaign-repository.interface';
+import { LEAD_INVESTOR_REPOSITORY } from '../../database/repositories/lead-investor/lead-investor.repository.interface';
 import { DatabaseType } from '../../common/enums/database-type.enum';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { FileManagementService } from '../../common/services/file-management.service';
@@ -22,11 +21,11 @@ export class LeadInvestorModule {
   static register(): DynamicModule {
     const dbType =
       (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
-    const imports: any[] = [
+    const imports: Array<Type<unknown> | DynamicModule> = [
       DatabaseModule.forRootConditional(),
       EquityModule.register(),
     ];
-    const providers: any[] = [LeadInvestorService, FileManagementService];
+    const providers: Provider[] = [LeadInvestorService, FileManagementService];
 
     if (dbType === DatabaseType.MONGODB) {
       imports.push(

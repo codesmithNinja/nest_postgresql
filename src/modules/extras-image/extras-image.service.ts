@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
 import {
   IExtrasImageRepository,
   EXTRAS_IMAGE_REPOSITORY,
-} from '../../common/interfaces/campaign-repository.interface';
+} from '../../database/repositories/extras-image/extras-image.repository.interface';
 import { CacheUtil } from '../../common/utils/cache.util';
 import { FileManagementService } from '../../common/services/file-management.service';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
@@ -154,9 +154,6 @@ export class ExtrasImageService {
 
       return this.i18nResponse.success('common.file_uploaded', {
         filename: uploadResult.filePath,
-        url:
-          uploadResult.url ||
-          this.fileManagementService.getFileUrl(uploadResult.filePath),
         mimetype: uploadResult.mimetype,
         size: uploadResult.size,
         originalName: uploadResult.originalName,

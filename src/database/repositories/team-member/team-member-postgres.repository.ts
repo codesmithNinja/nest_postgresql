@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PostgresRepository } from '../base/postgres.repository';
-import { ITeamMemberRepository } from '../../../common/interfaces/campaign-repository.interface';
+import { ITeamMemberRepository } from './team-member.repository.interface';
 import { TeamMember } from '../../entities/team-member.entity';
 
 @Injectable()

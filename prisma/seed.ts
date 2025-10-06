@@ -39,27 +39,45 @@ async function main() {
   // Create languages
   const languages = await Promise.all([
     prisma.language.upsert({
-      where: { code: 'en' },
+      where: { name: 'English' },
       update: {},
       create: {
         name: 'English',
-        code: 'en',
+        folder: 'en',
+        iso2: 'EN',
+        iso3: 'ENG',
+        flagImage: '/flags/en.png',
+        direction: 'ltr',
+        status: true,
+        isDefault: 'YES',
       },
     }),
     prisma.language.upsert({
-      where: { code: 'es' },
+      where: { name: 'Spanish' },
       update: {},
       create: {
         name: 'Spanish',
-        code: 'es',
+        folder: 'es',
+        iso2: 'ES',
+        iso3: 'ESP',
+        flagImage: '/flags/es.png',
+        direction: 'ltr',
+        status: true,
+        isDefault: 'NO',
       },
     }),
     prisma.language.upsert({
-      where: { code: 'fr' },
+      where: { name: 'French' },
       update: {},
       create: {
         name: 'French',
-        code: 'fr',
+        folder: 'fr',
+        iso2: 'FR',
+        iso3: 'FRA',
+        flagImage: '/flags/fr.png',
+        direction: 'ltr',
+        status: true,
+        isDefault: 'NO',
       },
     }),
   ]);
