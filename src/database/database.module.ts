@@ -64,7 +64,8 @@ export class DatabaseModule {
 
   static forRootConditional(): DynamicModule {
     // Use process.env directly to read DATABASE_TYPE at module initialization
-    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const dbType =
+      (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
 
     const imports: any[] = [];
     const providers: Provider[] = [];

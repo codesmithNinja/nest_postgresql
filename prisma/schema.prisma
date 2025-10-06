@@ -22,13 +22,23 @@ model UserType {
 }
 
 model Language {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     User[]
+  id              String              @id @default(cuid())
+  publicId        String              @unique @default(cuid()) // For public API access
+  name            String              @unique
+  code            String              @unique
+  direction       String              @default("ltr") // ltr or rtl
+  flagImage       String?
+  isDefault       String              @default("NO") // YES or NO
+  status          Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  users           User[]
+  manageDropdowns ManageDropdown[]
 
+  @@index([code])
+  @@index([isDefault])
+  @@index([status])
+  @@index([status, isDefault])
   @@map("languages")
 }
 
@@ -355,4 +365,30 @@ model Admin {
   @@index([active, id])
   @@index([firstName, lastName, email, id])
   @@map("admins")
+}
+
+// Master Dropdown Model
+model ManageDropdown {
+  id               String    @id @default(cuid())
+  publicId         String    @unique @default(cuid()) // For public API access
+  name             String
+  uniqueCode       Int?
+  dropdownType     String
+  countryShortCode String?
+  isDefault        String?   // YES or NO
+  languageId       String
+  language         Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  status           Boolean   @default(true)
+  useCount         Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([dropdownType])
+  @@index([languageId])
+  @@index([status])
+  @@index([dropdownType, languageId])
+  @@index([dropdownType, status])
+  @@index([countryShortCode])
+  @@index([publicId])
+  @@map("manage_dropdowns")
 }

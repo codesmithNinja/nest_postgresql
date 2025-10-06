@@ -23,7 +23,10 @@
     "prisma:reset": "prisma migrate reset",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:studio": "prisma studio",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "mongodb:setup": "mongosh --file scripts/mongodb-setup.js",
+    "mongodb:seed": "node scripts/mongodb-seed.js",
+    "mongodb:reset": "node scripts/mongodb-reset.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.884.0",

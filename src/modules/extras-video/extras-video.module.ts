@@ -19,8 +19,12 @@ import { EquityModule } from '../equity/equity.module';
 
 export class ExtrasVideoModule {
   static register(): DynamicModule {
-    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
-    const imports: any[] = [DatabaseModule.forRootConditional(), EquityModule.register()];
+    const dbType =
+      (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const imports: any[] = [
+      DatabaseModule.forRootConditional(),
+      EquityModule.register(),
+    ];
     const providers: any[] = [ExtrasVideoService];
 
     if (dbType === DatabaseType.MONGODB) {

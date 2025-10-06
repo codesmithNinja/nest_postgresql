@@ -18,7 +18,8 @@ import { PrismaService } from '../../database/prisma/prisma.service';
 
 export class EquityModule {
   static register(): DynamicModule {
-    const dbType = (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
+    const dbType =
+      (process.env.DATABASE_TYPE as DatabaseType) || DatabaseType.POSTGRES;
     const imports: any[] = [DatabaseModule.forRootConditional()];
     const providers: any[] = [EquityService];
 
