@@ -4,7 +4,9 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 // Configuration
-const MONGODB_URI: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/equity_crowfunding_nest';
+const MONGODB_URI: string =
+  process.env.MONGODB_URI ||
+  'mongodb://localhost:27017/equity_crowfunding_nest';
 const DB_NAME: string = 'equity_crowfunding_nest';
 
 interface ValidationSchema {
@@ -31,53 +33,61 @@ async function setupDatabase(): Promise<void> {
     const languageValidation: ValidationSchema = {
       $jsonSchema: {
         bsonType: 'object',
-        required: ['publicId', 'name', 'code', 'direction', 'isDefault', 'status'],
+        required: [
+          'publicId',
+          'name',
+          'code',
+          'direction',
+          'isDefault',
+          'status',
+        ],
         properties: {
           publicId: {
             bsonType: 'string',
-            description: 'Public ID for API access'
+            description: 'Public ID for API access',
           },
           name: {
             bsonType: 'string',
             minLength: 2,
             maxLength: 50,
-            description: 'Language name'
+            description: 'Language name',
           },
           code: {
             bsonType: 'string',
             minLength: 2,
             maxLength: 5,
-            description: 'Language ISO code'
+            description: 'Language ISO code',
           },
           direction: {
             bsonType: 'string',
             enum: ['ltr', 'rtl'],
-            description: 'Text direction'
+            description: 'Text direction',
           },
           flagImage: {
             bsonType: 'string',
-            description: 'Flag image URL'
+            description: 'Flag image URL',
           },
           isDefault: {
             bsonType: 'string',
             enum: ['YES', 'NO'],
-            description: 'Is default language'
+            description: 'Is default language',
           },
           status: {
             bsonType: 'bool',
-            description: 'Language status'
-          }
-        }
-      }
+            description: 'Language status',
+          },
+        },
+      },
     };
 
     try {
       await db.createCollection('languages', {
-        validator: languageValidation
+        validator: languageValidation,
       });
       console.log('   ✅ Created languages collection with validation');
     } catch (error: any) {
-      if (error.code === 48) { // NamespaceExists
+      if (error.code === 48) {
+        // NamespaceExists
         console.log('   ⚠️  Languages collection already exists');
       } else {
         throw error;
@@ -88,63 +98,71 @@ async function setupDatabase(): Promise<void> {
     const dropdownValidation: ValidationSchema = {
       $jsonSchema: {
         bsonType: 'object',
-        required: ['publicId', 'name', 'dropdownType', 'languageId', 'status', 'useCount'],
+        required: [
+          'publicId',
+          'name',
+          'dropdownType',
+          'languageId',
+          'status',
+          'useCount',
+        ],
         properties: {
           publicId: {
             bsonType: 'string',
-            description: 'Public ID for API access'
+            description: 'Public ID for API access',
           },
           name: {
             bsonType: 'string',
             minLength: 1,
             maxLength: 100,
-            description: 'Dropdown option name'
+            description: 'Dropdown option name',
           },
           uniqueCode: {
             bsonType: 'int',
-            description: 'Unique code for the option'
+            description: 'Unique code for the option',
           },
           dropdownType: {
             bsonType: 'string',
             minLength: 2,
             maxLength: 50,
-            description: 'Dropdown type'
+            description: 'Dropdown type',
           },
           countryShortCode: {
             bsonType: 'string',
             minLength: 2,
             maxLength: 3,
-            description: 'Country short code'
+            description: 'Country short code',
           },
           isDefault: {
             bsonType: 'string',
             enum: ['YES', 'NO'],
-            description: 'Is default option'
+            description: 'Is default option',
           },
           languageId: {
             bsonType: 'objectId',
-            description: 'Reference to Language document'
+            description: 'Reference to Language document',
           },
           status: {
             bsonType: 'bool',
-            description: 'Dropdown option status'
+            description: 'Dropdown option status',
           },
           useCount: {
             bsonType: 'int',
             minimum: 0,
-            description: 'Usage counter'
-          }
-        }
-      }
+            description: 'Usage counter',
+          },
+        },
+      },
     };
 
     try {
       await db.createCollection('manage_dropdowns', {
-        validator: dropdownValidation
+        validator: dropdownValidation,
       });
       console.log('   ✅ Created manage_dropdowns collection with validation');
     } catch (error: any) {
-      if (error.code === 48) { // NamespaceExists
+      if (error.code === 48) {
+        // NamespaceExists
         console.log('   ⚠️  Manage dropdowns collection already exists');
       } else {
         throw error;
@@ -154,39 +172,59 @@ async function setupDatabase(): Promise<void> {
     // Create indexes for better performance
     console.log('🔍 Creating indexes...');
 
-    const createIndexSafely = async (collection: string, indexSpec: object, options: object = {}): Promise<void> => {
+    const createIndexSafely = async (
+      collection: string,
+      indexSpec: Record<string, unknown>,
+      options: Record<string, unknown> = {}
+    ): Promise<void> => {
       try {
-        await db.collection(collection).createIndex(indexSpec, options);
-        console.log(`   ✅ Created index on ${collection}: ${JSON.stringify(indexSpec)}`);
+        await db.collection(collection).createIndex(indexSpec as any, options);
+        console.log(
+          `   ✅ Created index on ${collection}: ${JSON.stringify(indexSpec)}`
+        );
       } catch (error: any) {
-        if (error.code === 86) { // IndexKeySpecsConflict
-          console.log(`   ⚠️  Index already exists on ${collection}: ${JSON.stringify(indexSpec)}`);
+        if (error.code === 86) {
+          // IndexKeySpecsConflict
+          console.log(
+            `   ⚠️  Index already exists on ${collection}: ${JSON.stringify(indexSpec)}`
+          );
         } else {
-          console.log(`   ❌ Failed to create index on ${collection}: ${error.message}`);
+          console.log(
+            `   ❌ Failed to create index on ${collection}: ${error.message}`
+          );
         }
       }
     };
 
     // Language indexes
-    await createIndexSafely('languages', { 'publicId': 1 }, { unique: true });
-    await createIndexSafely('languages', { 'name': 1 }, { unique: true });
-    await createIndexSafely('languages', { 'code': 1 }, { unique: true });
-    await createIndexSafely('languages', { 'isDefault': 1 });
-    await createIndexSafely('languages', { 'status': 1 });
-    await createIndexSafely('languages', { 'status': 1, 'isDefault': 1 });
+    await createIndexSafely('languages', { publicId: 1 }, { unique: true });
+    await createIndexSafely('languages', { name: 1 }, { unique: true });
+    await createIndexSafely('languages', { code: 1 }, { unique: true });
+    await createIndexSafely('languages', { isDefault: 1 });
+    await createIndexSafely('languages', { status: 1 });
+    await createIndexSafely('languages', { status: 1, isDefault: 1 });
 
     // Dropdown indexes
-    await createIndexSafely('manage_dropdowns', { 'publicId': 1 }, { unique: true });
-    await createIndexSafely('manage_dropdowns', { 'dropdownType': 1 });
-    await createIndexSafely('manage_dropdowns', { 'languageId': 1 });
-    await createIndexSafely('manage_dropdowns', { 'status': 1 });
-    await createIndexSafely('manage_dropdowns', { 'dropdownType': 1, 'languageId': 1 });
-    await createIndexSafely('manage_dropdowns', { 'dropdownType': 1, 'status': 1 });
-    await createIndexSafely('manage_dropdowns', { 'countryShortCode': 1 });
+    await createIndexSafely(
+      'manage_dropdowns',
+      { publicId: 1 },
+      { unique: true }
+    );
+    await createIndexSafely('manage_dropdowns', { dropdownType: 1 });
+    await createIndexSafely('manage_dropdowns', { languageId: 1 });
+    await createIndexSafely('manage_dropdowns', { status: 1 });
+    await createIndexSafely('manage_dropdowns', {
+      dropdownType: 1,
+      languageId: 1,
+    });
+    await createIndexSafely('manage_dropdowns', { dropdownType: 1, status: 1 });
+    await createIndexSafely('manage_dropdowns', { countryShortCode: 1 });
 
     // Insert default English language if not exists
     console.log('🌍 Checking for default English language...');
-    const existingEnglish = await db.collection('languages').findOne({ code: 'en' });
+    const existingEnglish = await db
+      .collection('languages')
+      .findOne({ code: 'en' });
 
     if (!existingEnglish) {
       const englishLanguageId = new ObjectId();
@@ -199,7 +237,7 @@ async function setupDatabase(): Promise<void> {
         isDefault: 'YES',
         status: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       console.log('✅ Created default English language');
@@ -218,7 +256,7 @@ async function setupDatabase(): Promise<void> {
           status: true,
           useCount: 0,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           _id: new ObjectId(),
@@ -231,7 +269,7 @@ async function setupDatabase(): Promise<void> {
           status: true,
           useCount: 0,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           _id: new ObjectId(),
@@ -244,29 +282,34 @@ async function setupDatabase(): Promise<void> {
           status: true,
           useCount: 0,
           createdAt: new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       ];
 
       await db.collection('manage_dropdowns').insertMany(dropdownData);
       console.log('✅ Created sample dropdown data');
     } else {
-      console.log('⚠️  English language already exists, skipping sample data creation');
+      console.log(
+        '⚠️  English language already exists, skipping sample data creation'
+      );
     }
 
     // Print collection stats
     console.log('\n📊 Collection Statistics:');
     const languageCount = await db.collection('languages').countDocuments();
-    const dropdownCount = await db.collection('manage_dropdowns').countDocuments();
+    const dropdownCount = await db
+      .collection('manage_dropdowns')
+      .countDocuments();
 
     console.log(`   🌍 Languages: ${languageCount} documents`);
     console.log(`   📋 Manage Dropdowns: ${dropdownCount} documents`);
 
-    console.log('\n🎉 Master Dropdown Management setup completed successfully!');
+    console.log(
+      '\n🎉 Master Dropdown Management setup completed successfully!'
+    );
     console.log('📋 Collections created: languages, manage_dropdowns');
     console.log('🔍 Indexes created for optimal performance');
     console.log('💡 Run "npm run mongodb:seed" to add comprehensive test data');
-
   } catch (error) {
     console.error('❌ Error setting up database:', error);
     process.exit(1);

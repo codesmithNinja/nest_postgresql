@@ -1,14 +1,17 @@
 import { Language } from './language.entity';
 
+export interface MinimalLanguage {
+  publicId: string;
+  name: string;
+}
+
 export interface ManageDropdown {
   id: string;
   publicId: string;
   name: string;
-  uniqueCode?: number;
+  uniqueCode: number;
   dropdownType: string;
-  countryShortCode?: string;
-  isDefault?: string;
-  languageId: string;
+  languageId: string | Language | MinimalLanguage;
   language?: Language;
   status: boolean;
   useCount: number;
@@ -18,19 +21,14 @@ export interface ManageDropdown {
 
 export interface CreateManageDropdownDto {
   name: string;
-  uniqueCode?: number;
+  uniqueCode: number;
   dropdownType: string;
-  countryShortCode?: string;
-  isDefault?: string;
-  languageId?: string; // Optional - will be auto-detected
+  languageId: string;
   status?: boolean;
 }
 
 export interface UpdateManageDropdownDto {
   name?: string;
-  uniqueCode?: number;
-  countryShortCode?: string;
-  isDefault?: string;
   status?: boolean;
 }
 

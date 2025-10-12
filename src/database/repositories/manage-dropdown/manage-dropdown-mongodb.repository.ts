@@ -7,11 +7,15 @@ import {
   ManageDropdownDocument,
 } from '../../schemas/manage-dropdown.schema';
 import {
+  Language as LanguageSchema,
+  LanguageDocument,
+} from '../../schemas/language.schema';
+import {
   ManageDropdown,
   CreateManageDropdownDto,
-  UpdateManageDropdownDto,
   ManageDropdownWithLanguage,
   BulkOperationDto,
+  MinimalLanguage,
 } from '../../entities/manage-dropdown.entity';
 import { IManageDropdownRepository } from './manage-dropdown.repository.interface';
 import {
@@ -20,6 +24,22 @@ import {
 } from '../../../common/interfaces/repository.interface';
 import { v4 as uuidv4 } from 'uuid';
 
+// Helper type for populated language document
+interface PopulatedLanguageDocument {
+  _id: unknown;
+  publicId: string;
+  name: string;
+  folder: string;
+  iso2: string;
+  iso3: string;
+  flagImage: string;
+  direction: 'ltr' | 'rtl';
+  status: boolean;
+  isDefault: 'YES' | 'NO';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 @Injectable()
 export class ManageDropdownMongodbRepository
   extends MongoRepository<ManageDropdownDocument, ManageDropdown>
@@ -27,21 +47,33 @@ export class ManageDropdownMongodbRepository
 {
   constructor(
     @InjectModel(ManageDropdownSchema.name)
-    private manageDropdownModel: Model<ManageDropdownDocument>
+    private manageDropdownModel: Model<ManageDropdownDocument>,
+    @InjectModel(LanguageSchema.name)
+    private languageModel: Model<LanguageDocument>
   ) {
     super(manageDropdownModel);
   }
 
   protected toEntity(doc: ManageDropdownDocument): ManageDropdown {
     return {
-      id: (doc._id as any).toString(),
+      id: (doc._id as { toString(): string }).toString(),
       publicId: doc.publicId,
       name: doc.name,
-      uniqueCode: doc.uniqueCode,
+      uniqueCode: doc.uniqueCode || 0,
       dropdownType: doc.dropdownType,
-      countryShortCode: doc.countryShortCode,
-      isDefault: doc.isDefault,
-      languageId: (doc.languageId as any)?.toString() || doc.languageId,
+      // languageId should always be the primary key (_id) of the language
+      // When populated, we extract the minimal language info for display
+      languageId:
+        typeof doc.languageId === 'object' &&
+        doc.languageId &&
+        'publicId' in doc.languageId
+          ? ({
+              publicId: (doc.languageId as PopulatedLanguageDocument).publicId,
+              name: (doc.languageId as PopulatedLanguageDocument).name,
+            } as MinimalLanguage)
+          : typeof doc.languageId === 'object'
+            ? (doc.languageId as { toString(): string }).toString()
+            : doc.languageId,
       status: doc.status,
       useCount: doc.useCount,
       createdAt: doc.createdAt || new Date(),
@@ -58,9 +90,7 @@ export class ManageDropdownMongodbRepository
     if (entity.uniqueCode !== undefined) doc.uniqueCode = entity.uniqueCode;
     if (entity.dropdownType !== undefined)
       doc.dropdownType = entity.dropdownType;
-    if (entity.countryShortCode !== undefined)
-      doc.countryShortCode = entity.countryShortCode;
-    if (entity.isDefault !== undefined) doc.isDefault = entity.isDefault;
+    // languageId must be the primary key (_id) of the language, not publicId
     if (entity.languageId !== undefined) doc.languageId = entity.languageId;
     if (entity.status !== undefined) doc.status = entity.status;
     if (entity.useCount !== undefined) doc.useCount = entity.useCount;
@@ -82,7 +112,7 @@ export class ManageDropdownMongodbRepository
     dropdownType: string,
     includeInactive = false
   ): Promise<ManageDropdownWithLanguage[]> {
-    const whereClause: any = { dropdownType };
+    const whereClause: Record<string, unknown> = { dropdownType };
     if (!includeInactive) {
       whereClause.status = true;
     }
@@ -92,10 +122,9 @@ export class ManageDropdownMongodbRepository
       .populate('languageId', '-_id -__v')
       .sort({ name: 1 })
       .exec();
-    return dropdowns.map((dropdown) => ({
-      ...this.toEntity(dropdown),
-      language: (dropdown as any).languageId,
-    })) as ManageDropdownWithLanguage[];
+    return dropdowns.map((dropdown) =>
+      this.toEntity(dropdown)
+    ) as ManageDropdownWithLanguage[];
   }
 
   async findByTypeAndLanguage(
@@ -121,50 +150,36 @@ export class ManageDropdownMongodbRepository
       .populate('languageId', '-_id -__v')
       .exec();
     return dropdown
-      ? ({
-          ...this.toEntity(dropdown),
-          language: (dropdown as any).languageId,
-        } as ManageDropdownWithLanguage)
+      ? (this.toEntity(dropdown) as ManageDropdownWithLanguage)
       : null;
   }
 
   async findByTypeForPublic(
     dropdownType: string,
-    languageCode?: string
+    languageId?: string
   ): Promise<ManageDropdownWithLanguage[]> {
-    let dropdowns;
+    const whereClause: Record<string, unknown> = {
+      dropdownType,
+      status: true,
+    };
 
-    if (languageCode) {
-      dropdowns = await this.manageDropdownModel
-        .find({
-          dropdownType,
-          status: true,
-        })
-        .populate({
-          path: 'languageId',
-          match: { code: languageCode, status: true },
-          select: '-_id -__v',
-        })
-        .sort({ name: 1 })
-        .exec();
-
-      // Filter out dropdowns where language population failed
-      dropdowns = dropdowns.filter((dropdown) => dropdown.languageId);
+    // If languageId is provided, use it; otherwise get default language
+    if (languageId) {
+      whereClause.languageId = languageId;
     } else {
-      dropdowns = await this.manageDropdownModel
-        .find({
-          dropdownType,
-          status: true,
-        })
-        .populate('languageId', '-_id -__v')
-        .sort({ name: 1 })
-        .exec();
+      const defaultLanguageId = await this.getDefaultLanguageId();
+      whereClause.languageId = defaultLanguageId;
     }
 
-    return dropdowns.map((dropdown) => ({
-      ...this.toEntity(dropdown),
-      language: (dropdown as any).languageId,
-    })) as ManageDropdownWithLanguage[];
+    const dropdowns = await this.manageDropdownModel
+      .find(whereClause)
+      .populate('languageId', '-_id -__v')
+      .sort({ name: 1 })
+      .exec();
+
+    return dropdowns.map((dropdown) =>
+      this.toEntity(dropdown)
+    ) as ManageDropdownWithLanguage[];
   }
 
   async createMultiLanguage(
@@ -191,7 +206,7 @@ export class ManageDropdownMongodbRepository
   }
 
   async bulkOperation(bulkDto: BulkOperationDto): Promise<number> {
-    let updateData: any = {};
+    let updateData: Record<string, unknown> = {};
 
     switch (bulkDto.action) {
       case 'activate':
@@ -204,7 +219,7 @@ export class ManageDropdownMongodbRepository
         updateData = { status: false };
         break;
       default:
-        throw new Error(`Unsupported bulk action: ${bulkDto.action}`);
+        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
     }
 
     const result = await this.manageDropdownModel
@@ -219,7 +234,7 @@ export class ManageDropdownMongodbRepository
     page: number,
     limit: number,
     includeInactive = false,
-    languageCode?: string
+    languageId?: string
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -227,72 +242,35 @@ export class ManageDropdownMongodbRepository
     limit: number;
   }> {
     const skip = (page - 1) * limit;
-    const whereClause: any = { dropdownType };
+    const whereClause: Record<string, unknown> = { dropdownType };
 
     if (!includeInactive) {
       whereClause.status = true;
     }
 
-    let dropdowns, total;
-
-    if (languageCode) {
-      // Filter by language code using population matching
-      [dropdowns, total] = await Promise.all([
-        this.manageDropdownModel
-          .find(whereClause)
-          .populate({
-            path: 'languageId',
-            match: { code: languageCode, status: true },
-            select: '-_id -__v',
-          })
-          .skip(skip)
-          .limit(limit)
-          .sort({ createdAt: -1 })
-          .exec(),
-        this.manageDropdownModel
-          .aggregate([
-            { $match: whereClause },
-            {
-              $lookup: {
-                from: 'languages',
-                localField: 'languageId',
-                foreignField: '_id',
-                as: 'language',
-              },
-            },
-            { $unwind: '$language' },
-            {
-              $match: {
-                'language.code': languageCode,
-                'language.status': true,
-              },
-            },
-            { $count: 'total' },
-          ])
-          .exec()
-          .then((result) => result[0]?.total || 0),
-      ]);
-
-      // Filter out dropdowns where language population failed
-      dropdowns = dropdowns.filter((dropdown) => dropdown.languageId);
+    // If languageId is provided, use it; otherwise get default language
+    if (languageId) {
+      whereClause.languageId = languageId;
     } else {
-      [dropdowns, total] = await Promise.all([
-        this.manageDropdownModel
-          .find(whereClause)
-          .populate('languageId', '-_id -__v')
-          .skip(skip)
-          .limit(limit)
-          .sort({ createdAt: -1 })
-          .exec(),
-        this.manageDropdownModel.countDocuments(whereClause),
-      ]);
+      const defaultLanguageId = await this.getDefaultLanguageId();
+      whereClause.languageId = defaultLanguageId;
     }
 
+    const [dropdowns, total] = await Promise.all([
+      this.manageDropdownModel
+        .find(whereClause)
+        .populate('languageId', '-_id -__v')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+      this.manageDropdownModel.countDocuments(whereClause),
+    ]);
+
     return {
-      data: dropdowns.map((dropdown) => ({
-        ...this.toEntity(dropdown),
-        language: (dropdown as any).languageId,
-      })) as ManageDropdownWithLanguage[],
+      data: dropdowns.map((dropdown) =>
+        this.toEntity(dropdown)
+      ) as ManageDropdownWithLanguage[],
       total,
       page,
       limit,
@@ -303,7 +281,7 @@ export class ManageDropdownMongodbRepository
   async getDetail(
     filter: Partial<ManageDropdown>
   ): Promise<ManageDropdown | null> {
-    const mongoFilter: any = {};
+    const mongoFilter: Record<string, unknown> = {};
 
     if (filter.publicId) {
       mongoFilter.publicId = filter.publicId;
@@ -348,7 +326,7 @@ export class ManageDropdownMongodbRepository
         { new: true }
       );
       return !!result;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -361,7 +339,7 @@ export class ManageDropdownMongodbRepository
     const limit = options?.limit || 10;
     const skip = (page - 1) * limit;
 
-    const mongoFilter: any = {};
+    const mongoFilter: Record<string, unknown> = {};
     if (filter) {
       if (filter.name) {
         mongoFilter.name = { $regex: filter.name, $options: 'i' };
@@ -399,5 +377,136 @@ export class ManageDropdownMongodbRepository
         hasPrev: page > 1,
       },
     };
+  }
+
+  async findByUniqueCode(
+    uniqueCode: number
+  ): Promise<ManageDropdownWithLanguage[]> {
+    const dropdowns = await this.manageDropdownModel
+      .find({ uniqueCode })
+      .populate('languageId', '-_id -__v')
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return dropdowns.map((dropdown) =>
+      this.toEntity(dropdown)
+    ) as ManageDropdownWithLanguage[];
+  }
+
+  async findSingleByTypeAndLanguage(
+    dropdownType: string,
+    publicId: string,
+    languageId?: string
+  ): Promise<ManageDropdownWithLanguage | null> {
+    const whereClause: Record<string, unknown> = {
+      dropdownType,
+      publicId,
+    };
+
+    // If languageId is provided, use it; otherwise get default language
+    if (languageId) {
+      whereClause.languageId = languageId;
+    } else {
+      const defaultLanguageId = await this.getDefaultLanguageId();
+      whereClause.languageId = defaultLanguageId;
+    }
+
+    const dropdown = await this.manageDropdownModel
+      .findOne(whereClause)
+      .populate('languageId', '-_id -__v')
+      .exec();
+
+    return dropdown
+      ? (this.toEntity(dropdown) as ManageDropdownWithLanguage)
+      : null;
+  }
+
+  async generateUniqueCode(): Promise<number> {
+    // Generate a random 10-digit number
+    const min = 1000000000; // 10^9
+    const max = 9999999999; // 10^10 - 1
+
+    let uniqueCode: number;
+    let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    while (!isUnique && attempts < maxAttempts) {
+      uniqueCode = Math.floor(Math.random() * (max - min + 1)) + min;
+
+      // Check if this code already exists
+      const existing = await this.manageDropdownModel
+        .findOne({ uniqueCode })
+        .exec();
+      if (!existing) {
+        isUnique = true;
+        return uniqueCode;
+      }
+
+      attempts++;
+    }
+
+    throw new Error('Unable to generate unique code after maximum attempts');
+  }
+
+  /**
+   * Gets the primary key (_id) of the default language, NOT the publicId
+   * This is used for foreign key relationships in the database
+   * @returns Promise<string> The primary key (_id) of the default language
+   */
+  async getDefaultLanguageId(): Promise<string> {
+    const defaultLanguage = await this.languageModel
+      .findOne({
+        isDefault: 'YES',
+        status: true,
+      })
+      .exec();
+
+    if (!defaultLanguage) {
+      throw new Error('No default language found');
+    }
+
+    // Return the primary key (_id), NOT the publicId
+    return (defaultLanguage._id as { toString(): string }).toString();
+  }
+
+  /**
+   * Gets all active language primary keys (_id), NOT the publicIds
+   * These are used for foreign key relationships in the database
+   * @returns Promise<string[]> Array of primary keys (_id) of active languages
+   */
+  async getAllActiveLanguageIds(): Promise<string[]> {
+    const languages = await this.languageModel
+      .find({
+        status: true,
+      })
+      .select('_id')
+      .exec();
+
+    // Return primary keys (_id), NOT publicIds
+    return languages.map((lang) =>
+      (lang._id as { toString(): string }).toString()
+    );
+  }
+
+  async deleteByUniqueCode(uniqueCode: number): Promise<number> {
+    // Check useCount before deletion
+    const dropdowns = await this.manageDropdownModel
+      .find({ uniqueCode })
+      .exec();
+
+    for (const dropdown of dropdowns) {
+      if (dropdown.useCount > 0) {
+        throw new Error(
+          `Cannot delete dropdown with unique code ${uniqueCode}. It has useCount: ${dropdown.useCount}`
+        );
+      }
+    }
+
+    // Delete all language variants of this unique code
+    const result = await this.manageDropdownModel
+      .deleteMany({ uniqueCode })
+      .exec();
+    return result.deletedCount || 0;
   }
 }

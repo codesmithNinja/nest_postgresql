@@ -25,23 +25,17 @@ export type ManageDropdownDocument = ManageDropdown & Document;
 export class ManageDropdown {
   id?: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   publicId!: string;
 
   @Prop({ required: true, trim: true })
   name!: string;
 
-  @Prop()
-  uniqueCode?: number;
+  @Prop({ required: true, unique: false })
+  uniqueCode!: number;
 
   @Prop({ required: true, lowercase: true, trim: true })
   dropdownType!: string;
-
-  @Prop({ trim: true })
-  countryShortCode?: string;
-
-  @Prop({ enum: ['YES', 'NO'] })
-  isDefault?: string;
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'Language' })
   languageId!: string;
@@ -63,7 +57,8 @@ export const ManageDropdownSchema =
 ManageDropdownSchema.index({ dropdownType: 1 });
 ManageDropdownSchema.index({ languageId: 1 });
 ManageDropdownSchema.index({ status: 1 });
+ManageDropdownSchema.index({ uniqueCode: 1 }); // Removed unique constraint
+ManageDropdownSchema.index({ uniqueCode: 1, languageId: 1 }, { unique: true }); // Composite unique constraint
 ManageDropdownSchema.index({ dropdownType: 1, languageId: 1 });
 ManageDropdownSchema.index({ dropdownType: 1, status: 1 });
-ManageDropdownSchema.index({ countryShortCode: 1 });
 ManageDropdownSchema.index({ publicId: 1 }, { unique: true });

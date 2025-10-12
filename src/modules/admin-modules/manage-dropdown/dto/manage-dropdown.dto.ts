@@ -3,11 +3,12 @@ import {
   IsOptional,
   IsBoolean,
   IsEnum,
-  IsNumber,
   IsArray,
   IsNotEmpty,
   MaxLength,
   MinLength,
+  Matches,
+  Length,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -54,53 +55,13 @@ export class CreateManageDropdownDto {
   name!: string;
 
   @ApiPropertyOptional({
-    description: 'Unique numeric code for the dropdown option',
-    example: 1001,
-    examples: {
-      sequential: {
-        summary: 'Sequential Code',
-        description: 'Simple sequential numbering',
-        value: 1001,
-      },
-      categorized: {
-        summary: 'Categorized Code',
-        description: 'Code based on category (1000s for industries)',
-        value: 1050,
-      },
-    },
-  })
-  @IsOptional()
-  @IsNumber()
-  uniqueCode?: number;
-
-  @ApiPropertyOptional({
-    description: 'Is this the default option for this dropdown type',
-    example: 'NO',
-    enum: ['YES', 'NO'],
-    examples: {
-      default: {
-        summary: 'Set as Default',
-        description: 'Make this the default selection for this dropdown type',
-        value: 'YES',
-      },
-      notDefault: {
-        summary: 'Regular Option',
-        description: 'Regular dropdown option',
-        value: 'NO',
-      },
-    },
-  })
-  @IsOptional()
-  @IsEnum(['YES', 'NO'])
-  isDefault?: string;
-
-  @ApiPropertyOptional({
-    description: 'Language ID for this dropdown option',
+    description:
+      'Language ID for this dropdown option (optional - defaults to default language if not provided)',
     example: 'clm1234567890',
     examples: {
       specific: {
         summary: 'Specific Language',
-        description: 'Create only for this language',
+        description: 'Create for this specific language',
         value: 'clm1234567890',
       },
     },
@@ -143,23 +104,6 @@ export class UpdateManageDropdownDto {
   @MinLength(1)
   @MaxLength(100)
   name?: string;
-
-  @ApiPropertyOptional({
-    description: 'Unique code for the dropdown option',
-    example: 123,
-  })
-  @IsOptional()
-  @IsNumber()
-  uniqueCode?: number;
-
-  @ApiPropertyOptional({
-    description: 'Is default option for this type',
-    example: 'NO',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsEnum(['YES', 'NO'])
-  isDefault?: string;
 
   @ApiPropertyOptional({
     description: 'Dropdown option status',
@@ -243,29 +187,20 @@ export class AdminQueryDto extends PaginationDto {
   includeInactive?: boolean = true;
 
   @ApiPropertyOptional({
-    description: 'Language code for filtering',
-    example: 'en',
+    description:
+      'Language ID for filtering (optional - defaults to default language if not provided)',
+    example: 'clm1234567890',
     examples: {
-      english: {
-        summary: 'English',
-        description: 'Filter for English language options',
-        value: 'en',
-      },
-      spanish: {
-        summary: 'Spanish',
-        description: 'Filter for Spanish language options',
-        value: 'es',
-      },
-      french: {
-        summary: 'French',
-        description: 'Filter for French language options',
-        value: 'fr',
+      specific: {
+        summary: 'Specific Language',
+        description: 'Filter for specific language ID',
+        value: 'clm1234567890',
       },
     },
   })
   @IsOptional()
   @IsString()
-  lang?: string;
+  languageId?: string;
 }
 
 export class ManageDropdownResponseDto {
@@ -281,17 +216,47 @@ export class ManageDropdownResponseDto {
   @ApiProperty({ description: 'Dropdown option name', example: 'Technology' })
   name!: string;
 
-  @ApiPropertyOptional({ description: 'Unique code', example: 123 })
-  uniqueCode?: number;
+  @ApiProperty({ description: 'Unique 10-digit code', example: 1234567890 })
+  uniqueCode!: number;
 
   @ApiProperty({ description: 'Dropdown type', example: 'industry' })
   dropdownType!: string;
 
-  @ApiPropertyOptional({ description: 'Is default option', example: 'NO' })
-  isDefault?: string;
+  @ApiProperty({
+    description: 'Language ID or Language Object',
+    oneOf: [
+      { type: 'string', example: 'clm1234567890' },
+      {
+        type: 'object',
+        properties: {
+          publicId: {
+            type: 'string',
+            example: '017905f4-5c07-4e6e-969b-7394eb71efa9',
+          },
+          name: { type: 'string', example: 'English' },
+        },
+      },
+    ],
+  })
+  languageId!: string | { publicId: string; name: string };
 
-  @ApiProperty({ description: 'Language ID', example: 'clm1234567890' })
-  languageId!: string;
+  @ApiPropertyOptional({
+    description: 'Language details',
+    properties: {
+      id: { type: 'string' },
+      name: { type: 'string' },
+      code: { type: 'string' },
+      direction: { type: 'string' },
+      flag: { type: 'string' },
+    },
+  })
+  language?: {
+    id: string;
+    name: string;
+    code: string;
+    direction: string;
+    flag?: string;
+  };
 
   @ApiProperty({ description: 'Dropdown option status', example: true })
   status!: boolean;
@@ -324,4 +289,69 @@ export class PaginatedManageDropdownResponseDto {
 
   @ApiProperty({ description: 'Records per page', example: 10 })
   limit!: number;
+}
+
+// DTOs to match settings pattern exactly
+export class DropdownTypeParamDto {
+  @ApiProperty({
+    description: 'Dropdown type',
+    example: 'industry',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 100)
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'Dropdown type must contain only letters, numbers, underscores, and hyphens',
+  })
+  dropdownType!: string;
+}
+
+export class DropdownTypeQueryDto {
+  @ApiProperty({
+    description: 'Dropdown type',
+    example: 'industry',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 100)
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'Dropdown type must contain only letters, numbers, underscores, and hyphens',
+  })
+  dropdownType!: string;
+}
+
+export class ManageDropdownListResponseDto {
+  @ApiProperty({
+    description: 'List of dropdown options',
+    type: [ManageDropdownResponseDto],
+  })
+  dropdowns!: ManageDropdownResponseDto[];
+
+  @ApiProperty({
+    description: 'Total count of dropdown options',
+    example: 5,
+  })
+  count!: number;
+}
+
+export class ManageDropdownErrorResponseDto {
+  @ApiProperty({
+    description: 'Error message',
+    example: 'Dropdown options not found',
+  })
+  message!: string;
+
+  @ApiProperty({
+    description: 'Error code',
+    example: 'DROPDOWN_NOT_FOUND',
+  })
+  code!: string;
+
+  @ApiProperty({
+    description: 'HTTP status code',
+    example: 404,
+  })
+  statusCode!: number;
 }

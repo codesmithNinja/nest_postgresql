@@ -4,9 +4,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 import {
   ManageDropdown,
   CreateManageDropdownDto,
-  UpdateManageDropdownDto,
   ManageDropdownWithLanguage,
   BulkOperationDto,
+  MinimalLanguage,
 } from '../../entities/manage-dropdown.entity';
 import { IManageDropdownRepository } from './manage-dropdown.repository.interface';
 import {
@@ -27,8 +27,6 @@ export class ManageDropdownPostgresRepository
     name: true,
     uniqueCode: true,
     dropdownType: true,
-    countryShortCode: true,
-    isDefault: true,
     languageId: true,
     status: true,
     useCount: true,
@@ -45,7 +43,8 @@ export class ManageDropdownPostgresRepository
       data: {
         publicId: uuidv4(),
         ...createDto,
-        languageId: createDto.languageId!,
+        // languageId must be the primary key (id) of the language, not publicId
+        languageId: createDto.languageId,
       },
     });
     return dropdown as ManageDropdown;
@@ -55,7 +54,7 @@ export class ManageDropdownPostgresRepository
     dropdownType: string,
     includeInactive = false
   ): Promise<ManageDropdownWithLanguage[]> {
-    const whereClause: any = { dropdownType };
+    const whereClause: Record<string, unknown> = { dropdownType };
     if (!includeInactive) {
       whereClause.status = true;
     }
@@ -65,7 +64,21 @@ export class ManageDropdownPostgresRepository
       include: { language: true },
       orderBy: { name: 'asc' },
     });
-    return dropdowns as ManageDropdownWithLanguage[];
+    return dropdowns.map((dropdown) => ({
+      ...dropdown,
+      languageId: dropdown.language
+        ? ({
+            publicId: dropdown.language.publicId,
+            name: dropdown.language.name,
+          } as MinimalLanguage)
+        : dropdown.languageId,
+      language: dropdown.language
+        ? {
+            ...dropdown.language,
+            code: dropdown.language.folder, // Map folder to code field
+          }
+        : undefined,
+    })) as ManageDropdownWithLanguage[];
   }
 
   async findByTypeAndLanguage(
@@ -90,23 +103,40 @@ export class ManageDropdownPostgresRepository
       where: { publicId },
       include: { language: true },
     });
-    return dropdown as ManageDropdownWithLanguage | null;
+    return dropdown
+      ? ({
+          ...dropdown,
+          languageId: dropdown.language
+            ? {
+                ...dropdown.language,
+                code: dropdown.language.folder, // Map folder to code field
+              }
+            : dropdown.languageId,
+          language: dropdown.language
+            ? {
+                ...dropdown.language,
+                code: dropdown.language.folder, // Map folder to code field
+              }
+            : undefined,
+        } as ManageDropdownWithLanguage)
+      : null;
   }
 
   async findByTypeForPublic(
     dropdownType: string,
-    languageCode?: string
+    languageId?: string
   ): Promise<ManageDropdownWithLanguage[]> {
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       dropdownType,
       status: true,
     };
 
-    if (languageCode) {
-      whereClause.language = {
-        iso2: languageCode,
-        status: true,
-      };
+    // If languageId is provided, use it; otherwise get default language
+    if (languageId) {
+      whereClause.languageId = languageId;
+    } else {
+      const defaultLanguageId = await this.getDefaultLanguageId();
+      whereClause.languageId = defaultLanguageId;
     }
 
     const dropdowns = await this.prisma.manageDropdown.findMany({
@@ -114,7 +144,21 @@ export class ManageDropdownPostgresRepository
       include: { language: true },
       orderBy: { name: 'asc' },
     });
-    return dropdowns as ManageDropdownWithLanguage[];
+    return dropdowns.map((dropdown) => ({
+      ...dropdown,
+      languageId: dropdown.language
+        ? ({
+            publicId: dropdown.language.publicId,
+            name: dropdown.language.name,
+          } as MinimalLanguage)
+        : dropdown.languageId,
+      language: dropdown.language
+        ? {
+            ...dropdown.language,
+            code: dropdown.language.folder, // Map folder to code field
+          }
+        : undefined,
+    })) as ManageDropdownWithLanguage[];
   }
 
   async createMultiLanguage(
@@ -143,7 +187,7 @@ export class ManageDropdownPostgresRepository
   }
 
   async bulkOperation(bulkDto: BulkOperationDto): Promise<number> {
-    let updateData: any = {};
+    let updateData: Record<string, unknown> = {};
 
     switch (bulkDto.action) {
       case 'activate':
@@ -156,7 +200,7 @@ export class ManageDropdownPostgresRepository
         updateData = { status: false };
         break;
       default:
-        throw new Error(`Unsupported bulk action: ${bulkDto.action}`);
+        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
     }
 
     const result = await this.prisma.manageDropdown.updateMany({
@@ -172,7 +216,7 @@ export class ManageDropdownPostgresRepository
     page: number,
     limit: number,
     includeInactive = false,
-    languageCode?: string
+    languageId?: string
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -180,17 +224,18 @@ export class ManageDropdownPostgresRepository
     limit: number;
   }> {
     const skip = (page - 1) * limit;
-    const whereClause: any = { dropdownType };
+    const whereClause: Record<string, unknown> = { dropdownType };
 
     if (!includeInactive) {
       whereClause.status = true;
     }
 
-    if (languageCode) {
-      whereClause.language = {
-        iso2: languageCode,
-        status: true,
-      };
+    // If languageId is provided, use it; otherwise get default language
+    if (languageId) {
+      whereClause.languageId = languageId;
+    } else {
+      const defaultLanguageId = await this.getDefaultLanguageId();
+      whereClause.languageId = defaultLanguageId;
     }
 
     const [dropdowns, total] = await Promise.all([
@@ -207,7 +252,21 @@ export class ManageDropdownPostgresRepository
     ]);
 
     return {
-      data: dropdowns as ManageDropdownWithLanguage[],
+      data: dropdowns.map((dropdown) => ({
+        ...dropdown,
+        languageId: dropdown.language
+          ? {
+              ...dropdown.language,
+              code: dropdown.language.folder, // Map folder to code field
+            }
+          : dropdown.languageId,
+        language: dropdown.language
+          ? {
+              ...dropdown.language,
+              code: dropdown.language.folder, // Map folder to code field
+            }
+          : undefined,
+      })) as ManageDropdownWithLanguage[],
       total,
       page,
       limit,
@@ -218,7 +277,7 @@ export class ManageDropdownPostgresRepository
   async getDetail(
     filter: Partial<ManageDropdown>
   ): Promise<ManageDropdown | null> {
-    const whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
 
     if (filter.publicId) {
       whereClause.publicId = filter.publicId;
@@ -244,17 +303,13 @@ export class ManageDropdownPostgresRepository
     updateDto: Partial<ManageDropdown>
   ): Promise<ManageDropdown> {
     // Convert entity fields to Prisma update format
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (updateDto.name !== undefined) updateData.name = updateDto.name;
     if (updateDto.uniqueCode !== undefined)
       updateData.uniqueCode = updateDto.uniqueCode;
     if (updateDto.dropdownType !== undefined)
       updateData.dropdownType = updateDto.dropdownType;
-    if (updateDto.countryShortCode !== undefined)
-      updateData.countryShortCode = updateDto.countryShortCode;
-    if (updateDto.isDefault !== undefined)
-      updateData.isDefault = updateDto.isDefault;
     if (updateDto.status !== undefined) updateData.status = updateDto.status;
     if (updateDto.useCount !== undefined)
       updateData.useCount = updateDto.useCount;
@@ -273,7 +328,7 @@ export class ManageDropdownPostgresRepository
         data: { status: false },
       });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -313,8 +368,10 @@ export class ManageDropdownPostgresRepository
     };
   }
 
-  protected convertFilterToPrisma(filter: Partial<ManageDropdown>): any {
-    const prismaFilter: any = {};
+  protected convertFilterToPrisma(
+    filter: Partial<ManageDropdown>
+  ): Record<string, unknown> {
+    const prismaFilter: Record<string, unknown> = {};
 
     if (filter.name) {
       prismaFilter.name = { contains: filter.name, mode: 'insensitive' };
@@ -330,5 +387,163 @@ export class ManageDropdownPostgresRepository
     }
 
     return prismaFilter;
+  }
+
+  async findByUniqueCode(
+    uniqueCode: number
+  ): Promise<ManageDropdownWithLanguage[]> {
+    const dropdowns = await this.prisma.manageDropdown.findMany({
+      where: { uniqueCode },
+      include: { language: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return dropdowns.map((dropdown) => ({
+      ...dropdown,
+      languageId: dropdown.language
+        ? ({
+            publicId: dropdown.language.publicId,
+            name: dropdown.language.name,
+          } as MinimalLanguage)
+        : dropdown.languageId,
+      language: dropdown.language
+        ? {
+            ...dropdown.language,
+            code: dropdown.language.folder, // Map folder to code field
+          }
+        : undefined,
+    })) as ManageDropdownWithLanguage[];
+  }
+
+  async findSingleByTypeAndLanguage(
+    dropdownType: string,
+    publicId: string,
+    languageId?: string
+  ): Promise<ManageDropdownWithLanguage | null> {
+    const whereClause: Record<string, unknown> = {
+      dropdownType,
+      publicId,
+    };
+
+    // If languageId is provided, use it; otherwise get default language
+    if (languageId) {
+      whereClause.languageId = languageId;
+    } else {
+      const defaultLanguageId = await this.getDefaultLanguageId();
+      whereClause.languageId = defaultLanguageId;
+    }
+
+    const dropdown = await this.prisma.manageDropdown.findFirst({
+      where: whereClause,
+      include: { language: true },
+    });
+
+    return dropdown
+      ? ({
+          ...dropdown,
+          languageId: dropdown.language
+            ? {
+                ...dropdown.language,
+                code: dropdown.language.folder, // Map folder to code field
+              }
+            : dropdown.languageId,
+          language: dropdown.language
+            ? {
+                ...dropdown.language,
+                code: dropdown.language.folder, // Map folder to code field
+              }
+            : undefined,
+        } as ManageDropdownWithLanguage)
+      : null;
+  }
+
+  async generateUniqueCode(): Promise<number> {
+    // Generate a random 10-digit number
+    const min = 1000000000; // 10^9
+    const max = 9999999999; // 10^10 - 1
+
+    let uniqueCode: number;
+    let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    while (!isUnique && attempts < maxAttempts) {
+      uniqueCode = Math.floor(Math.random() * (max - min + 1)) + min;
+
+      // Check if this code already exists
+      const existing = await this.prisma.manageDropdown.findFirst({
+        where: { uniqueCode },
+      });
+
+      if (!existing) {
+        isUnique = true;
+        return uniqueCode;
+      }
+
+      attempts++;
+    }
+
+    throw new Error('Unable to generate unique code after maximum attempts');
+  }
+
+  /**
+   * Gets the primary key (id) of the default language, NOT the publicId
+   * This is used for foreign key relationships in the database
+   * @returns Promise<string> The primary key (id) of the default language
+   */
+  async getDefaultLanguageId(): Promise<string> {
+    const defaultLanguage = await this.prisma.language.findFirst({
+      where: {
+        isDefault: 'YES',
+        status: true,
+      },
+    });
+
+    if (!defaultLanguage) {
+      throw new Error('No default language found');
+    }
+
+    // Return the primary key (id), NOT the publicId
+    return defaultLanguage.id;
+  }
+
+  /**
+   * Gets all active language primary keys (id), NOT the publicIds
+   * These are used for foreign key relationships in the database
+   * @returns Promise<string[]> Array of primary keys (id) of active languages
+   */
+  async getAllActiveLanguageIds(): Promise<string[]> {
+    const languages = await this.prisma.language.findMany({
+      where: {
+        status: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    // Return primary keys (id), NOT publicIds
+    return languages.map((lang) => lang.id);
+  }
+
+  async deleteByUniqueCode(uniqueCode: number): Promise<number> {
+    // Check useCount before deletion
+    const dropdowns = await this.prisma.manageDropdown.findMany({
+      where: { uniqueCode },
+    });
+
+    for (const dropdown of dropdowns) {
+      if (dropdown.useCount > 0) {
+        throw new Error(
+          `Cannot delete dropdown with unique code ${uniqueCode}. It has useCount: ${dropdown.useCount}`
+        );
+      }
+    }
+
+    // Delete all language variants of this unique code
+    const result = await this.prisma.manageDropdown.deleteMany({
+      where: { uniqueCode },
+    });
+
+    return result.count;
   }
 }

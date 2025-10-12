@@ -16,6 +16,10 @@ import {
   ManageDropdown,
   ManageDropdownSchema,
 } from '../../../database/schemas/manage-dropdown.schema';
+import {
+  Language,
+  LanguageSchema,
+} from '../../../database/schemas/language.schema';
 import { PrismaService } from '../../../database/prisma/prisma.service';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
 
@@ -24,6 +28,7 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
     ConfigModule,
     MongooseModule.forFeature([
       { name: ManageDropdown.name, schema: ManageDropdownSchema },
+      { name: Language.name, schema: LanguageSchema },
     ]),
     AdminUsersModule,
   ],

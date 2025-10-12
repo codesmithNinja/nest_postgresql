@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "e9d78f98-b91e-49f9-9311-403c971c482e",
+    "_postman_id": "f1d9a899-5d0e-4a67-a9b0-85e3867035a7",
     "name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
-    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, file uploads, and multi-language support (English, Spanish, French, Arabic).",
+    "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "15694815"
   },
@@ -313,6 +313,299 @@
                 }
               ],
               "description": "Admin profile management endpoints for authenticated admins. Includes profile operations, password management, and admin CRUD functionality."
+            },
+            {
+              "name": "🌍 Countries Management",
+              "item": [
+                {
+                  "name": "Get All Countries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "name",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all countries with pagination and filtering."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Country by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve a specific country by its public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Country",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "United States",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "US",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "USA",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flag",
+                          "value": "",
+                          "description": "Country flag image (PNG, JPG, JPEG)",
+                          "type": "file"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries"]
+                    },
+                    "description": "Admin endpoint to create a new country with flag upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Country",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "United States of America",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "US",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "USA",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flag",
+                          "value": "",
+                          "description": "Updated country flag image (PNG, JPG, JPEG)",
+                          "type": "file",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update a country with optional flag upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Country",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete a country (only if useCount is 0)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Countries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"data\": {\n    \"isDefault\": \"NO\"\n  }\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", "bulk-update"]
+                    },
+                    "description": "Admin endpoint to update multiple countries at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Countries",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", "bulk-delete"]
+                    },
+                    "description": "Admin endpoint to delete multiple countries at once (only if useCount is 0 for each)."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Countries management endpoints for dynamic country configuration with flag uploads and bulk operations."
             },
             {
               "name": "🔧 Settings Management",
@@ -681,9 +974,94 @@
                     "description": "Delete all settings for a specific group type."
                   },
                   "response": []
+                },
+                {
+                  "name": "Get Cache Statistics",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/admin/cache/stats",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["settings", "admin", "cache", "stats"]
+                    },
+                    "description": "Get cache statistics for settings."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Clear Cache by Group",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/admin/cache/clear/:groupType",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "settings",
+                        "admin",
+                        "cache",
+                        "clear",
+                        ":groupType"
+                      ],
+                      "variable": [
+                        {
+                          "key": "groupType",
+                          "value": "site_setting",
+                          "description": "Group type to clear cache for"
+                        }
+                      ]
+                    },
+                    "description": "Clear cache for a specific group type."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Clear All Cache",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/settings/admin/cache/clear",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["settings", "admin", "cache", "clear"]
+                    },
+                    "description": "Clear all settings cache."
+                  },
+                  "response": []
                 }
               ],
-              "description": "Settings management endpoints for dynamic application configuration."
+              "description": "Settings management endpoints for dynamic application configuration with cache management."
             },
             {
               "name": "🌐 Languages Management",
@@ -838,13 +1216,14 @@
                         {
                           "key": "isDefault",
                           "value": "YES",
+                          "description": "YES / NO",
                           "type": "text"
                         },
                         {
                           "key": "flagImage",
-                          "value": "",
                           "description": "Language flag image (PNG, JPG, JPEG, SVG)",
-                          "type": "file"
+                          "type": "file",
+                          "src": []
                         }
                       ]
                     },
@@ -908,6 +1287,7 @@
                         {
                           "key": "isDefault",
                           "value": "YES",
+                          "description": "YES / NO",
                           "type": "text"
                         },
                         {
@@ -1024,27 +1404,10 @@
               "description": "Languages management endpoints for dynamic language configuration with flag uploads and bulk operations. Supports multi-language application features with ISO codes and text direction settings."
             },
             {
-              "name": "🌍 Countries Management",
+              "name": "📋 Manage Dropdown",
               "item": [
                 {
-                  "name": "Get Countries (Frontend)",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries", "front"]
-                    },
-                    "description": "Public endpoint to retrieve all countries for frontend usage."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get All Countries",
+                  "name": "Get All Dropdowns",
                   "request": {
                     "auth": {
                       "type": "bearer",
@@ -1059,9 +1422,9 @@
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/countries?page=1&limit=10",
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/admin?page=1&limit=10",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["countries"],
+                      "path": ["manage-dropdown", ":dropdownType", "admin"],
                       "query": [
                         {
                           "key": "page",
@@ -1072,33 +1435,34 @@
                           "value": "10"
                         },
                         {
-                          "key": "name",
+                          "key": "dropdownType",
                           "value": "",
                           "disabled": true
                         },
                         {
-                          "key": "iso2",
+                          "key": "languageCode",
                           "value": "",
                           "disabled": true
                         },
                         {
-                          "key": "iso3",
-                          "value": "",
+                          "key": "includeInactive",
+                          "value": "false",
                           "disabled": true
-                        },
+                        }
+                      ],
+                      "variable": [
                         {
-                          "key": "isDefault",
-                          "value": "YES",
-                          "disabled": true
+                          "key": "dropdownType",
+                          "value": "company-industry"
                         }
                       ]
                     },
-                    "description": "Admin endpoint to retrieve all countries with pagination and filtering."
+                    "description": "Admin endpoint to retrieve all dropdowns with pagination and filtering by type and language."
                   },
                   "response": []
                 },
                 {
-                  "name": "Get Country by Public ID",
+                  "name": "Get Dropdown by Public ID",
                   "request": {
                     "auth": {
                       "type": "bearer",
@@ -1113,9 +1477,9 @@
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "raw": "{{BASE_URL}}/manage-dropdown/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["countries", ":publicId"],
+                      "path": ["manage-dropdown", ":publicId"],
                       "variable": [
                         {
                           "key": "publicId",
@@ -1123,12 +1487,12 @@
                         }
                       ]
                     },
-                    "description": "Admin endpoint to retrieve a specific country by its public ID."
+                    "description": "Admin endpoint to retrieve a specific dropdown by its public ID with language details."
                   },
                   "response": []
                 },
                 {
-                  "name": "Create Country",
+                  "name": "Create Dropdown",
                   "request": {
                     "auth": {
                       "type": "bearer",
@@ -1141,49 +1505,66 @@
                       ]
                     },
                     "method": "POST",
-                    "header": [],
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
                     "body": {
-                      "mode": "formdata",
-                      "formdata": [
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Technology\",\n  \"uniqueCode\": \"TECH_001\",\n  \"dropdownType\": \"company-industry\",\n  \"countryShortCode\": \"US\",\n  \"isDefault\": false,\n  \"languageId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":dropdownType"],
+                      "variable": [
                         {
-                          "key": "name",
-                          "value": "United States",
-                          "type": "text"
-                        },
-                        {
-                          "key": "iso2",
-                          "value": "US",
-                          "type": "text"
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "USA",
-                          "type": "text"
-                        },
-                        {
-                          "key": "isDefault",
-                          "value": "NO",
-                          "type": "text"
-                        },
-                        {
-                          "key": "flag",
-                          "value": "",
-                          "description": "Country flag image (PNG, JPG, JPEG)",
-                          "type": "file"
+                          "key": "dropdownType",
+                          "value": "company-industry"
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries"]
-                    },
-                    "description": "Admin endpoint to create a new country with flag upload."
+                    "description": "Admin endpoint to create a new dropdown item with language association."
                   },
                   "response": []
                 },
                 {
-                  "name": "Update Country",
+                  "name": "Create Multi-Language Dropdown",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Healthcare\",\n  \"uniqueCode\": \"HEALTH_001\",\n  \"dropdownType\": \"industry_type\",\n  \"countryShortCode\": \"US\",\n  \"isDefault\": false,\n  \"languageIds\": [\"550e8400-e29b-41d4-a716-446655440000\", \"660e8400-e29b-41d4-a716-446655440001\"],\n  \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/multi-language",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", "multi-language"]
+                    },
+                    "description": "Admin endpoint to create a dropdown item for multiple languages at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Dropdown",
                   "request": {
                     "auth": {
                       "type": "bearer",
@@ -1196,43 +1577,20 @@
                       ]
                     },
                     "method": "PATCH",
-                    "header": [],
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
                     "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "name",
-                          "value": "United States of America",
-                          "type": "text"
-                        },
-                        {
-                          "key": "iso2",
-                          "value": "US",
-                          "type": "text"
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "USA",
-                          "type": "text"
-                        },
-                        {
-                          "key": "isDefault",
-                          "value": "YES",
-                          "type": "text"
-                        },
-                        {
-                          "key": "flag",
-                          "value": "",
-                          "description": "Updated country flag image (PNG, JPG, JPEG)",
-                          "type": "file",
-                          "disabled": true
-                        }
-                      ]
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Updated Technology\",\n  \"uniqueCode\": \"TECH_001_UPD\",\n  \"countryShortCode\": \"CA\",\n  \"isDefault\": true,\n  \"status\": true\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "raw": "{{BASE_URL}}/manage-dropdown/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["countries", ":publicId"],
+                      "path": ["manage-dropdown", ":publicId"],
                       "variable": [
                         {
                           "key": "publicId",
@@ -1240,12 +1598,12 @@
                         }
                       ]
                     },
-                    "description": "Admin endpoint to update a country with optional flag upload."
+                    "description": "Admin endpoint to update a specific dropdown by its public ID."
                   },
                   "response": []
                 },
                 {
-                  "name": "Delete Country",
+                  "name": "Delete Dropdown",
                   "request": {
                     "auth": {
                       "type": "bearer",
@@ -1260,22 +1618,30 @@
                     "method": "DELETE",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/countries/:publicId",
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/:uniqueCode",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["countries", ":publicId"],
+                      "path": [
+                        "manage-dropdown",
+                        ":dropdownType",
+                        ":uniqueCode"
+                      ],
                       "variable": [
                         {
-                          "key": "publicId",
-                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                          "key": "dropdownType",
+                          "value": "industry"
+                        },
+                        {
+                          "key": "uniqueCode",
+                          "value": "1234567890"
                         }
                       ]
                     },
-                    "description": "Admin endpoint to delete a country (only if useCount is 0)."
+                    "description": "Admin endpoint to delete a dropdown by its unique code (all language variants). Only allowed if useCount is 0."
                   },
                   "response": []
                 },
                 {
-                  "name": "Bulk Update Countries",
+                  "name": "Bulk Operations",
                   "request": {
                     "auth": {
                       "type": "bearer",
@@ -1287,51 +1653,28 @@
                         }
                       ]
                     },
-                    "method": "PATCH",
-                    "header": [],
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"data\": {\n    \"isDefault\": \"NO\"\n  }\n}"
+                      "raw": "{\n  \"action\": \"activate\",\n  \"publicIds\": [\"550e8400-e29b-41d4-a716-446655440000\", \"660e8400-e29b-41d4-a716-446655440001\"]\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/countries/bulk-update",
+                      "raw": "{{BASE_URL}}/manage-dropdown/bulk",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["countries", "bulk-update"]
+                      "path": ["manage-dropdown", "bulk"]
                     },
-                    "description": "Admin endpoint to update multiple countries at once."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Delete Countries",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries", "bulk-delete"]
-                    },
-                    "description": "Admin endpoint to delete multiple countries at once (only if useCount is 0 for each)."
+                    "description": "Admin endpoint for bulk operations on dropdowns. Actions: activate, deactivate, delete."
                   },
                   "response": []
                 }
               ],
-              "description": "Countries management endpoints for dynamic country configuration with flag uploads and bulk operations."
+              "description": "Manage dropdown endpoints for dynamic dropdown data management with multi-language support. Supports CRUD operations, bulk actions, and language-specific filtering."
             }
           ],
           "description": "Protected admin endpoints that require admin authentication using JWT tokens."
@@ -1434,6 +1777,28 @@
               "description": "Admin authentication endpoints including login and password recovery. Login automatically sets ADMIN_JWT environment variable."
             },
             {
+              "name": "🌍 Countries Management",
+              "item": [
+                {
+                  "name": "Get Countries",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/countries/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["countries", "front"]
+                    },
+                    "description": "Public endpoint to retrieve all countries for frontend usage."
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
               "name": "🔧 Settings Management",
               "item": [
                 {
@@ -1476,6 +1841,72 @@
                       "path": ["languages", "front"]
                     },
                     "description": "Public endpoint to retrieve all active languages for frontend usage."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Dropdown Types for Public",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/industry/front?lang=en",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", "industry", "front"],
+                      "query": [
+                        {
+                          "key": "lang",
+                          "value": "en",
+                          "description": "Language code filter (optional)"
+                        }
+                      ]
+                    },
+                    "description": "Public endpoint to retrieve dropdown options by type with language support for frontend usage. No authentication required."
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "📋 Manage Dropdown",
+              "item": [
+                {
+                  "name": "Get All Dropdowns Copy",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":dropdownType", "front"],
+                      "query": [
+                        {
+                          "key": "languageCode",
+                          "value": "",
+                          "disabled": true
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "company-industry"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all dropdowns with pagination and filtering by type and language."
                   },
                   "response": []
                 }

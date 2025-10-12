@@ -35,7 +35,7 @@ export class ManageDropdownService {
   async create(
     dropdownType: string,
     createDropdownDto: CreateManageDropdownDtoValidated
-  ): Promise<ManageDropdown[]> {
+  ): Promise<ManageDropdown> {
     try {
       // Validate dropdown type
       const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
@@ -43,12 +43,18 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
-      // Check for existing dropdown with same name and type
-      const existingDropdowns =
-        await this.manageDropdownRepository.findByTypeAndLanguage(
-          normalizedDropdownType,
-          createDropdownDto.languageId || ''
-        );
+      // Get language ID (primary key) - use provided one or default language
+      // IMPORTANT: languageId must be the primary key (_id/id), NOT publicId
+      let languageId = createDropdownDto.languageId;
+      if (!languageId) {
+        languageId = await this.manageDropdownRepository.getDefaultLanguageId();
+      }
+
+      // Check for existing dropdown with same name in any language (same unique code)
+      const existingDropdowns = await this.manageDropdownRepository.findByType(
+        normalizedDropdownType,
+        true // include inactive
+      );
 
       const existingByName = existingDropdowns.find(
         (dropdown) =>
@@ -60,29 +66,42 @@ export class ManageDropdownService {
         );
       }
 
-      // If this is set as default, unset other defaults in the same type
-      if (createDropdownDto.isDefault === 'YES') {
-        await this.unsetDefaultsForType(
-          normalizedDropdownType,
-          createDropdownDto.languageId || ''
-        );
-      }
+      // Auto-generate unique 10-digit code
+      const uniqueCode =
+        await this.manageDropdownRepository.generateUniqueCode();
+
+      // Get all active language IDs (primary keys) for multi-language replication
+      const allLanguageIds =
+        await this.manageDropdownRepository.getAllActiveLanguageIds();
 
       // Prepare create data
       const createData: CreateManageDropdownDto = {
-        ...createDropdownDto,
+        name: createDropdownDto.name,
+        uniqueCode,
         dropdownType: normalizedDropdownType,
+        languageId, // This will be overridden in multi-language creation
         status: createDropdownDto.status ?? true,
       };
 
-      // Create dropdown entry
-      const createdDropdown =
-        await this.manageDropdownRepository.insert(createData);
+      // Create dropdown entries for all active languages using their primary keys
+      const createdDropdowns =
+        await this.manageDropdownRepository.createMultiLanguage(
+          createData,
+          allLanguageIds // Array of language primary keys (_id/id)
+        );
 
       this.logger.log(
-        `Created dropdown entry for type ${normalizedDropdownType}: ${createData.name}`
+        `Created dropdown entries for type ${normalizedDropdownType}: ${createData.name} with unique code ${uniqueCode}`
       );
-      return [createdDropdown];
+
+      // Return only the dropdown for the requested language (or default language)
+      const requestedLanguageDropdown = createdDropdowns.find(
+        (dropdown) => dropdown.languageId === languageId
+      );
+
+      return requestedLanguageDropdown
+        ? requestedLanguageDropdown
+        : createdDropdowns[0];
     } catch (error) {
       this.logger.error(
         `Failed to create dropdown for type ${dropdownType}:`,
@@ -94,7 +113,7 @@ export class ManageDropdownService {
 
   async findByTypeForPublic(
     dropdownType: string,
-    languageCode?: string
+    languageId?: string
   ): Promise<ManageDropdownWithLanguage[]> {
     try {
       // Validate and normalize dropdown type
@@ -106,7 +125,7 @@ export class ManageDropdownService {
       // Get dropdowns from repository
       const dropdowns = await this.manageDropdownRepository.findByTypeForPublic(
         normalizedDropdownType,
-        languageCode
+        languageId
       );
 
       return dropdowns;
@@ -124,7 +143,7 @@ export class ManageDropdownService {
     page: number = 1,
     limit: number = 10,
     includeInactive: boolean = true,
-    languageCode?: string
+    languageId?: string
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -149,7 +168,7 @@ export class ManageDropdownService {
           page,
           limit,
           includeInactive,
-          languageCode
+          languageId
         );
 
       return result;
@@ -182,10 +201,46 @@ export class ManageDropdownService {
     }
   }
 
+  async findSingleByTypeAndLanguage(
+    dropdownType: string,
+    publicId: string,
+    languageId?: string
+  ): Promise<ManageDropdownWithLanguage> {
+    try {
+      // Validate and normalize dropdown type
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
+        throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
+      }
+
+      const dropdown =
+        await this.manageDropdownRepository.findSingleByTypeAndLanguage(
+          normalizedDropdownType,
+          publicId,
+          languageId
+        );
+
+      if (!dropdown) {
+        throw new NotFoundException(
+          `Dropdown with public ID '${publicId}' not found for type '${normalizedDropdownType}'`
+        );
+      }
+
+      return dropdown;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch dropdown ${publicId} for type ${dropdownType}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
   async update(
     dropdownType: string,
     publicId: string,
-    updateDropdownDto: UpdateManageDropdownDtoValidated
+    updateDropdownDto: UpdateManageDropdownDtoValidated,
+    languageId?: string
   ): Promise<ManageDropdown> {
     try {
       // Validate and normalize dropdown type
@@ -194,24 +249,39 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
-      const existingDropdown = await this.findByPublicId(publicId);
-
-      // Verify dropdown type matches
-      if (existingDropdown.dropdownType !== normalizedDropdownType) {
-        throw new BadRequestException(
-          `Dropdown type mismatch. Expected '${normalizedDropdownType}', found '${existingDropdown.dropdownType}'`
-        );
-      }
+      // Find dropdown with language support
+      const existingDropdown = await this.findSingleByTypeAndLanguage(
+        normalizedDropdownType,
+        publicId,
+        languageId
+      );
 
       // Check for name conflicts if updating name
       if (
         updateDropdownDto.name &&
         updateDropdownDto.name !== existingDropdown.name
       ) {
+        // Extract the languageId (primary key) for conflict checking
+        // languageId should always be a string (primary key) or MinimalLanguage with publicId
+        let languageId: string;
+        if (typeof existingDropdown.languageId === 'string') {
+          languageId = existingDropdown.languageId;
+        } else if (
+          existingDropdown.languageId &&
+          'publicId' in existingDropdown.languageId
+        ) {
+          // If it's populated language data, we need to get the actual language ID
+          // This should not happen in normal operation, but handle it gracefully
+          languageId =
+            await this.manageDropdownRepository.getDefaultLanguageId();
+        } else {
+          throw new Error('Invalid languageId format in existing dropdown');
+        }
+
         const languageDropdowns =
           await this.manageDropdownRepository.findByTypeAndLanguage(
             normalizedDropdownType,
-            existingDropdown.languageId
+            languageId
           );
         const existingByName = languageDropdowns.find(
           (dropdown) =>
@@ -226,20 +296,17 @@ export class ManageDropdownService {
         }
       }
 
-      // If setting as default, unset other defaults
-      if (
-        updateDropdownDto.isDefault === 'YES' &&
-        existingDropdown.isDefault !== 'YES'
-      ) {
-        await this.unsetDefaultsForType(
-          normalizedDropdownType,
-          existingDropdown.languageId
-        );
-      }
+      // Only allow updating name and status
+      const allowedUpdateData = {
+        ...(updateDropdownDto.name && { name: updateDropdownDto.name }),
+        ...(updateDropdownDto.status !== undefined && {
+          status: updateDropdownDto.status,
+        }),
+      };
 
       const updatedDropdown = await this.manageDropdownRepository.updateById(
         existingDropdown.id,
-        updateDropdownDto
+        allowedUpdateData
       );
 
       this.logger.log(
@@ -255,10 +322,13 @@ export class ManageDropdownService {
     }
   }
 
-  async delete(
+  async deleteByUniqueCode(
     dropdownType: string,
-    publicId: string
-  ): Promise<ManageDropdown> {
+    uniqueCode: number
+  ): Promise<{
+    deletedCount: number;
+    dropdowns: ManageDropdownWithLanguage[];
+  }> {
     try {
       // Validate and normalize dropdown type
       const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
@@ -266,37 +336,50 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
-      const existingDropdown = await this.findByPublicId(publicId);
+      // Find all dropdowns with this unique code
+      const existingDropdowns =
+        await this.manageDropdownRepository.findByUniqueCode(uniqueCode);
 
-      // Verify dropdown type matches
-      if (existingDropdown.dropdownType !== normalizedDropdownType) {
-        throw new BadRequestException(
-          `Dropdown type mismatch. Expected '${normalizedDropdownType}', found '${existingDropdown.dropdownType}'`
+      if (existingDropdowns.length === 0) {
+        throw new NotFoundException(
+          `No dropdown found with unique code: ${uniqueCode}`
         );
       }
 
-      // Check if this is a default option
-      if (existingDropdown.isDefault === 'YES') {
-        this.logger.warn(
-          `Deleting default dropdown option ${publicId} for type ${normalizedDropdownType}`
-        );
-      }
-
-      const wasDeleted = await this.manageDropdownRepository.deleteById(
-        existingDropdown.id
+      // Verify all dropdowns belong to the correct type
+      const typeMismatch = existingDropdowns.find(
+        (dropdown) => dropdown.dropdownType !== normalizedDropdownType
       );
 
-      if (!wasDeleted) {
-        throw new Error('Failed to delete dropdown option');
+      if (typeMismatch) {
+        throw new BadRequestException(
+          `Dropdown with unique code ${uniqueCode} does not belong to type '${normalizedDropdownType}'`
+        );
       }
+
+      // Check if any dropdown has useCount > 0
+      const inUse = existingDropdowns.find((dropdown) => dropdown.useCount > 0);
+      if (inUse) {
+        throw new BadRequestException(
+          `Cannot delete dropdown with unique code ${uniqueCode}. It is currently in use (useCount: ${inUse.useCount})`
+        );
+      }
+
+      // Delete all language variants
+      const deletedCount =
+        await this.manageDropdownRepository.deleteByUniqueCode(uniqueCode);
 
       this.logger.log(
-        `Deleted dropdown ${publicId} from type ${normalizedDropdownType}`
+        `Deleted ${deletedCount} dropdown variants with unique code ${uniqueCode} from type ${normalizedDropdownType}`
       );
-      return existingDropdown;
+
+      return {
+        deletedCount,
+        dropdowns: existingDropdowns,
+      };
     } catch (error) {
       this.logger.error(
-        `Failed to delete dropdown ${publicId} for type ${dropdownType}:`,
+        `Failed to delete dropdown with unique code ${uniqueCode} for type ${dropdownType}:`,
         error
       );
       throw error;
@@ -337,20 +420,10 @@ export class ManageDropdownService {
         );
       }
 
-      // Check for default options if deactivating or deleting
-      if (
-        bulkOperationDto.action === 'deactivate' ||
-        bulkOperationDto.action === 'delete'
-      ) {
-        const defaultDropdowns = dropdowns.filter(
-          (dropdown) => dropdown.isDefault === 'YES'
-        );
-        if (defaultDropdowns.length > 0) {
-          this.logger.warn(
-            `Bulk ${bulkOperationDto.action} operation includes ${defaultDropdowns.length} default options`
-          );
-        }
-      }
+      // Log operation for tracking
+      this.logger.log(
+        `Starting bulk ${bulkOperationDto.action} operation for ${bulkOperationDto.publicIds.length} dropdowns in type ${normalizedDropdownType}`
+      );
 
       const operationCount =
         await this.manageDropdownRepository.bulkOperation(bulkOperationDto);
@@ -383,32 +456,33 @@ export class ManageDropdownService {
     }
   }
 
-  private async unsetDefaultsForType(
+  // Methods that match settings pattern exactly
+  async getPublicDropdownsByDropdownType(
     dropdownType: string,
-    languageId: string
-  ): Promise<void> {
-    try {
-      const existingDefaults =
-        await this.manageDropdownRepository.findByTypeAndLanguage(
-          dropdownType,
-          languageId
-        );
+    languageId?: string
+  ): Promise<ManageDropdownWithLanguage[]> {
+    return this.findByTypeForPublic(dropdownType, languageId);
+  }
 
-      const defaultDropdowns = existingDefaults.filter(
-        (dropdown) => dropdown.isDefault === 'YES'
-      );
-
-      for (const defaultDropdown of defaultDropdowns) {
-        await this.manageDropdownRepository.updateById(defaultDropdown.id, {
-          isDefault: 'NO',
-        });
-      }
-    } catch (error) {
-      this.logger.warn(
-        `Failed to unset defaults for type ${dropdownType}:`,
-        error
-      );
-    }
+  async getDropdownsByDropdownType(
+    dropdownType: string,
+    page: number = 1,
+    limit: number = 10,
+    includeInactive: boolean = true,
+    languageId?: string
+  ): Promise<{
+    data: ManageDropdownWithLanguage[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    return this.findByTypeForAdmin(
+      dropdownType,
+      page,
+      limit,
+      includeInactive,
+      languageId
+    );
   }
 
   private normalizeDropdownType(dropdownType: string): string {
@@ -416,8 +490,16 @@ export class ManageDropdownService {
   }
 
   private validateDropdownType(dropdownType: string): boolean {
-    // Add validation logic for supported dropdown types
-    const supportedTypes = ['industry', 'category', 'status', 'type'];
-    return supportedTypes.includes(dropdownType);
+    // Allow any dropdown type with basic format validation
+    if (!dropdownType || dropdownType.trim().length === 0) {
+      return false;
+    }
+
+    const trimmed = dropdownType.trim();
+    const validFormat = /^[a-zA-Z0-9_-]+$/;
+
+    return (
+      trimmed.length >= 1 && trimmed.length <= 50 && validFormat.test(trimmed)
+    );
   }
 }

@@ -190,5 +190,11 @@
     "invalid_status": "Estado de idioma inválido",
     "default_language_required": "Se requiere al menos un idioma predeterminado",
     "language_in_use": "No se puede eliminar el idioma ya que está siendo utilizado"
+  },
+  "dropdowns": {
+    "retrieved_successfully": "Opciones desplegables obtenidas exitosamente",
+    "not_found": "Opciones desplegables no encontradas",
+    "invalid_option_type": "Formato de tipo de opción inválido",
+    "fetch_failed": "Error al obtener opciones desplegables"
   }
 }

@@ -387,26 +387,25 @@ model Admin {
 
 // Master Dropdown Model
 model ManageDropdown {
-  id               String    @id @default(cuid())
-  publicId         String    @unique @default(cuid()) // For public API access
-  name             String
-  uniqueCode       Int?
-  dropdownType     String
-  countryShortCode String?
-  isDefault        String?   // YES or NO
-  languageId       String
-  language         Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  status           Boolean   @default(true)
-  useCount         Int       @default(0)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  publicId     String    @unique @default(cuid()) // For public API access
+  name         String
+  uniqueCode   Int       // Required 10-digit unique code (removed @unique)
+  dropdownType String
+  languageId   String
+  language     Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  status       Boolean   @default(true)
+  useCount     Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
+  @@unique([uniqueCode, languageId]) // Composite unique constraint
   @@index([dropdownType])
   @@index([languageId])
   @@index([status])
+  @@index([uniqueCode])
   @@index([dropdownType, languageId])
   @@index([dropdownType, status])
-  @@index([countryShortCode])
   @@index([publicId])
   @@map("manage_dropdowns")
 }
