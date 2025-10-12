@@ -52,7 +52,9 @@
       "Bash(then)",
       "Bash(fi)",
       "Bash(git checkout:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(mongosh:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

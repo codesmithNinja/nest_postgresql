@@ -190,5 +190,11 @@
     "invalid_status": "Invalid language status",
     "default_language_required": "At least one default language is required",
     "language_in_use": "Cannot delete language as it is currently being used"
+  },
+  "dropdowns": {
+    "retrieved_successfully": "Dropdown options retrieved successfully",
+    "not_found": "Dropdown options not found",
+    "invalid_option_type": "Invalid option type format",
+    "fetch_failed": "Failed to retrieve dropdown options"
   }
 }

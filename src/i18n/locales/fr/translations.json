@@ -190,5 +190,11 @@
     "invalid_status": "Statut de langue invalide",
     "default_language_required": "Au moins une langue par défaut est requise",
     "language_in_use": "Impossible de supprimer la langue car elle est actuellement utilisée"
+  },
+  "dropdowns": {
+    "retrieved_successfully": "Options déroulantes récupérées avec succès",
+    "not_found": "Options déroulantes non trouvées",
+    "invalid_option_type": "Format de type d'option invalide",
+    "fetch_failed": "Échec de la récupération des options déroulantes"
   }
 }

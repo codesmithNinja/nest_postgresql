@@ -1199,6 +1199,126 @@ PATCH  /admin/users/:id       # Update user (admin only)
 DELETE /admin/users/:id       # Delete user (admin only)
 ```
 
+#### Master Dropdown Management Endpoints
+
+```
+# Public endpoints (no authentication required)
+GET    /manage-dropdown/:dropdownType/front      # Get active dropdown options by type
+
+# Admin endpoints (require admin authentication)
+GET    /manage-dropdown/:dropdownType/admin      # Get dropdown options with pagination
+POST   /manage-dropdown/:dropdownType            # Create new dropdown option
+GET    /manage-dropdown/:dropdownType/:publicId  # Get single dropdown option
+PATCH  /manage-dropdown/:dropdownType/:publicId  # Update dropdown option
+DELETE /manage-dropdown/:dropdownType/:uniqueCode  # Delete dropdown option (all language variants)
+PATCH  /manage-dropdown/:dropdownType/bulk       # Bulk operations on dropdown options
+```
+
+#### Countries Management Endpoints
+
+```
+# Public endpoints (no authentication required)
+GET    /countries/front                          # Get active countries
+
+# Admin endpoints (require admin authentication)
+GET    /countries                                # Get all countries with pagination
+GET    /countries/:publicId                      # Get single country
+POST   /countries                                # Create new country with flag upload
+PATCH  /countries/:publicId                      # Update country with optional flag upload
+DELETE /countries/:publicId                      # Delete country
+PATCH  /countries/bulk-update                    # Bulk update country status
+PATCH  /countries/bulk-delete                    # Bulk delete countries
+```
+
+#### Admin Users Management Endpoints
+
+```
+# Admin endpoints (require admin authentication)
+GET    /admins/me                                # Get current admin profile
+GET    /admins                                   # Get all admins with pagination
+POST   /admins                                   # Create new admin user
+PATCH  /admins/:id                               # Update admin user
+DELETE /admins/:id                               # Delete admin user
+```
+
+#### Manage Dropdown API Examples
+
+```bash
+# Get public dropdown options by type (no authentication required)
+curl -X GET "http://localhost:3000/manage-dropdown/industry/front"
+
+# Get public dropdown options with language filter
+curl -X GET "http://localhost:3000/manage-dropdown/industry/front?lang=en"
+
+# Get paginated dropdown options for admin
+curl -X GET "http://localhost:3000/manage-dropdown/industry/admin?page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Create new dropdown option (admin)
+curl -X POST "http://localhost:3000/manage-dropdown/industry" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Technology", "uniqueCode": 1001, "isDefault": "NO"}'
+
+# Update dropdown option (admin)
+curl -X PATCH "http://localhost:3000/manage-dropdown/industry/uuid-here" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Updated Technology", "status": true}'
+
+# Bulk operations (admin)
+curl -X PATCH "http://localhost:3000/manage-dropdown/industry/bulk" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"publicIds": ["uuid1", "uuid2"], "action": "activate"}'
+```
+
+#### Countries API Examples
+
+```bash
+# Get public countries (no authentication required)
+curl -X GET "http://localhost:3000/countries/front"
+
+# Get public countries with language filter
+curl -X GET "http://localhost:3000/countries/front?lang=en"
+
+# Get paginated countries for admin
+curl -X GET "http://localhost:3000/countries?page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Create new country with flag upload (admin)
+curl -X POST "http://localhost:3000/countries" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: multipart/form-data" \
+  -F "name=United States" \
+  -F "shortCode=US" \
+  -F "flag=@./us-flag.png"
+
+# Bulk update countries (admin)
+curl -X PATCH "http://localhost:3000/countries/bulk-update" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"publicIds": ["uuid1", "uuid2"], "status": true}'
+```
+
+#### Admin Users API Examples
+
+```bash
+# Get current admin profile
+curl -X GET "http://localhost:3000/admins/me" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Get all admin users with pagination
+curl -X GET "http://localhost:3000/admins?page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Create new admin user
+curl -X POST "http://localhost:3000/admins" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName": "John", "lastName": "Doe", "email": "admin@example.com", "password": "SecurePass123!"}'
+```
+
 #### Settings Management Endpoints
 
 ```
@@ -1231,6 +1351,18 @@ curl -X POST "http://localhost:3000/settings/site_setting/admin" \
 
 # Delete all settings in a group (admin)
 curl -X DELETE "http://localhost:3000/settings/site_setting/admin" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Get cache statistics (admin)
+curl -X GET "http://localhost:3000/settings/admin/cache/stats" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Clear cache for specific group (admin)
+curl -X DELETE "http://localhost:3000/settings/admin/cache/clear/site_setting" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Clear all cache (admin)
+curl -X DELETE "http://localhost:3000/settings/admin/cache/clear" \
   -H "Authorization: Bearer <admin-token>"
 ```
 

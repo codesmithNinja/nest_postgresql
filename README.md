@@ -38,22 +38,68 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 ### Available Modules
 
 #### Admin Modules
+
 - **🌍 Languages Management** - Multi-language support with flag images, ISO codes, and direction settings (English, Spanish, French, Arabic)
 - **🏳️ Countries Management** - Country data management with flags and usage tracking
+- **📋 Manage Dropdown** - Dynamic dropdown data management with multi-language support
 - **⚙️ Settings Management** - Dynamic application configuration by groups
 - **👤 Admin Users** - Administrative user management and authentication
 
-#### Public API Endpoints
+#### Public API Endpoints (No Authentication Required)
+
 ```
-GET /languages/front          # Get active languages for frontend
+GET /languages/front                           # Get active languages for frontend
+GET /countries/front                           # Get active countries for frontend
+GET /manage-dropdown/:dropdownType/front       # Get active dropdown options by type with language support
+GET /settings/:groupType/front                 # Get settings by group type for frontend
 ```
 
 #### Admin API Endpoints (Authentication Required)
+
 ```
-/languages                     # Languages management
-/countries                     # Countries management
-/settings                      # Settings management
-/admin-users                   # Admin user management
+/admins                                # Admin user management
+  GET    /me                             # Get current admin profile
+  GET    /                               # Get all admins with pagination
+  POST   /                               # Create new admin user
+  PATCH  /:id                            # Update admin user
+  DELETE /:id                            # Delete admin user
+
+/languages                             # Languages management
+  GET    /front                          # Public: Get active languages
+  GET    /                               # Admin: Get all languages with pagination
+  GET    /:publicId                      # Admin: Get single language
+  POST   /                               # Admin: Create new language with flag upload
+  PATCH  /:publicId                      # Admin: Update language
+  DELETE /:publicId                      # Admin: Delete language
+  PATCH  /bulk-update                    # Admin: Bulk update language status
+  PATCH  /bulk-delete                    # Admin: Bulk delete languages
+
+/countries                             # Countries management
+  GET    /front                          # Public: Get active countries
+  GET    /                               # Admin: Get all countries with pagination
+  GET    /:publicId                      # Admin: Get single country
+  POST   /                               # Admin: Create new country with flag upload
+  PATCH  /:publicId                      # Admin: Update country
+  DELETE /:publicId                      # Admin: Delete country
+  PATCH  /bulk-update                    # Admin: Bulk update country status
+  PATCH  /bulk-delete                    # Admin: Bulk delete countries
+
+/manage-dropdown                       # Master dropdown data management
+  GET    /:dropdownType/front            # Public: Get active dropdown options by type
+  GET    /:dropdownType/admin            # Admin: Get dropdown options with pagination
+  POST   /:dropdownType                  # Admin: Create new dropdown option
+  GET    /:dropdownType/:publicId        # Admin: Get single dropdown by publicId
+  PATCH  /:dropdownType/:publicId        # Admin: Update dropdown option
+  DELETE /:dropdownType/:uniqueCode      # Admin: Delete dropdown option (all language variants, useCount must be 0)
+  PATCH  /:dropdownType/bulk             # Admin: Bulk operations (activate/deactivate/delete)
+
+/settings                              # Settings management
+  GET    /:groupType/front               # Public: Get settings by group type
+  GET    /:groupType/admin               # Admin: Get settings with admin access
+  POST   /:groupType/admin               # Admin: Create or update settings (supports file upload)
+  DELETE /:groupType/admin               # Admin: Delete all settings by group type
+  GET    /admin/cache/stats              # Admin: Get cache statistics
+  DELETE /admin/cache/clear/:groupType?  # Admin: Clear cache (all or by group)
 ```
 
 **📖 Documentation:** Access full API documentation at `http://localhost:3000/api/docs` when running the application.

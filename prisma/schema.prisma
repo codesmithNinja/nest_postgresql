@@ -34,7 +34,8 @@ model Language {
   isDefault DefaultStatus @default(YES)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  users     User[]
+  users           User[]
+  manageDropdowns ManageDropdown[]
 
   @@index([name])
   @@index([folder])
@@ -384,6 +385,30 @@ model Admin {
   @@map("admins")
 }
 
+// Master Dropdown Model
+model ManageDropdown {
+  id           String    @id @default(cuid())
+  publicId     String    @unique @default(cuid()) // For public API access
+  name         String
+  uniqueCode   Int       // Required 10-digit unique code (removed @unique)
+  dropdownType String
+  languageId   String
+  language     Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  status       Boolean   @default(true)
+  useCount     Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([uniqueCode, languageId]) // Composite unique constraint
+  @@index([dropdownType])
+  @@index([languageId])
+  @@index([status])
+  @@index([uniqueCode])
+  @@index([dropdownType, languageId])
+  @@index([dropdownType, status])
+  @@index([publicId])
+  @@map("manage_dropdowns")
+}
 // Settings Model
 model Settings {
   id         String     @id @default(cuid())

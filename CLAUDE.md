@@ -27,10 +27,11 @@ src/
     ├── auth/           # Authentication module
     ├── users/          # Users module
     └── admin-modules/  # Admin modules
-        ├── admin-users/  # Admin users management
-        ├── countries/    # Countries management
-        ├── languages/    # Languages management
-        └── settings/     # Settings management
+        ├── admin-users/     # Admin users management
+        ├── countries/       # Countries management
+        ├── languages/       # Languages management
+        ├── manage-dropdown/ # Master dropdown management
+        └── settings/        # Settings management
 ```
 
 ## Code Conventions
@@ -59,17 +60,23 @@ src/
 
 - **Base Repository**: Abstract class in `src/database/repositories/base/`
 - **PostgreSQL Repository**: Extends `PostgresRepository<T>`
-- **MongoDB Repository**: Implements `MongoRepository<T>`
+- **MongoDB Repository**: Implements `MongoRepository<T>` with strict type transformations
 - **Interface**: All repositories implement `IRepository<T>`
 - **Dependency Injection**: Use tokens like `USER_REPOSITORY`
+- **Type Safety**: All MongoDB repositories use `toEntity()` and `toDocument()` methods for type-safe transformations
+- **No Type Assertions**: Strict elimination of `as any` patterns - use proper type casting with interfaces
 
 ### Error Handling
 
 - **Global Exception Filter**: `GlobalExceptionFilter` in `common/filters/`
-- **Response Handler**: Use `ResponseHandler` utility for consistent responses
+- **I18n Response Service**: Use `I18nResponseService` with `I18nResponseInterceptor` for multilingual error messages
 - **HTTP Exceptions**: Use NestJS built-in exceptions
-- **Custom Exceptions**: Extend HttpException when needed
+- **Custom Exceptions**: Extend HttpException when needed - each module has its own exceptions directory
 - **Validation**: Use class-validator with DTOs
+- **Module-Specific Exceptions**:
+  - Settings: `SettingsNotFoundException`, `InvalidGroupTypeException`, etc.
+  - Manage-Dropdown: `ManageDropdownNotFoundException`, `InvalidOptionTypeException`, etc.
+  - Consistent error code patterns: `SETTINGS_NOT_FOUND`, `DROPDOWN_NOT_FOUND`
 
 ### Authentication & Security
 
@@ -137,6 +144,40 @@ src/
   DELETE /:publicId                # Admin: Delete language (only if isDefault=NO)
   PATCH  /bulk-update              # Admin: Bulk update language status
   PATCH  /bulk-delete              # Admin: Bulk delete languages (isDefault=NO only)
+
+/manage-dropdown (admin-modules)
+  GET    /:dropdownType/front      # Public: Get active dropdown options by type (no auth)
+  GET    /:dropdownType/admin      # Admin: Get dropdown options with pagination
+  POST   /:dropdownType            # Admin: Create new dropdown option
+  GET    /:dropdownType/:publicId  # Admin: Get single dropdown option
+  PATCH  /:dropdownType/:publicId  # Admin: Update dropdown option
+  DELETE /:dropdownType/:uniqueCode  # Admin: Delete dropdown option (all language variants, useCount must be 0)
+  PATCH  /:dropdownType/bulk       # Admin: Bulk operations on dropdown options
+
+/countries (admin-modules)
+  GET    /front                    # Public: Get active countries
+  GET    /                         # Admin: Get all countries with pagination
+  GET    /:publicId                # Admin: Get single country
+  POST   /                         # Admin: Create new country with flag upload
+  PATCH  /:publicId                # Admin: Update country with optional flag upload
+  DELETE /:publicId                # Admin: Delete country
+  PATCH  /bulk-update              # Admin: Bulk update country status
+  PATCH  /bulk-delete              # Admin: Bulk delete countries
+
+/settings (admin-modules)
+  GET    /:groupType/front         # Public: Get settings by group type
+  GET    /:groupType/admin         # Admin: Get settings with admin access
+  POST   /:groupType/admin         # Admin: Create or update settings (supports file upload)
+  DELETE /:groupType/admin         # Admin: Delete all settings by group type
+  GET    /admin/cache/stats        # Admin: Get cache statistics
+  DELETE /admin/cache/clear/:groupType?  # Admin: Clear cache (all or by group)
+
+/admins (admin-modules)
+  GET    /me                       # Admin: Get current admin profile
+  GET    /                         # Admin: Get all admins with pagination
+  POST   /                         # Admin: Create new admin user
+  PATCH  /:id                      # Admin: Update admin user
+  DELETE /:id                      # Admin: Delete admin user
 ```
 
 ## Email Templates
@@ -206,7 +247,24 @@ SETTINGS_BUCKET=settings
 
 ### Response Format
 
-Always use ResponseHandler:
+For modern modules, use I18nResponseService with multilingual support:
+
+```typescript
+// Success responses
+return this.i18nResponse.translateAndRespond(
+  'settings.retrieved_successfully',
+  HttpStatus.OK,
+  response
+);
+
+// Error responses
+return this.i18nResponse.translateError(
+  'settings.not_found',
+  HttpStatus.NOT_FOUND
+);
+```
+
+Legacy modules may still use ResponseHandler:
 
 ```typescript
 return ResponseHandler.success('Message', 200, data);
@@ -230,6 +288,32 @@ return ResponseHandler.error('Error message', 400);
 ```typescript
 @UseGuards(JwtUserGuard)
 ```
+
+### Module Alignment Pattern
+
+Admin modules follow consistent patterns for similar functionality:
+
+**Settings Module Pattern** (Reference Implementation):
+
+- `GET /:groupType/front` - Public endpoint (no auth)
+- `GET /:groupType/admin` - Admin endpoint (with auth)
+- Uses `GroupTypeParamDto` for parameter validation
+- Response format: `{ settings, groupType, count }`
+
+**Manage-Dropdown Module** (Aligned Implementation):
+
+- `GET /:dropdownType/front` - Public endpoint (no auth)
+- `GET /:dropdownType/admin` - Admin endpoint (with auth)
+- Uses `DropdownTypeParamDto` for parameter validation
+- Response format: `{ dropdowns, dropdownType, count }`
+
+**Key Alignment Points**:
+
+- Same route structure with `/front` and `/admin` suffixes
+- Same parameter validation patterns
+- Same response structure
+- Same error handling with custom exceptions
+- Same I18n response service integration
 
 ## Current Dependencies
 
@@ -262,7 +346,7 @@ return ResponseHandler.error('Error message', 400);
 - entire document will be strict typescript. Do not use any type anywhere in the project
 - every API creation or updation check lint format and build and resolve all the errors you found then start the application to test weather it is working or not
 - Always start application using npm run start:dev. it will start the application using nodemon so you dont have to kill the application everytime.
-- After all task completion, if the new APIs are created or old API routes are updated then do the necessary changes in belwo files as well.
+- After all task completion, if the new APIs are created or old API routes are updated then do the necessary changes in below files as well.
 
 . CLAUDE.md (because it contains the escence of the project itself)
 . DEVELOPER_GUIDE.md
