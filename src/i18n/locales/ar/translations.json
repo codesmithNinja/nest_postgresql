@@ -196,5 +196,25 @@
     "not_found": "خيارات القائمة المنسدلة غير موجودة",
     "invalid_option_type": "تنسيق نوع الخيار غير صالح",
     "fetch_failed": "فشل في استرداد خيارات القائمة المنسدلة"
+  },
+  "currencies": {
+    "retrieved_successfully": "تم استرداد العملات بنجاح",
+    "created": "تم إنشاء العملة بنجاح",
+    "updated": "تم تحديث العملة بنجاح",
+    "deleted": "تم حذف العملة بنجاح",
+    "not_found": "العملة غير موجودة",
+    "already_exists": "توجد عملة بهذا الاسم أو الرمز بالفعل",
+    "in_use": "لا يمكن حذف العملة لأنها قيد الاستخدام حالياً",
+    "fetch_failed": "فشل في استرداد العملات",
+    "creation_failed": "فشل في إنشاء العملة",
+    "update_failed": "فشل في تحديث العملة",
+    "deletion_failed": "فشل في حذف العملة",
+    "bulk_operation_failed": "فشل في العملية المجمعة",
+    "bulk_operation_success": "تم إكمال العملية المجمعة بنجاح",
+    "bulk_delete_failed": "فشل في عملية الحذف المجمعة",
+    "bulk_delete_success": "تم إكمال عملية الحذف المجمعة بنجاح",
+    "invalid_currency_code": "تنسيق رمز العملة غير صالح",
+    "name_already_exists": "توجد عملة بهذا الاسم بالفعل",
+    "code_already_exists": "توجد عملة بهذا الرمز بالفعل"
   }
 }

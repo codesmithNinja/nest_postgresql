@@ -1,0 +1,293 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { MongoRepository } from '../base/mongodb.repository';
+import {
+  Currency,
+  CreateCurrencyDto,
+  BulkCurrencyOperationDto,
+} from '../../entities/currency.entity';
+import {
+  Currency as CurrencySchema,
+  CurrencyDocument,
+} from '../../schemas/currency.schema';
+import { ICurrencyRepository } from './currency.repository.interface';
+import { v4 as uuidv4 } from 'uuid';
+
+@Injectable()
+export class CurrencyMongoRepository
+  extends MongoRepository<CurrencyDocument, Currency>
+  implements ICurrencyRepository
+{
+  constructor(
+    @InjectModel(CurrencySchema.name) currencyModel: Model<CurrencyDocument>
+  ) {
+    super(currencyModel);
+  }
+
+  protected toEntity(document: CurrencyDocument): Currency {
+    const entity: Currency = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: document.id ?? document._id?.toString() ?? '',
+      publicId: document.publicId,
+      name: document.name,
+      code: document.code,
+      symbol: document.symbol,
+      status: document.status,
+      useCount: document.useCount,
+      createdAt: document.createdAt || new Date(),
+      updatedAt: document.updatedAt || new Date(),
+    };
+    return entity;
+  }
+
+  protected toDocument(entity: Partial<Currency>): Record<string, unknown> {
+    const doc: Record<string, unknown> = {};
+
+    if (entity.publicId !== undefined) doc.publicId = entity.publicId;
+    if (entity.name !== undefined) doc.name = entity.name;
+    if (entity.code !== undefined) doc.code = entity.code.toUpperCase();
+    if (entity.symbol !== undefined) doc.symbol = entity.symbol;
+    if (entity.status !== undefined) doc.status = entity.status;
+    if (entity.useCount !== undefined) doc.useCount = entity.useCount;
+
+    return doc;
+  }
+
+  async insert(createDto: CreateCurrencyDto): Promise<Currency> {
+    const currencyData = {
+      publicId: uuidv4(),
+      ...createDto,
+      code: createDto.code.toUpperCase(),
+    };
+
+    const document = new this.model(currencyData);
+    const savedDocument = await document.save();
+    return this.toEntity(savedDocument);
+  }
+
+  async findForPublic(): Promise<Currency[]> {
+    const documents = await this.model
+      .find({ status: true })
+      .sort({ name: 1 })
+      .exec();
+    return documents.map((doc) => this.toEntity(doc));
+  }
+
+  async findCurrenciesWithPagination(
+    page: number,
+    limit: number,
+    includeInactive = false
+  ): Promise<{
+    data: Currency[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const skip = (page - 1) * limit;
+    const filter: Record<string, unknown> = {};
+
+    if (!includeInactive) {
+      filter.status = true;
+    }
+
+    const [documents, total] = await Promise.all([
+      this.model
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+      this.model.countDocuments(filter).exec(),
+    ]);
+
+    return {
+      data: documents.map((doc) => this.toEntity(doc)),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async findByPublicId(publicId: string): Promise<Currency | null> {
+    const document = await this.model.findOne({ publicId }).exec();
+    return document ? this.toEntity(document) : null;
+  }
+
+  async findByCode(code: string): Promise<Currency | null> {
+    const document = await this.model
+      .findOne({ code: code.toUpperCase() })
+      .exec();
+    return document ? this.toEntity(document) : null;
+  }
+
+  async findByName(name: string): Promise<Currency | null> {
+    const document = await this.model
+      .findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } })
+      .exec();
+    return document ? this.toEntity(document) : null;
+  }
+
+  async updateByPublicId(
+    publicId: string,
+    updateDto: Partial<Currency>
+  ): Promise<Currency> {
+    const updateData = this.toDocument(updateDto);
+
+    const document = await this.model
+      .findOneAndUpdate({ publicId }, updateData, { new: true })
+      .exec();
+
+    if (!document) {
+      throw new Error(`Currency with publicId ${publicId} not found`);
+    }
+
+    return this.toEntity(document);
+  }
+
+  async deleteByPublicId(publicId: string): Promise<boolean> {
+    try {
+      // First check if currency is in use
+      const currency = await this.findByPublicId(publicId);
+      if (!currency) {
+        return false;
+      }
+
+      if (currency.useCount > 0) {
+        throw new Error(
+          `Cannot delete currency with useCount: ${currency.useCount}`
+        );
+      }
+
+      const result = await this.model.deleteOne({ publicId }).exec();
+      return result.deletedCount === 1;
+    } catch {
+      return false;
+    }
+  }
+
+  async incrementUseCount(publicId: string): Promise<void> {
+    await this.model.updateOne({ publicId }, { $inc: { useCount: 1 } }).exec();
+  }
+
+  async decrementUseCount(publicId: string): Promise<void> {
+    await this.model.updateOne({ publicId }, { $inc: { useCount: -1 } }).exec();
+  }
+
+  async bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number> {
+    let updateData: Record<string, unknown> = {};
+
+    switch (bulkDto.action) {
+      case 'activate':
+        updateData = { status: true };
+        break;
+      case 'deactivate':
+        updateData = { status: false };
+        break;
+      case 'delete': {
+        // For delete action, we need to check useCount for each currency
+        const currencies = await this.model
+          .find({ publicId: { $in: bulkDto.publicIds } })
+          .select('publicId useCount')
+          .exec();
+
+        for (const currency of currencies) {
+          if (currency.useCount > 0) {
+            throw new Error(
+              `Cannot delete currency ${currency.publicId} with useCount: ${currency.useCount}`
+            );
+          }
+        }
+
+        const deleteResult = await this.model
+          .deleteMany({ publicId: { $in: bulkDto.publicIds } })
+          .exec();
+        return deleteResult.deletedCount || 0;
+      }
+      default:
+        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
+    }
+
+    const result = await this.model
+      .updateMany({ publicId: { $in: bulkDto.publicIds } }, updateData)
+      .exec();
+
+    return result.modifiedCount || 0;
+  }
+
+  async isInUse(publicId: string): Promise<boolean> {
+    const document = await this.model
+      .findOne({ publicId })
+      .select('useCount')
+      .exec();
+    return document ? document.useCount > 0 : false;
+  }
+
+  // Base interface implementations
+  async getDetail(filter: Partial<Currency>): Promise<Currency | null> {
+    const mongoFilter: Record<string, unknown> = {};
+
+    if (filter.publicId) {
+      mongoFilter.publicId = filter.publicId;
+    }
+    if (filter.id) {
+      mongoFilter._id = filter.id;
+    }
+    if (filter.name) {
+      mongoFilter.name = filter.name;
+    }
+    if (filter.code) {
+      mongoFilter.code = filter.code;
+    }
+
+    const document = await this.model.findOne(mongoFilter).exec();
+    return document ? this.toEntity(document) : null;
+  }
+
+  async updateById(
+    id: string,
+    updateDto: Partial<Currency>
+  ): Promise<Currency> {
+    const updateData = this.toDocument(updateDto);
+
+    const document = await this.model
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .exec();
+
+    if (!document) {
+      throw new Error(`Currency with id ${id} not found`);
+    }
+
+    return this.toEntity(document);
+  }
+
+  async deleteById(id: string): Promise<boolean> {
+    try {
+      const result = await this.model.findByIdAndDelete(id).exec();
+      return result !== null;
+    } catch {
+      return false;
+    }
+  }
+
+  protected convertFilterToMongo(
+    filter: Partial<Currency>
+  ): Record<string, unknown> {
+    const mongoFilter: Record<string, unknown> = {};
+
+    if (filter.name) {
+      mongoFilter.name = { $regex: filter.name, $options: 'i' };
+    }
+    if (filter.code) {
+      mongoFilter.code = filter.code;
+    }
+    if (filter.symbol) {
+      mongoFilter.symbol = { $regex: filter.symbol, $options: 'i' };
+    }
+    if (filter.status !== undefined) {
+      mongoFilter.status = filter.status;
+    }
+
+    return mongoFilter;
+  }
+}

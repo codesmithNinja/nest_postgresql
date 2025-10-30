@@ -450,3 +450,26 @@ model Country {
   @@map("countries")
 }
 
+// Currency Model
+model Currency {
+  id        String   @id @default(cuid())
+  publicId  String   @unique @default(cuid())
+  name      String   @unique
+  code      String   @unique @db.VarChar(3) // ISO currency code (USD, EUR, etc.)
+  symbol    String   // Currency symbol ($, €, £, etc.)
+  status    Boolean  @default(true)
+  useCount  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([code])
+  @@index([symbol])
+  @@index([status])
+  @@index([useCount])
+  @@index([createdAt])
+  @@index([publicId])
+  @@index([name, code])
+  @@map("currencies")
+}
+

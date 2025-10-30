@@ -196,5 +196,25 @@
     "not_found": "Dropdown options not found",
     "invalid_option_type": "Invalid option type format",
     "fetch_failed": "Failed to retrieve dropdown options"
+  },
+  "currencies": {
+    "retrieved_successfully": "Currencies retrieved successfully",
+    "created": "Currency created successfully",
+    "updated": "Currency updated successfully",
+    "deleted": "Currency deleted successfully",
+    "not_found": "Currency not found",
+    "already_exists": "Currency with this name or code already exists",
+    "in_use": "Cannot delete currency as it is currently in use",
+    "fetch_failed": "Failed to retrieve currencies",
+    "creation_failed": "Failed to create currency",
+    "update_failed": "Failed to update currency",
+    "deletion_failed": "Failed to delete currency",
+    "bulk_operation_failed": "Bulk operation failed",
+    "bulk_operation_success": "Bulk operation completed successfully",
+    "bulk_delete_failed": "Bulk delete operation failed",
+    "bulk_delete_success": "Bulk delete operation completed successfully",
+    "invalid_currency_code": "Invalid currency code format",
+    "name_already_exists": "Currency with this name already exists",
+    "code_already_exists": "Currency with this code already exists"
   }
 }

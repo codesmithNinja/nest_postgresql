@@ -196,5 +196,25 @@
     "not_found": "Opciones desplegables no encontradas",
     "invalid_option_type": "Formato de tipo de opción inválido",
     "fetch_failed": "Error al obtener opciones desplegables"
+  },
+  "currencies": {
+    "retrieved_successfully": "Monedas obtenidas exitosamente",
+    "created": "Moneda creada exitosamente",
+    "updated": "Moneda actualizada exitosamente",
+    "deleted": "Moneda eliminada exitosamente",
+    "not_found": "Moneda no encontrada",
+    "already_exists": "Ya existe una moneda con este nombre o código",
+    "in_use": "No se puede eliminar la moneda ya que está siendo utilizada",
+    "fetch_failed": "Error al obtener monedas",
+    "creation_failed": "Error al crear moneda",
+    "update_failed": "Error al actualizar moneda",
+    "deletion_failed": "Error al eliminar moneda",
+    "bulk_operation_failed": "Error en operación masiva",
+    "bulk_operation_success": "Operación masiva completada exitosamente",
+    "bulk_delete_failed": "Error en operación de eliminación masiva",
+    "bulk_delete_success": "Operación de eliminación masiva completada exitosamente",
+    "invalid_currency_code": "Formato de código de moneda inválido",
+    "name_already_exists": "Ya existe una moneda con este nombre",
+    "code_already_exists": "Ya existe una moneda con este código"
   }
 }

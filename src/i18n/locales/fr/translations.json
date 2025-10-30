@@ -196,5 +196,25 @@
     "not_found": "Options déroulantes non trouvées",
     "invalid_option_type": "Format de type d'option invalide",
     "fetch_failed": "Échec de la récupération des options déroulantes"
+  },
+  "currencies": {
+    "retrieved_successfully": "Devises récupérées avec succès",
+    "created": "Devise créée avec succès",
+    "updated": "Devise mise à jour avec succès",
+    "deleted": "Devise supprimée avec succès",
+    "not_found": "Devise non trouvée",
+    "already_exists": "Une devise avec ce nom ou code existe déjà",
+    "in_use": "Impossible de supprimer la devise car elle est actuellement utilisée",
+    "fetch_failed": "Échec de la récupération des devises",
+    "creation_failed": "Échec de la création de la devise",
+    "update_failed": "Échec de la mise à jour de la devise",
+    "deletion_failed": "Échec de la suppression de la devise",
+    "bulk_operation_failed": "Échec de l'opération en bloc",
+    "bulk_operation_success": "Opération en bloc terminée avec succès",
+    "bulk_delete_failed": "Échec de l'opération de suppression en bloc",
+    "bulk_delete_success": "Opération de suppression en bloc terminée avec succès",
+    "invalid_currency_code": "Format de code de devise invalide",
+    "name_already_exists": "Une devise avec ce nom existe déjà",
+    "code_already_exists": "Une devise avec ce code existe déjà"
   }
 }
