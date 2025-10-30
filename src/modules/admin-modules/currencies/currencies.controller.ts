@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
   HttpStatus,
-  ValidationPipe,
   Logger,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,7 +25,8 @@ import { CurrenciesService } from './currencies.service';
 import {
   CreateCurrencyDto,
   UpdateCurrencyDto,
-  BulkCurrencyOperationDto,
+  BulkUpdateCurrencyDto,
+  BulkDeleteCurrencyDto,
   AdminCurrencyQueryDto,
   CurrencyResponseDto,
   CurrencyListResponseDto,
@@ -40,7 +40,6 @@ import {
   CurrencyNotFoundException,
   CurrencyAlreadyExistsException,
   CurrencyInUseException,
-  BulkCurrencyOperationException,
 } from './exceptions/currencies.exceptions';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
 import { I18nResponseInterceptor } from '../../../common/interceptors/i18n-response.interceptor';
@@ -225,9 +224,7 @@ export class CurrenciesController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Admin authentication required',
   })
-  async createCurrency(
-    @Body(ValidationPipe) createCurrencyDto: CreateCurrencyDto
-  ) {
+  async createCurrency(@Body() createCurrencyDto: CreateCurrencyDto) {
     try {
       this.logger.log(
         `Creating currency: ${createCurrencyDto.name} (${createCurrencyDto.code})`
@@ -253,6 +250,131 @@ export class CurrenciesController {
 
       return this.i18nResponse.translateError(
         'currencies.creation_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Patch('bulk-update')
+  @UseGuards(AdminJwtUserGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Bulk update currency status',
+    description:
+      'Update the status of multiple currencies. Admin authentication required.',
+  })
+  @ApiBody({ type: BulkUpdateCurrencyDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Bulk update completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        statusCode: { type: 'number' },
+        data: {
+          type: 'object',
+          properties: {
+            affectedCount: { type: 'number' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid bulk update parameters',
+    type: CurrencyErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Admin authentication required',
+  })
+  async bulkUpdateCurrencies(@Body() bulkUpdateDto: BulkUpdateCurrencyDto) {
+    try {
+      this.logger.log(
+        `Bulk update operation on ${bulkUpdateDto.publicIds.length} currencies`
+      );
+
+      const result =
+        await this.currenciesService.bulkUpdateCurrencies(bulkUpdateDto);
+
+      return this.i18nResponse.translateAndRespond(
+        'currencies.bulk_update_success',
+        HttpStatus.OK,
+        result
+      );
+    } catch (error) {
+      this.logger.error('Failed bulk update operation', (error as Error).stack);
+
+      return this.i18nResponse.translateError(
+        'currencies.bulk_update_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Patch('bulk-delete')
+  @UseGuards(AdminJwtUserGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Bulk delete currencies',
+    description:
+      'Delete multiple currencies. Admin authentication required. Only allowed if useCount is 0 for all currencies.',
+  })
+  @ApiBody({ type: BulkDeleteCurrencyDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Bulk delete operation completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        statusCode: { type: 'number' },
+        data: {
+          type: 'object',
+          properties: {
+            deletedCount: { type: 'number' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'One or more currencies are in use (useCount > 0)',
+    type: CurrencyErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Admin authentication required',
+  })
+  async bulkDeleteCurrencies(@Body() bulkDeleteDto: BulkDeleteCurrencyDto) {
+    try {
+      this.logger.log(
+        `Bulk delete operation on ${bulkDeleteDto.publicIds.length} currencies`
+      );
+
+      const result =
+        await this.currenciesService.bulkDeleteCurrencies(bulkDeleteDto);
+
+      return this.i18nResponse.translateAndRespond(
+        'currencies.bulk_delete_success',
+        HttpStatus.OK,
+        result
+      );
+    } catch (error) {
+      this.logger.error('Failed bulk delete operation', (error as Error).stack);
+
+      if (error instanceof CurrencyInUseException) {
+        return this.i18nResponse.translateError(
+          'currencies.in_use',
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      return this.i18nResponse.translateError(
+        'currencies.bulk_delete_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -351,7 +473,7 @@ export class CurrenciesController {
   })
   async updateCurrency(
     @Param('publicId') publicId: string,
-    @Body(ValidationPipe) updateCurrencyDto: UpdateCurrencyDto
+    @Body() updateCurrencyDto: UpdateCurrencyDto
   ) {
     try {
       this.logger.log(`Updating currency: ${publicId}`);
@@ -470,153 +592,6 @@ export class CurrenciesController {
 
       return this.i18nResponse.translateError(
         'currencies.deletion_failed',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Patch('bulk-update')
-  @UseGuards(AdminJwtUserGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Bulk update currency status',
-    description:
-      'Update the status of multiple currencies. Admin authentication required.',
-  })
-  @ApiBody({ type: BulkCurrencyOperationDto })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Bulk operation completed successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string' },
-        statusCode: { type: 'number' },
-        data: {
-          type: 'object',
-          properties: {
-            affectedCount: { type: 'number' },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid bulk operation parameters',
-    type: CurrencyErrorResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Admin authentication required',
-  })
-  async bulkUpdateCurrencies(
-    @Body(new ValidationPipe({ transform: true, whitelist: true }))
-    bulkOperationDto: BulkCurrencyOperationDto
-  ) {
-    try {
-      this.logger.log(
-        `Bulk ${bulkOperationDto.action} operation on ${bulkOperationDto.publicIds.length} currencies`
-      );
-
-      const affectedCount =
-        await this.currenciesService.bulkOperation(bulkOperationDto);
-
-      return this.i18nResponse.translateAndRespond(
-        'currencies.bulk_operation_success',
-        HttpStatus.OK,
-        { affectedCount }
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed bulk ${bulkOperationDto.action} operation`,
-        (error as Error).stack
-      );
-
-      if (error instanceof BulkCurrencyOperationException) {
-        return this.i18nResponse.translateError(
-          'currencies.bulk_operation_failed',
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      return this.i18nResponse.translateError(
-        'currencies.bulk_operation_failed',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Patch('bulk-delete')
-  @UseGuards(AdminJwtUserGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Bulk delete currencies',
-    description:
-      'Delete multiple currencies. Admin authentication required. Only allowed if useCount is 0 for all currencies.',
-  })
-  @ApiBody({ type: BulkCurrencyOperationDto })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Bulk delete operation completed successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string' },
-        statusCode: { type: 'number' },
-        data: {
-          type: 'object',
-          properties: {
-            deletedCount: { type: 'number' },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'One or more currencies are in use (useCount > 0)',
-    type: CurrencyErrorResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Admin authentication required',
-  })
-  async bulkDeleteCurrencies(
-    @Body(new ValidationPipe({ transform: true, whitelist: true }))
-    bulkOperationDto: BulkCurrencyOperationDto
-  ) {
-    try {
-      this.logger.log(
-        `Bulk delete operation on ${bulkOperationDto.publicIds.length} currencies`
-      );
-
-      // Override action to delete
-      const deleteDto: BulkCurrencyOperationDto = {
-        ...bulkOperationDto,
-        action: 'delete',
-      };
-
-      const deletedCount =
-        await this.currenciesService.bulkOperation(deleteDto);
-
-      return this.i18nResponse.translateAndRespond(
-        'currencies.bulk_delete_success',
-        HttpStatus.OK,
-        { deletedCount }
-      );
-    } catch (error) {
-      this.logger.error('Failed bulk delete operation', (error as Error).stack);
-
-      if (error instanceof BulkCurrencyOperationException) {
-        return this.i18nResponse.translateError(
-          'currencies.bulk_delete_failed',
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      return this.i18nResponse.translateError(
-        'currencies.bulk_delete_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

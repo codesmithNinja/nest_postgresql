@@ -75,6 +75,12 @@ src/
 │   ├── auth/          # Authentication module
 │   ├── users/         # User management
 │   ├── adminModules/  # Admin functionality
+│   │   ├── currencies/# Currencies management
+│   │   ├── countries/ # Countries management
+│   │   ├── languages/ # Languages management
+│   │   ├── manage-dropdown/ # Master dropdown management
+│   │   ├── settings/  # Settings management
+│   │   └── [other-admin-modules]/
 │   └── [other-modules]/ # Business logic modules
 ├── app.module.ts       # Root application module
 └── main.ts            # Application entry point
@@ -617,6 +623,178 @@ export class SettingsModule {}
 - **Validation**: Strong typing and validation for settings data
 - **Internationalization**: Multi-language error messages
 
+### Feature Module Example: CurrenciesModule
+
+```typescript
+// src/modules/admin-modules/currencies/currencies.module.ts
+@Module({
+  imports: [
+    ConfigModule, // Access to environment variables
+    MongooseModule.forFeature([
+      { name: Currency.name, schema: CurrencySchema },
+    ]), // MongoDB schema registration
+    I18nModule, // Internationalization
+  ],
+  controllers: [CurrenciesController], // HTTP endpoints
+  providers: [
+    CurrenciesService, // Business logic
+    PrismaService, // PostgreSQL service
+    I18nResponseService, // Response internationalization
+    {
+      provide: CURRENCY_REPOSITORY, // Repository injection token
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        currencyMongoRepository: CurrencyMongoRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return currencyMongoRepository;
+        }
+        return new CurrencyPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, CurrencyMongoRepository],
+    },
+    CurrencyMongoRepository, // MongoDB repository implementation
+  ],
+  exports: [CurrenciesService, CURRENCY_REPOSITORY], // Available to other modules
+})
+export class CurrenciesModule {}
+```
+
+#### Currencies Module Features
+
+- **Multi-Currency Support**: Manage application currencies with ISO codes and symbols
+- **Use Count Tracking**: Automatic tracking of currency usage across the system
+- **Dual Database Support**: MongoDB and PostgreSQL repository implementations
+- **Bulk Operations**: Bulk activate, deactivate, and delete with business rule enforcement
+- **Public/Admin Endpoints**: Separate access levels for frontend and admin use
+- **Validation**: Strict typing with ISO currency codes (3 letters), unique names and codes
+- **Caching System**: Node-cache in-memory caching for optimal performance
+- **Business Rules**: Prevent deletion of currencies with useCount > 0
+- **Internationalization**: Multi-language error messages and responses
+
+#### Currencies Repository Pattern
+
+```typescript
+// Interface definition
+export interface ICurrencyRepository extends IRepository<Currency> {
+  findForPublic(): Promise<Currency[]>;
+  findCurrenciesWithPagination(
+    page: number,
+    limit: number,
+    includeInactive?: boolean
+  ): Promise<{
+    data: Currency[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
+  findByPublicId(publicId: string): Promise<Currency | null>;
+  findByCode(code: string): Promise<Currency | null>;
+  findByName(name: string): Promise<Currency | null>;
+  updateByPublicId(publicId: string, updateDto: Partial<Currency>): Promise<Currency>;
+  deleteByPublicId(publicId: string): Promise<boolean>;
+  incrementUseCount(publicId: string): Promise<void>;
+  decrementUseCount(publicId: string): Promise<void>;
+  bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number>;
+  isInUse(publicId: string): Promise<boolean>;
+}
+
+// Usage in service
+export class CurrenciesService {
+  constructor(
+    @Inject(CURRENCY_REPOSITORY)
+    private currencyRepository: ICurrencyRepository,
+    private cache: NodeCache
+  ) {}
+
+  async getPublicCurrencies(): Promise<Currency[]> {
+    // Try cache first, then repository
+    const cached = this.cache.get<Currency[]>('currencies:public');
+    if (cached) return cached;
+
+    const currencies = await this.currencyRepository.findForPublic();
+    this.cache.set('currencies:public', currencies, 300); // 5 minutes
+    return currencies;
+  }
+}
+```
+
+#### Business Logic Implementation
+
+```typescript
+// Currency creation with validation
+async createCurrency(createDto: CreateCurrencyDto): Promise<Currency> {
+  // Check for duplicate name
+  const existingByName = await this.currencyRepository.findByName(createDto.name);
+  if (existingByName) {
+    throw new CurrencyAlreadyExistsException('name', createDto.name);
+  }
+
+  // Check for duplicate code
+  const existingByCode = await this.currencyRepository.findByCode(createDto.code);
+  if (existingByCode) {
+    throw new CurrencyAlreadyExistsException('code', createDto.code);
+  }
+
+  // Create currency with auto-generated UUID
+  const currency = await this.currencyRepository.insert(createDto);
+
+  // Clear relevant caches
+  this.clearCurrencyCaches();
+
+  return currency;
+}
+
+// Bulk operations with business rules
+async bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number> {
+  // For delete operations, check use count
+  if (bulkDto.action === 'delete') {
+    for (const publicId of bulkDto.publicIds) {
+      const currency = await this.currencyRepository.findByPublicId(publicId);
+      if (currency && currency.useCount > 0) {
+        throw new BulkCurrencyOperationException(
+          bulkDto.action,
+          `Currency ${currency.name} is in use (useCount: ${currency.useCount})`
+        );
+      }
+    }
+  }
+
+  // Perform bulk operation
+  const affectedCount = await this.currencyRepository.bulkOperation(bulkDto);
+
+  // Clear caches
+  this.clearCurrencyCaches();
+
+  return affectedCount;
+}
+```
+
+#### Cache Management
+
+```typescript
+// Comprehensive caching strategy
+private readonly cachePrefix = 'currencies';
+private readonly cacheTTL = 300; // 5 minutes
+
+// Cache keys used:
+// - currencies:public - Active currencies for public use
+// - currencies:admin:page:limit:includeInactive - Admin pagination
+// - currencies:single:publicId - Individual currency details
+
+private clearCurrencyCaches(): void {
+  const keys = this.cache.keys();
+  const currencyKeys = keys.filter((key) => key.startsWith(this.cachePrefix));
+
+  if (currencyKeys.length > 0) {
+    currencyKeys.forEach((key) => this.cache.del(key));
+    this.logger.debug(`Cleared ${currencyKeys.length} currency cache entries`);
+  }
+}
+```
+
 ### Feature Module Example: LanguagesModule
 
 ```typescript
@@ -743,6 +921,10 @@ AppModule
 │   └── DatabaseModule
 ├── AdminModulesModule
 │   ├── AdminUsersModule
+│   ├── CurrenciesModule
+│   │   ├── ConfigModule
+│   │   ├── DatabaseModule
+│   │   └── I18nModule
 │   └── SettingsModule
 │       ├── ConfigModule
 │       ├── DatabaseModule
@@ -1130,6 +1312,7 @@ Each language file contains organized translation keys for:
 - **validation**: Form validation messages
 - **common**: General system messages
 - **campaign**: Campaign-related messages
+- **currencies**: Currencies module messages
 - **languages**: Languages module messages
 - **countries**: Countries module messages
 - **settings**: Settings module messages
@@ -1141,6 +1324,8 @@ Each language file contains organized translation keys for:
 // In services using I18nResponseService
 return this.i18nResponse.success('languages.created', 201, language);
 return this.i18nResponse.error('languages.not_found', 404);
+return this.i18nResponse.success('currencies.created', 201, currency);
+return this.i18nResponse.error('currencies.not_found', 404);
 
 // Parameterized translations
 return this.i18nResponse.error('validation.required_field', 400, null, {
@@ -1211,7 +1396,8 @@ POST   /manage-dropdown/:dropdownType            # Create new dropdown option
 GET    /manage-dropdown/:dropdownType/:publicId  # Get single dropdown option
 PATCH  /manage-dropdown/:dropdownType/:publicId  # Update dropdown option
 DELETE /manage-dropdown/:dropdownType/:uniqueCode  # Delete dropdown option (all language variants)
-PATCH  /manage-dropdown/:dropdownType/bulk       # Bulk operations on dropdown options
+PATCH  /manage-dropdown/:dropdownType/bulk-update # Bulk update dropdown option status
+PATCH  /manage-dropdown/:dropdownType/bulk-delete # Bulk delete dropdown options (useCount must be 0)
 ```
 
 #### Countries Management Endpoints
@@ -1230,6 +1416,22 @@ PATCH  /countries/bulk-update                    # Bulk update country status
 PATCH  /countries/bulk-delete                    # Bulk delete countries
 ```
 
+#### Currencies Management Endpoints
+
+```
+# Public endpoints (no authentication required)
+GET    /currencies/front                         # Get active currencies
+
+# Admin endpoints (require admin authentication)
+GET    /currencies                               # Get all currencies with pagination
+GET    /currencies/:publicId                     # Get single currency
+POST   /currencies                               # Create new currency
+PATCH  /currencies/:publicId                     # Update currency
+DELETE /currencies/:publicId                     # Delete currency (only if useCount is 0)
+PATCH  /currencies/bulk-update                  # Bulk update currency status
+PATCH  /currencies/bulk-delete                  # Bulk delete currencies (only if useCount is 0)
+```
+
 #### Admin Users Management Endpoints
 
 ```
@@ -1239,6 +1441,74 @@ GET    /admins                                   # Get all admins with paginatio
 POST   /admins                                   # Create new admin user
 PATCH  /admins/:id                               # Update admin user
 DELETE /admins/:id                               # Delete admin user
+```
+
+#### Bulk Operations Pattern
+
+All admin modules follow a consistent bulk operations pattern with standardized payload format:
+
+**Standardized Bulk Update Payload**:
+```json
+{
+  "publicIds": [
+    "627a5038-e5be-4135-9569-404d50c836c1",
+    "e4113de7-5388-4f24-a58c-a22fb77d00a8"
+  ],
+  "status": true
+}
+```
+
+**Supported Bulk Operations**:
+- **Bulk Update**: Updates status of multiple entities
+- **Bulk Delete**: Deletes multiple entities (with business rule validation)
+
+**Business Rules**:
+- ✅ All modules use `publicIds` property (never `ids`)
+- ✅ Bulk update only affects `status` field
+- ✅ Bulk delete validates business constraints (useCount, isDefault, etc.)
+- ✅ Operations are transactional and atomic
+- ✅ Detailed error reporting for failed operations
+
+#### Currencies API Examples
+
+```bash
+# Get public currencies (no authentication required)
+curl -X GET "http://localhost:3000/currencies/front"
+
+# Get public currencies with language filter
+curl -X GET "http://localhost:3000/currencies/front?lang=en"
+
+# Get paginated currencies for admin
+curl -X GET "http://localhost:3000/currencies?page=1&limit=10&includeInactive=true" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Create new currency (admin)
+curl -X POST "http://localhost:3000/currencies" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "United States Dollar", "code": "USD", "symbol": "$", "status": true}'
+
+# Update currency (admin)
+curl -X PATCH "http://localhost:3000/currencies/uuid-here" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "US Dollar", "symbol": "$"}'
+
+# Bulk update currency status (admin)
+curl -X PATCH "http://localhost:3000/currencies/bulk-update" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"publicIds": ["627a5038-e5be-4135-9569-404d50c836c1", "e4113de7-5388-4f24-a58c-a22fb77d00a8"], "status": true}'
+
+# Bulk delete currencies (admin - only if useCount is 0)
+curl -X PATCH "http://localhost:3000/currencies/bulk-delete" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"publicIds": ["627a5038-e5be-4135-9569-404d50c836c1", "e4113de7-5388-4f24-a58c-a22fb77d00a8"]}'
+
+# Delete currency (admin - only if useCount is 0)
+curl -X DELETE "http://localhost:3000/currencies/uuid-here" \
+  -H "Authorization: Bearer <admin-token>"
 ```
 
 #### Manage Dropdown API Examples
@@ -1266,11 +1536,17 @@ curl -X PATCH "http://localhost:3000/manage-dropdown/industry/uuid-here" \
   -H "Content-Type: application/json" \
   -d '{"name": "Updated Technology", "status": true}'
 
-# Bulk operations (admin)
-curl -X PATCH "http://localhost:3000/manage-dropdown/industry/bulk" \
+# Bulk update dropdown status (admin)
+curl -X PATCH "http://localhost:3000/manage-dropdown/industry/bulk-update" \
   -H "Authorization: Bearer <admin-token>" \
   -H "Content-Type: application/json" \
-  -d '{"publicIds": ["uuid1", "uuid2"], "action": "activate"}'
+  -d '{"publicIds": ["627a5038-e5be-4135-9569-404d50c836c1", "e4113de7-5388-4f24-a58c-a22fb77d00a8"], "status": true}'
+
+# Bulk delete dropdown options (admin - only if useCount is 0)
+curl -X PATCH "http://localhost:3000/manage-dropdown/industry/bulk-delete" \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"publicIds": ["627a5038-e5be-4135-9569-404d50c836c1", "e4113de7-5388-4f24-a58c-a22fb77d00a8"]}'
 ```
 
 #### Countries API Examples
@@ -1298,7 +1574,7 @@ curl -X POST "http://localhost:3000/countries" \
 curl -X PATCH "http://localhost:3000/countries/bulk-update" \
   -H "Authorization: Bearer <admin-token>" \
   -H "Content-Type: application/json" \
-  -d '{"publicIds": ["uuid1", "uuid2"], "status": true}'
+  -d '{"publicIds": ["627a5038-e5be-4135-9569-404d50c836c1", "e4113de7-5388-4f24-a58c-a22fb77d00a8"], "status": true}'
 ```
 
 #### Admin Users API Examples

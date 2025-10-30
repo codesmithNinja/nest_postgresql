@@ -35,8 +35,3 @@ export interface UpdateManageDropdownDto {
 export interface ManageDropdownWithLanguage extends ManageDropdown {
   language: Language;
 }
-
-export interface BulkOperationDto {
-  publicIds: string[];
-  action: 'activate' | 'deactivate' | 'delete';
-}

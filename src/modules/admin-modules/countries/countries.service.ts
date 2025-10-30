@@ -195,14 +195,16 @@ export class CountriesService {
   }
 
   async bulkUpdateCountries(bulkUpdateDto: BulkUpdateCountryDto) {
-    this.logger.log(`Bulk updating ${bulkUpdateDto.ids.length} countries`);
+    this.logger.log(
+      `Bulk updating ${bulkUpdateDto.publicIds.length} countries`
+    );
 
     const updateData: Partial<Country> = {
       status: bulkUpdateDto.status,
     };
 
     const result = await this.countriesRepository.bulkUpdateByPublicIds(
-      bulkUpdateDto.ids,
+      bulkUpdateDto.publicIds,
       updateData
     );
 
@@ -214,11 +216,15 @@ export class CountriesService {
   }
 
   async bulkDeleteCountries(bulkDeleteDto: BulkDeleteCountryDto) {
-    this.logger.log(`Bulk deleting ${bulkDeleteDto.ids.length} countries`);
+    this.logger.log(
+      `Bulk deleting ${bulkDeleteDto.publicIds.length} countries`
+    );
 
     // Get all countries to be deleted
     const countriesToDelete = await Promise.all(
-      bulkDeleteDto.ids.map((id) => this.countriesRepository.findByPublicId(id))
+      bulkDeleteDto.publicIds.map((id) =>
+        this.countriesRepository.findByPublicId(id)
+      )
     );
 
     // Filter out null results and check eligibility

@@ -5,14 +5,14 @@ import { Currency } from '../../../database/entities/currency.entity';
 import {
   CreateCurrencyDto,
   UpdateCurrencyDto,
-  BulkCurrencyOperationDto,
+  BulkUpdateCurrencyDto,
+  BulkDeleteCurrencyDto,
 } from './dto/currencies.dto';
 import {
   CurrencyNotFoundException,
   CurrencyAlreadyExistsException,
   CurrencyInUseException,
   CurrencyOperationFailedException,
-  BulkCurrencyOperationException,
 } from './exceptions/currencies.exceptions';
 
 export const CURRENCY_REPOSITORY = 'CURRENCY_REPOSITORY';
@@ -335,50 +335,111 @@ export class CurrenciesService {
   }
 
   /**
-   * Bulk operations on currencies
+   * Bulk update currencies status
    */
-  async bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number> {
+  async bulkUpdateCurrencies(
+    bulkUpdateDto: BulkUpdateCurrencyDto
+  ): Promise<{ count: number; message: string }> {
     try {
-      // For delete operations, check use count for each currency
-      if (bulkDto.action === 'delete') {
-        for (const publicId of bulkDto.publicIds) {
-          const currency =
-            await this.currencyRepository.findByPublicId(publicId);
-          if (currency && currency.useCount > 0) {
-            throw new BulkCurrencyOperationException(
-              bulkDto.action,
-              `Currency ${currency.name} is in use (useCount: ${currency.useCount})`
-            );
-          }
-        }
-      }
+      this.logger.log(
+        `Bulk updating ${bulkUpdateDto.publicIds.length} currencies`
+      );
 
-      // Perform the bulk operation
-      const affectedCount =
-        await this.currencyRepository.bulkOperation(bulkDto);
+      const updateData: Partial<Currency> = {
+        status: bulkUpdateDto.status,
+      };
+
+      const result = await this.currencyRepository.bulkUpdateByPublicIds(
+        bulkUpdateDto.publicIds,
+        updateData
+      );
 
       // Clear relevant caches
       this.clearCurrencyCaches();
 
       // Clear individual currency caches
-      for (const publicId of bulkDto.publicIds) {
+      for (const publicId of bulkUpdateDto.publicIds) {
         this.cache.del(`${this.cachePrefix}:single:${publicId}`);
       }
 
       this.logger.log(
-        `Bulk ${bulkDto.action} operation completed. Affected: ${affectedCount} currencies`
+        `Bulk update completed: ${result.count} currencies updated`
       );
-      return affectedCount;
+      return {
+        count: result.count,
+        message: `${result.count} currencies updated successfully`,
+      };
     } catch (error) {
-      if (error instanceof BulkCurrencyOperationException) {
-        throw error;
-      }
       this.logger.error(
-        `Error in bulk ${bulkDto.action} operation`,
+        'Error in bulk update operation',
         (error as Error).stack
       );
-      throw new BulkCurrencyOperationException(
-        bulkDto.action,
+      throw new CurrencyOperationFailedException(
+        'bulk-update',
+        (error as Error).message
+      );
+    }
+  }
+
+  /**
+   * Bulk delete currencies
+   */
+  async bulkDeleteCurrencies(
+    bulkDeleteDto: BulkDeleteCurrencyDto
+  ): Promise<{ count: number; message: string }> {
+    try {
+      this.logger.log(
+        `Bulk deleting ${bulkDeleteDto.publicIds.length} currencies`
+      );
+
+      // Get all currencies to be deleted
+      const currenciesToDelete = await Promise.all(
+        bulkDeleteDto.publicIds.map((id) =>
+          this.currencyRepository.findByPublicId(id)
+        )
+      );
+
+      // Filter out null results and check eligibility
+      const eligibleCurrencies = currenciesToDelete.filter((currency) => {
+        if (!currency) return false;
+        if (currency.useCount > 0) {
+          this.logger.warn(
+            `Skipping deletion of currency '${currency.name}' due to useCount: ${currency.useCount}`
+          );
+          return false;
+        }
+        return true;
+      }) as Currency[];
+
+      // Delete eligible currencies
+      const eligiblePublicIds = eligibleCurrencies.map(
+        (currency) => currency.publicId
+      );
+      const result =
+        await this.currencyRepository.bulkDeleteByPublicIds(eligiblePublicIds);
+
+      // Clear relevant caches
+      this.clearCurrencyCaches();
+
+      // Clear individual currency caches
+      for (const publicId of eligiblePublicIds) {
+        this.cache.del(`${this.cachePrefix}:single:${publicId}`);
+      }
+
+      this.logger.log(
+        `Bulk deletion completed: ${result.count} currencies deleted`
+      );
+      return {
+        count: result.count,
+        message: `${result.count} currencies deleted successfully`,
+      };
+    } catch (error) {
+      this.logger.error(
+        'Error in bulk delete operation',
+        (error as Error).stack
+      );
+      throw new CurrencyOperationFailedException(
+        'bulk-delete',
         (error as Error).message
       );
     }

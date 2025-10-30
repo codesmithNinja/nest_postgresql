@@ -189,14 +189,16 @@ export class LanguagesService {
   }
 
   async bulkUpdateLanguages(bulkUpdateDto: BulkUpdateLanguageDto) {
-    this.logger.log(`Bulk updating ${bulkUpdateDto.ids.length} languages`);
+    this.logger.log(
+      `Bulk updating ${bulkUpdateDto.publicIds.length} languages`
+    );
 
     const updateData: Partial<Language> = {
       status: bulkUpdateDto.status,
     };
 
     const result = await this.languagesRepository.bulkUpdateByPublicIds(
-      bulkUpdateDto.ids,
+      bulkUpdateDto.publicIds,
       updateData
     );
 
@@ -208,11 +210,15 @@ export class LanguagesService {
   }
 
   async bulkDeleteLanguages(bulkDeleteDto: BulkDeleteLanguageDto) {
-    this.logger.log(`Bulk deleting ${bulkDeleteDto.ids.length} languages`);
+    this.logger.log(
+      `Bulk deleting ${bulkDeleteDto.publicIds.length} languages`
+    );
 
     // Get all languages to be deleted
     const languagesToDelete = await Promise.all(
-      bulkDeleteDto.ids.map((id) => this.languagesRepository.findByPublicId(id))
+      bulkDeleteDto.publicIds.map((id) =>
+        this.languagesRepository.findByPublicId(id)
+      )
     );
 
     // Filter out null results and check eligibility

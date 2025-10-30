@@ -90,6 +90,55 @@ export class LanguagesController {
     return this.languagesService.getAllLanguages(filterDto);
   }
 
+  @Patch('bulk-update')
+  @ApiOperation({
+    summary: 'Bulk update languages',
+    description: 'Admin endpoint to update multiple languages at once',
+  })
+  @ApiBody({
+    type: BulkUpdateLanguageDto,
+    description: 'Bulk update data with array of language public IDs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Languages updated successfully',
+    type: BulkOperationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid bulk update data',
+  })
+  async bulkUpdateLanguages(
+    @Body(ValidationPipe) bulkUpdateDto: BulkUpdateLanguageDto
+  ) {
+    return this.languagesService.bulkUpdateLanguages(bulkUpdateDto);
+  }
+
+  @Patch('bulk-delete')
+  @ApiOperation({
+    summary: 'Bulk delete languages',
+    description:
+      'Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)',
+  })
+  @ApiBody({
+    type: BulkDeleteLanguageDto,
+    description: 'Bulk delete data with array of language public IDs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Languages deleted successfully',
+    type: BulkOperationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid bulk delete data',
+  })
+  async bulkDeleteLanguages(
+    @Body(ValidationPipe) bulkDeleteDto: BulkDeleteLanguageDto
+  ) {
+    return this.languagesService.bulkDeleteLanguages(bulkDeleteDto);
+  }
+
   @Get(':publicId')
   @ApiOperation({
     summary: 'Get single language by public ID',
@@ -240,54 +289,5 @@ export class LanguagesController {
   async deleteLanguage(@Param('publicId') publicId: string) {
     await this.languagesService.deleteLanguage(publicId);
     return this.i18nResponse.success('languages.deleted');
-  }
-
-  @Patch('bulk-update')
-  @ApiOperation({
-    summary: 'Bulk update languages',
-    description: 'Admin endpoint to update multiple languages at once',
-  })
-  @ApiBody({
-    type: BulkUpdateLanguageDto,
-    description: 'Bulk update data with array of language public IDs',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Languages updated successfully',
-    type: BulkOperationResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid bulk update data',
-  })
-  async bulkUpdateLanguages(
-    @Body(ValidationPipe) bulkUpdateDto: BulkUpdateLanguageDto
-  ) {
-    return this.languagesService.bulkUpdateLanguages(bulkUpdateDto);
-  }
-
-  @Patch('bulk-delete')
-  @ApiOperation({
-    summary: 'Bulk delete languages',
-    description:
-      'Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)',
-  })
-  @ApiBody({
-    type: BulkDeleteLanguageDto,
-    description: 'Bulk delete data with array of language public IDs',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Languages deleted successfully',
-    type: BulkOperationResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid bulk delete data',
-  })
-  async bulkDeleteLanguages(
-    @Body(ValidationPipe) bulkDeleteDto: BulkDeleteLanguageDto
-  ) {
-    return this.languagesService.bulkDeleteLanguages(bulkDeleteDto);
   }
 }

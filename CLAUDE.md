@@ -29,6 +29,7 @@ src/
     └── admin-modules/  # Admin modules
         ├── admin-users/     # Admin users management
         ├── countries/       # Countries management
+        ├── currencies/      # Currencies management
         ├── languages/       # Languages management
         ├── manage-dropdown/ # Master dropdown management
         └── settings/        # Settings management
@@ -76,7 +77,8 @@ src/
 - **Module-Specific Exceptions**:
   - Settings: `SettingsNotFoundException`, `InvalidGroupTypeException`, etc.
   - Manage-Dropdown: `ManageDropdownNotFoundException`, `InvalidOptionTypeException`, etc.
-  - Consistent error code patterns: `SETTINGS_NOT_FOUND`, `DROPDOWN_NOT_FOUND`
+  - Currencies: `CurrencyNotFoundException`, `CurrencyAlreadyExistsException`, `CurrencyInUseException`, etc.
+  - Consistent error code patterns: `SETTINGS_NOT_FOUND`, `DROPDOWN_NOT_FOUND`, `CURRENCY_NOT_FOUND`
 
 ### Authentication & Security
 
@@ -152,7 +154,8 @@ src/
   GET    /:dropdownType/:publicId  # Admin: Get single dropdown option
   PATCH  /:dropdownType/:publicId  # Admin: Update dropdown option
   DELETE /:dropdownType/:uniqueCode  # Admin: Delete dropdown option (all language variants, useCount must be 0)
-  PATCH  /:dropdownType/bulk       # Admin: Bulk operations on dropdown options
+  PATCH  /:dropdownType/bulk-update # Admin: Bulk update dropdown option status
+  PATCH  /:dropdownType/bulk-delete # Admin: Bulk delete dropdown options (useCount must be 0)
 
 /countries (admin-modules)
   GET    /front                    # Public: Get active countries
@@ -163,6 +166,16 @@ src/
   DELETE /:publicId                # Admin: Delete country
   PATCH  /bulk-update              # Admin: Bulk update country status
   PATCH  /bulk-delete              # Admin: Bulk delete countries
+
+/currencies (admin-modules)
+  GET    /front                    # Public: Get active currencies
+  GET    /                         # Admin: Get all currencies with pagination
+  GET    /:publicId                # Admin: Get single currency
+  POST   /                         # Admin: Create new currency
+  PATCH  /:publicId                # Admin: Update currency
+  DELETE /:publicId                # Admin: Delete currency (only if useCount is 0)
+  PATCH  /bulk-update              # Admin: Bulk update currency status
+  PATCH  /bulk-delete              # Admin: Bulk delete currencies (only if useCount is 0)
 
 /settings (admin-modules)
   GET    /:groupType/front         # Public: Get settings by group type
@@ -307,6 +320,15 @@ Admin modules follow consistent patterns for similar functionality:
 - Uses `DropdownTypeParamDto` for parameter validation
 - Response format: `{ dropdowns, dropdownType, count }`
 
+**Currencies Module** (Aligned Implementation):
+
+- `GET /front` - Public endpoint (no auth)
+- `GET /` - Admin endpoint (with auth)
+- Uses standard pagination with `AdminCurrencyQueryDto`
+- Response format: `{ currencies, count }` for public, `{ data, total, page, limit }` for admin
+- Includes use count tracking and safe deletion (useCount > 0 prevents deletion)
+- Features: Create, Update, Delete, Bulk operations with comprehensive validation
+
 **Key Alignment Points**:
 
 - Same route structure with `/front` and `/admin` suffixes
@@ -314,6 +336,53 @@ Admin modules follow consistent patterns for similar functionality:
 - Same response structure
 - Same error handling with custom exceptions
 - Same I18n response service integration
+
+### Bulk Operations Pattern
+
+All admin modules support consistent bulk operations:
+
+**Bulk Update Pattern**:
+```typescript
+// Request payload format (standardized across all modules)
+{
+  "publicIds": [
+    "627a5038-e5be-4135-9569-404d50c836c1",
+    "e4113de7-5388-4f24-a58c-a22fb77d00a8"
+  ],
+  "status": true
+}
+
+// DTO Implementation
+export class BulkUpdate[Entity]Dto {
+  @ApiProperty({
+    description: 'Array of [entity] public IDs to update',
+    type: [String],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID(4, { each: true }) // For countries/languages
+  // OR @IsString({ each: true }) // For currencies/manage-dropdown
+  publicIds!: string[];
+
+  @ApiProperty({
+    description: '[Entity] status (active/inactive)',
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  status!: boolean;
+}
+```
+
+**Endpoints Supporting Bulk Operations**:
+- `PATCH /countries/bulk-update` - Updates country status by publicIds
+- `PATCH /languages/bulk-update` - Updates language status by publicIds
+- `PATCH /currencies/bulk-update` - Updates currency status by publicIds
+- `PATCH /manage-dropdown/:dropdownType/bulk-update` - Updates dropdown status by publicIds
+
+**Bulk Delete Pattern**:
+- Similar payload structure using `publicIds` array
+- Additional validation based on entity constraints (useCount, isDefault, etc.)
+- Soft delete or hard delete based on entity requirements
 
 ## Current Dependencies
 

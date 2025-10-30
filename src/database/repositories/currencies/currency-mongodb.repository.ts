@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
-import {
-  Currency,
-  CreateCurrencyDto,
-  BulkCurrencyOperationDto,
-} from '../../entities/currency.entity';
+import { Currency, CreateCurrencyDto } from '../../entities/currency.entity';
 import {
   Currency as CurrencySchema,
   CurrencyDocument,
@@ -174,45 +170,51 @@ export class CurrencyMongoRepository
     await this.model.updateOne({ publicId }, { $inc: { useCount: -1 } }).exec();
   }
 
-  async bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number> {
-    let updateData: Record<string, unknown> = {};
-
-    switch (bulkDto.action) {
-      case 'activate':
-        updateData = { status: true };
-        break;
-      case 'deactivate':
-        updateData = { status: false };
-        break;
-      case 'delete': {
-        // For delete action, we need to check useCount for each currency
-        const currencies = await this.model
-          .find({ publicId: { $in: bulkDto.publicIds } })
-          .select('publicId useCount')
-          .exec();
-
-        for (const currency of currencies) {
-          if (currency.useCount > 0) {
-            throw new Error(
-              `Cannot delete currency ${currency.publicId} with useCount: ${currency.useCount}`
-            );
-          }
-        }
-
-        const deleteResult = await this.model
-          .deleteMany({ publicId: { $in: bulkDto.publicIds } })
-          .exec();
-        return deleteResult.deletedCount || 0;
-      }
-      default:
-        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
-    }
+  async bulkUpdateByPublicIds(
+    publicIds: string[],
+    data: Partial<Currency>
+  ): Promise<{ count: number; updated: Currency[] }> {
+    const updateData = this.toDocument(data);
 
     const result = await this.model
-      .updateMany({ publicId: { $in: bulkDto.publicIds } }, updateData)
+      .updateMany({ publicId: { $in: publicIds } }, updateData)
       .exec();
 
-    return result.modifiedCount || 0;
+    const updatedDocuments = await this.model
+      .find({ publicId: { $in: publicIds } })
+      .exec();
+
+    return {
+      count: result.modifiedCount || 0,
+      updated: updatedDocuments.map((doc) => this.toEntity(doc)),
+    };
+  }
+
+  async bulkDeleteByPublicIds(
+    publicIds: string[]
+  ): Promise<{ count: number; deleted: Currency[] }> {
+    // First get currencies to be deleted for return value
+    const currenciesToDelete = await this.model
+      .find({ publicId: { $in: publicIds } })
+      .exec();
+
+    // Check if any currency is in use
+    for (const currency of currenciesToDelete) {
+      if (currency.useCount > 0) {
+        throw new Error(
+          `Cannot delete currency ${currency.publicId} with useCount: ${currency.useCount}`
+        );
+      }
+    }
+
+    const deleteResult = await this.model
+      .deleteMany({ publicId: { $in: publicIds } })
+      .exec();
+
+    return {
+      count: deleteResult.deletedCount || 0,
+      deleted: currenciesToDelete.map((doc) => this.toEntity(doc)),
+    };
   }
 
   async isInUse(publicId: string): Promise<boolean> {

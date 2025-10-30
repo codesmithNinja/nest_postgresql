@@ -89,6 +89,55 @@ export class CountriesController {
     return this.countriesService.getAllCountries(filterDto);
   }
 
+  @Patch('bulk-update')
+  @ApiOperation({
+    summary: 'Bulk update countries',
+    description: 'Admin endpoint to update multiple countries at once',
+  })
+  @ApiBody({
+    type: BulkUpdateCountryDto,
+    description: 'Bulk update data with array of country public IDs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Countries updated successfully',
+    type: BulkOperationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid bulk update data',
+  })
+  async bulkUpdateCountries(
+    @Body(ValidationPipe) bulkUpdateDto: BulkUpdateCountryDto
+  ) {
+    return this.countriesService.bulkUpdateCountries(bulkUpdateDto);
+  }
+
+  @Patch('bulk-delete')
+  @ApiOperation({
+    summary: 'Bulk delete countries',
+    description:
+      'Admin endpoint to delete multiple countries at once (only if useCount is 0 for each)',
+  })
+  @ApiBody({
+    type: BulkDeleteCountryDto,
+    description: 'Bulk delete data with array of country public IDs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Countries deleted successfully',
+    type: BulkOperationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid bulk delete data',
+  })
+  async bulkDeleteCountries(
+    @Body(ValidationPipe) bulkDeleteDto: BulkDeleteCountryDto
+  ) {
+    return this.countriesService.bulkDeleteCountries(bulkDeleteDto);
+  }
+
   @Get(':publicId')
   @ApiOperation({
     summary: 'Get single country by public ID',
@@ -234,54 +283,5 @@ export class CountriesController {
   async deleteCountry(@Param('publicId') publicId: string) {
     await this.countriesService.deleteCountry(publicId);
     return this.i18nResponse.success('countries.deleted');
-  }
-
-  @Patch('bulk-update')
-  @ApiOperation({
-    summary: 'Bulk update countries',
-    description: 'Admin endpoint to update multiple countries at once',
-  })
-  @ApiBody({
-    type: BulkUpdateCountryDto,
-    description: 'Bulk update data with array of country public IDs',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Countries updated successfully',
-    type: BulkOperationResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid bulk update data',
-  })
-  async bulkUpdateCountries(
-    @Body(ValidationPipe) bulkUpdateDto: BulkUpdateCountryDto
-  ) {
-    return this.countriesService.bulkUpdateCountries(bulkUpdateDto);
-  }
-
-  @Patch('bulk-delete')
-  @ApiOperation({
-    summary: 'Bulk delete countries',
-    description:
-      'Admin endpoint to delete multiple countries at once (only if useCount is 0 for each)',
-  })
-  @ApiBody({
-    type: BulkDeleteCountryDto,
-    description: 'Bulk delete data with array of country public IDs',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Countries deleted successfully',
-    type: BulkOperationResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid bulk delete data',
-  })
-  async bulkDeleteCountries(
-    @Body(ValidationPipe) bulkDeleteDto: BulkDeleteCountryDto
-  ) {
-    return this.countriesService.bulkDeleteCountries(bulkDeleteDto);
   }
 }

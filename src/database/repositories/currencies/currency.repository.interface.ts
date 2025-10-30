@@ -1,9 +1,5 @@
 import { IRepository } from '../../../common/interfaces/repository.interface';
-import {
-  Currency,
-  CreateCurrencyDto,
-  BulkCurrencyOperationDto,
-} from '../../entities/currency.entity';
+import { Currency, CreateCurrencyDto } from '../../entities/currency.entity';
 
 export interface ICurrencyRepository extends IRepository<Currency> {
   /**
@@ -69,9 +65,19 @@ export interface ICurrencyRepository extends IRepository<Currency> {
   decrementUseCount(publicId: string): Promise<void>;
 
   /**
-   * Bulk operations on currencies
+   * Bulk update currencies by public IDs
    */
-  bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number>;
+  bulkUpdateByPublicIds(
+    publicIds: string[],
+    data: Partial<Currency>
+  ): Promise<{ count: number; updated: Currency[] }>;
+
+  /**
+   * Bulk delete currencies by public IDs
+   */
+  bulkDeleteByPublicIds(
+    publicIds: string[]
+  ): Promise<{ count: number; deleted: Currency[] }>;
 
   /**
    * Check if currency is in use (useCount > 0)

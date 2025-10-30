@@ -10,6 +10,9 @@ import { AdminUsersModule } from '../admin-users/admin-users.module';
 import { MANAGE_DROPDOWN_REPOSITORY } from '../../../database/repositories/manage-dropdown/manage-dropdown.repository.interface';
 import { ManageDropdownPostgresRepository } from '../../../database/repositories/manage-dropdown/manage-dropdown-postgres.repository';
 import { ManageDropdownMongodbRepository } from '../../../database/repositories/manage-dropdown/manage-dropdown-mongodb.repository';
+import { LANGUAGES_REPOSITORY } from '../../../database/repositories/languages/languages.repository.interface';
+import { LanguagesPostgresRepository } from '../../../database/repositories/languages/languages-postgres.repository';
+import { LanguagesMongodbRepository } from '../../../database/repositories/languages/languages-mongodb.repository';
 
 // Schemas and Services
 import {
@@ -53,7 +56,24 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
       },
       inject: [ConfigService, PrismaService, ManageDropdownMongodbRepository],
     },
+    {
+      provide: LANGUAGES_REPOSITORY,
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        languagesMongodbRepository: LanguagesMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return languagesMongodbRepository;
+        }
+        // Default to PostgreSQL
+        return new LanguagesPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+    },
     ManageDropdownMongodbRepository,
+    LanguagesMongodbRepository,
   ],
   exports: [ManageDropdownService, MANAGE_DROPDOWN_REPOSITORY],
 })

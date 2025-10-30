@@ -23,8 +23,3 @@ export interface UpdateCurrencyDto {
   symbol?: string;
   status?: boolean;
 }
-
-export interface BulkCurrencyOperationDto {
-  publicIds: string[];
-  action: 'activate' | 'deactivate' | 'delete';
-}

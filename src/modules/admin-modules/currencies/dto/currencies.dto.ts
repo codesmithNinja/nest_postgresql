@@ -2,13 +2,13 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  IsEnum,
   IsArray,
   IsNotEmpty,
   MaxLength,
   MinLength,
   Matches,
   Length,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -180,62 +180,36 @@ export class UpdateCurrencyDto {
   status?: boolean;
 }
 
-export class BulkCurrencyOperationDto {
+export class BulkUpdateCurrencyDto {
   @ApiProperty({
-    description: 'Array of public IDs to perform bulk operation on',
+    description: 'Array of currency public IDs to update',
     example: ['clm1234567890', 'clm0987654321', 'clm1122334455'],
     type: [String],
-    examples: {
-      twoItems: {
-        summary: 'Two Items',
-        description: 'Bulk operation on two currencies',
-        value: ['clm1234567890', 'clm0987654321'],
-      },
-      multipleItems: {
-        summary: 'Multiple Items',
-        description: 'Bulk operation on several currencies',
-        value: [
-          'clm1234567890',
-          'clm0987654321',
-          'clm1122334455',
-          'clm5566778899',
-        ],
-      },
-      singleItem: {
-        summary: 'Single Item',
-        description: 'Bulk operation on one item (still valid)',
-        value: ['clm1234567890'],
-      },
-    },
   })
   @IsArray()
+  @ArrayNotEmpty()
   @IsString({ each: true })
   publicIds!: string[];
 
   @ApiProperty({
-    description: 'Bulk operation action to perform on selected items',
-    example: 'activate',
-    enum: ['activate', 'deactivate', 'delete'],
-    examples: {
-      activate: {
-        summary: 'Activate Currencies',
-        description: 'Make selected currencies active and visible',
-        value: 'activate',
-      },
-      deactivate: {
-        summary: 'Deactivate Currencies',
-        description: 'Hide selected currencies from public view',
-        value: 'deactivate',
-      },
-      delete: {
-        summary: 'Delete Currencies',
-        description: 'Delete selected currencies (only if useCount is 0)',
-        value: 'delete',
-      },
-    },
+    description: 'Currency status (active/inactive)',
+    example: true,
   })
-  @IsEnum(['activate', 'deactivate', 'delete'])
-  action!: 'activate' | 'deactivate' | 'delete';
+  @IsNotEmpty()
+  @IsBoolean()
+  status!: boolean;
+}
+
+export class BulkDeleteCurrencyDto {
+  @ApiProperty({
+    description: 'Array of currency public IDs to delete',
+    example: ['clm1234567890', 'clm0987654321', 'clm1122334455'],
+    type: [String],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  publicIds!: string[];
 }
 
 export class AdminCurrencyQueryDto extends PaginationDto {

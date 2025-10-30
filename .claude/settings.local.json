@@ -54,7 +54,9 @@
       "Bash(git checkout:*)",
       "Bash(cd:*)",
       "Bash(mongosh:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(powershell:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

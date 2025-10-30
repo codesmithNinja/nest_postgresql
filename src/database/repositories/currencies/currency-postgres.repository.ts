@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresRepository } from '../base/postgres.repository';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  Currency,
-  CreateCurrencyDto,
-  BulkCurrencyOperationDto,
-} from '../../entities/currency.entity';
+import { Currency, CreateCurrencyDto } from '../../entities/currency.entity';
 import { ICurrencyRepository } from './currency.repository.interface';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -164,46 +160,57 @@ export class CurrencyPostgresRepository
     });
   }
 
-  async bulkOperation(bulkDto: BulkCurrencyOperationDto): Promise<number> {
-    let updateData: Record<string, unknown> = {};
+  async bulkUpdateByPublicIds(
+    publicIds: string[],
+    data: Partial<Currency>
+  ): Promise<{ count: number; updated: Currency[] }> {
+    const updateData: Record<string, unknown> = {};
 
-    switch (bulkDto.action) {
-      case 'activate':
-        updateData = { status: true };
-        break;
-      case 'deactivate':
-        updateData = { status: false };
-        break;
-      case 'delete': {
-        // For delete action, we need to check useCount for each currency
-        const currencies = await this.prisma.currency.findMany({
-          where: { publicId: { in: bulkDto.publicIds } },
-          select: { publicId: true, useCount: true },
-        });
-
-        for (const currency of currencies) {
-          if (currency.useCount > 0) {
-            throw new Error(
-              `Cannot delete currency ${currency.publicId} with useCount: ${currency.useCount}`
-            );
-          }
-        }
-
-        const deleteResult = await this.prisma.currency.deleteMany({
-          where: { publicId: { in: bulkDto.publicIds } },
-        });
-        return deleteResult.count;
-      }
-      default:
-        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
-    }
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.code !== undefined) updateData.code = data.code.toUpperCase();
+    if (data.symbol !== undefined) updateData.symbol = data.symbol;
+    if (data.status !== undefined) updateData.status = data.status;
 
     const result = await this.prisma.currency.updateMany({
-      where: { publicId: { in: bulkDto.publicIds } },
+      where: { publicId: { in: publicIds } },
       data: updateData,
     });
 
-    return result.count;
+    const updatedCurrencies = await this.prisma.currency.findMany({
+      where: { publicId: { in: publicIds } },
+    });
+
+    return {
+      count: result.count,
+      updated: updatedCurrencies as Currency[],
+    };
+  }
+
+  async bulkDeleteByPublicIds(
+    publicIds: string[]
+  ): Promise<{ count: number; deleted: Currency[] }> {
+    // First get currencies to be deleted for return value
+    const currenciesToDelete = await this.prisma.currency.findMany({
+      where: { publicId: { in: publicIds } },
+    });
+
+    // Check if any currency is in use
+    for (const currency of currenciesToDelete) {
+      if (currency.useCount > 0) {
+        throw new Error(
+          `Cannot delete currency ${currency.publicId} with useCount: ${currency.useCount}`
+        );
+      }
+    }
+
+    const deleteResult = await this.prisma.currency.deleteMany({
+      where: { publicId: { in: publicIds } },
+    });
+
+    return {
+      count: deleteResult.count,
+      deleted: currenciesToDelete as Currency[],
+    };
   }
 
   async isInUse(publicId: string): Promise<boolean> {

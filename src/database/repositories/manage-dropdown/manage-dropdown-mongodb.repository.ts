@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Types } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
 import {
   ManageDropdown as ManageDropdownSchema,
@@ -14,7 +15,6 @@ import {
   ManageDropdown,
   CreateManageDropdownDto,
   ManageDropdownWithLanguage,
-  BulkOperationDto,
   MinimalLanguage,
 } from '../../entities/manage-dropdown.entity';
 import { IManageDropdownRepository } from './manage-dropdown.repository.interface';
@@ -91,7 +91,11 @@ export class ManageDropdownMongodbRepository
     if (entity.dropdownType !== undefined)
       doc.dropdownType = entity.dropdownType;
     // languageId must be the primary key (_id) of the language, not publicId
-    if (entity.languageId !== undefined) doc.languageId = entity.languageId;
+    if (entity.languageId !== undefined) {
+      doc.languageId = typeof entity.languageId === 'string'
+        ? new Types.ObjectId(entity.languageId)
+        : entity.languageId;
+    }
     if (entity.status !== undefined) doc.status = entity.status;
     if (entity.useCount !== undefined) doc.useCount = entity.useCount;
     if (entity.publicId !== undefined) doc.publicId = entity.publicId;
@@ -103,6 +107,7 @@ export class ManageDropdownMongodbRepository
     const dropdown = new this.manageDropdownModel({
       publicId: uuidv4(),
       ...createDto,
+      languageId: createDto.languageId ? new Types.ObjectId(createDto.languageId) : undefined,
     });
     const savedDropdown = await dropdown.save();
     return this.toEntity(savedDropdown);
@@ -134,7 +139,7 @@ export class ManageDropdownMongodbRepository
     const dropdowns = await this.manageDropdownModel
       .find({
         dropdownType,
-        languageId,
+        languageId: new Types.ObjectId(languageId), // Convert string to ObjectId
         status: true,
       })
       .sort({ name: 1 })
@@ -156,20 +161,16 @@ export class ManageDropdownMongodbRepository
 
   async findByTypeForPublic(
     dropdownType: string,
-    languageId?: string
+    languageId: string // Required - service layer resolves this
   ): Promise<ManageDropdownWithLanguage[]> {
     const whereClause: Record<string, unknown> = {
       dropdownType,
       status: true,
     };
 
-    // If languageId is provided, use it; otherwise get default language
-    if (languageId) {
-      whereClause.languageId = languageId;
-    } else {
-      const defaultLanguageId = await this.getDefaultLanguageId();
-      whereClause.languageId = defaultLanguageId;
-    }
+    // Use the resolved languageId directly (already resolved by service layer)
+    // Convert string to ObjectId for MongoDB query
+    whereClause.languageId = new Types.ObjectId(languageId);
 
     const dropdowns = await this.manageDropdownModel
       .find(whereClause)
@@ -189,13 +190,13 @@ export class ManageDropdownMongodbRepository
     const dropdowns = languageIds.map((languageId) => ({
       publicId: uuidv4(),
       ...createDto,
-      languageId,
+      languageId: new Types.ObjectId(languageId), // Convert string to ObjectId
     }));
 
     const createdDropdowns =
       await this.manageDropdownModel.insertMany(dropdowns);
     return createdDropdowns.map((dropdown) =>
-      this.toEntity(dropdown as ManageDropdownDocument)
+      this.toEntity(dropdown as unknown as ManageDropdownDocument)
     );
   }
 
@@ -205,36 +206,59 @@ export class ManageDropdownMongodbRepository
       .exec();
   }
 
-  async bulkOperation(bulkDto: BulkOperationDto): Promise<number> {
-    let updateData: Record<string, unknown> = {};
-
-    switch (bulkDto.action) {
-      case 'activate':
-        updateData = { status: true };
-        break;
-      case 'deactivate':
-        updateData = { status: false };
-        break;
-      case 'delete':
-        updateData = { status: false };
-        break;
-      default:
-        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
-    }
+  async bulkUpdateByPublicIds(
+    publicIds: string[],
+    data: Partial<ManageDropdown>
+  ): Promise<{ count: number; updated: ManageDropdown[] }> {
+    const updateData = this.toDocument(data);
 
     const result = await this.manageDropdownModel
-      .updateMany({ publicId: { $in: bulkDto.publicIds } }, updateData)
+      .updateMany({ publicId: { $in: publicIds } }, updateData)
       .exec();
 
-    return result.modifiedCount;
+    const updatedDropdowns = await this.manageDropdownModel
+      .find({ publicId: { $in: publicIds } })
+      .exec();
+
+    return {
+      count: result.modifiedCount || 0,
+      updated: updatedDropdowns.map((doc) => this.toEntity(doc)),
+    };
+  }
+
+  async bulkDeleteByPublicIds(
+    publicIds: string[]
+  ): Promise<{ count: number; deleted: ManageDropdown[] }> {
+    // First get dropdowns to be deleted for return value
+    const dropdownsToDelete = await this.manageDropdownModel
+      .find({ publicId: { $in: publicIds } })
+      .exec();
+
+    // Check if any dropdown is in use
+    for (const dropdown of dropdownsToDelete) {
+      if (dropdown.useCount > 0) {
+        throw new Error(
+          `Cannot delete dropdown ${dropdown.publicId} with useCount: ${dropdown.useCount}`
+        );
+      }
+    }
+
+    const deleteResult = await this.manageDropdownModel
+      .deleteMany({ publicId: { $in: publicIds } })
+      .exec();
+
+    return {
+      count: deleteResult.deletedCount || 0,
+      deleted: dropdownsToDelete.map((doc) => this.toEntity(doc)),
+    };
   }
 
   async findByTypeWithPagination(
     dropdownType: string,
     page: number,
     limit: number,
-    includeInactive = false,
-    languageId?: string
+    includeInactive: boolean,
+    languageId: string // Required - service layer resolves this
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -248,13 +272,9 @@ export class ManageDropdownMongodbRepository
       whereClause.status = true;
     }
 
-    // If languageId is provided, use it; otherwise get default language
-    if (languageId) {
-      whereClause.languageId = languageId;
-    } else {
-      const defaultLanguageId = await this.getDefaultLanguageId();
-      whereClause.languageId = defaultLanguageId;
-    }
+    // Use the resolved languageId directly (already resolved by service layer)
+    // Convert string to ObjectId for MongoDB query
+    whereClause.languageId = new Types.ObjectId(languageId);
 
     const [dropdowns, total] = await Promise.all([
       this.manageDropdownModel
@@ -351,7 +371,16 @@ export class ManageDropdownMongodbRepository
         mongoFilter.status = filter.status;
       }
       if (filter.languageId) {
-        mongoFilter.languageId = filter.languageId;
+        // Handle different languageId formats
+        if (typeof filter.languageId === 'string') {
+          mongoFilter.languageId = new Types.ObjectId(filter.languageId);
+        } else if (typeof filter.languageId === 'object' && filter.languageId && 'publicId' in filter.languageId) {
+          // If it's a MinimalLanguage object, we need to convert it to ObjectId
+          // This shouldn't happen in normal operation, but handle gracefully
+          mongoFilter.languageId = filter.languageId;
+        } else {
+          mongoFilter.languageId = filter.languageId;
+        }
       }
     }
 
@@ -396,20 +425,16 @@ export class ManageDropdownMongodbRepository
   async findSingleByTypeAndLanguage(
     dropdownType: string,
     publicId: string,
-    languageId?: string
+    languageId: string // Required - service layer resolves this
   ): Promise<ManageDropdownWithLanguage | null> {
     const whereClause: Record<string, unknown> = {
       dropdownType,
       publicId,
     };
 
-    // If languageId is provided, use it; otherwise get default language
-    if (languageId) {
-      whereClause.languageId = languageId;
-    } else {
-      const defaultLanguageId = await this.getDefaultLanguageId();
-      whereClause.languageId = defaultLanguageId;
-    }
+    // Use the resolved languageId directly (already resolved by service layer)
+    // Convert string to ObjectId for MongoDB query
+    whereClause.languageId = new Types.ObjectId(languageId);
 
     const dropdown = await this.manageDropdownModel
       .findOne(whereClause)

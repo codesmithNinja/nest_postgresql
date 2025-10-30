@@ -2,13 +2,13 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  IsEnum,
   IsArray,
   IsNotEmpty,
   MaxLength,
   MinLength,
   Matches,
   Length,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -114,63 +114,36 @@ export class UpdateManageDropdownDto {
   status?: boolean;
 }
 
-export class BulkOperationDto {
+export class BulkUpdateManageDropdownDto {
   @ApiProperty({
-    description: 'Array of public IDs to perform bulk operation on',
+    description: 'Array of dropdown option public IDs to update',
     example: ['clm1234567890', 'clm0987654321', 'clm1122334455'],
     type: [String],
-    examples: {
-      twoItems: {
-        summary: 'Two Items',
-        description: 'Bulk operation on two dropdown options',
-        value: ['clm1234567890', 'clm0987654321'],
-      },
-      multipleItems: {
-        summary: 'Multiple Items',
-        description: 'Bulk operation on several dropdown options',
-        value: [
-          'clm1234567890',
-          'clm0987654321',
-          'clm1122334455',
-          'clm5566778899',
-        ],
-      },
-      singleItem: {
-        summary: 'Single Item',
-        description: 'Bulk operation on one item (still valid)',
-        value: ['clm1234567890'],
-      },
-    },
   })
   @IsArray()
+  @ArrayNotEmpty()
   @IsString({ each: true })
   publicIds!: string[];
 
   @ApiProperty({
-    description: 'Bulk operation action to perform on selected items',
-    example: 'activate',
-    enum: ['activate', 'deactivate', 'delete'],
-    examples: {
-      activate: {
-        summary: 'Activate Options',
-        description: 'Make selected dropdown options active and visible',
-        value: 'activate',
-      },
-      deactivate: {
-        summary: 'Deactivate Options',
-        description: 'Hide selected dropdown options from public view',
-        value: 'deactivate',
-      },
-      delete: {
-        summary: 'Delete Options',
-        description:
-          'Soft delete selected dropdown options (sets status to false)',
-        value: 'delete',
-      },
-    },
+    description: 'Dropdown option status (active/inactive)',
+    example: true,
   })
-  @IsEnum(['activate', 'deactivate', 'delete'])
-  action!: 'activate' | 'deactivate' | 'delete';
+  @IsNotEmpty()
+  @IsBoolean()
+  status!: boolean;
+}
+
+export class BulkDeleteManageDropdownDto {
+  @ApiProperty({
+    description: 'Array of dropdown option public IDs to delete',
+    example: ['clm1234567890', 'clm0987654321', 'clm1122334455'],
+    type: [String],
+  })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  publicIds!: string[];
 }
 
 export class AdminQueryDto extends PaginationDto {

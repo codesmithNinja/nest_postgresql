@@ -11,6 +11,10 @@ import {
   MANAGE_DROPDOWN_REPOSITORY,
 } from '../../../database/repositories/manage-dropdown/manage-dropdown.repository.interface';
 import {
+  ILanguagesRepository,
+  LANGUAGES_REPOSITORY,
+} from '../../../database/repositories/languages/languages.repository.interface';
+import {
   ManageDropdown,
   CreateManageDropdownDto,
   ManageDropdownWithLanguage,
@@ -18,7 +22,8 @@ import {
 import {
   CreateManageDropdownDto as CreateManageDropdownDtoValidated,
   UpdateManageDropdownDto as UpdateManageDropdownDtoValidated,
-  BulkOperationDto as BulkOperationDtoValidated,
+  BulkUpdateManageDropdownDto,
+  BulkDeleteManageDropdownDto,
 } from './dto/manage-dropdown.dto';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
 
@@ -29,6 +34,8 @@ export class ManageDropdownService {
   constructor(
     @Inject(MANAGE_DROPDOWN_REPOSITORY)
     private readonly manageDropdownRepository: IManageDropdownRepository,
+    @Inject(LANGUAGES_REPOSITORY)
+    private readonly languagesRepository: ILanguagesRepository,
     private readonly i18nResponse: I18nResponseService
   ) {}
 
@@ -122,10 +129,13 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
+      // Resolve languageId to primary key
+      const resolvedLanguageId = await this.resolveLanguageId(languageId);
+
       // Get dropdowns from repository
       const dropdowns = await this.manageDropdownRepository.findByTypeForPublic(
         normalizedDropdownType,
-        languageId
+        resolvedLanguageId
       );
 
       return dropdowns;
@@ -151,6 +161,8 @@ export class ManageDropdownService {
     limit: number;
   }> {
     try {
+      this.logger.log(`findByTypeForAdmin called with dropdownType: ${dropdownType}, languageId: ${languageId}`);
+
       // Validate pagination parameters
       if (page < 1 || limit < 1 || limit > 100) {
         throw new BadRequestException('Invalid pagination parameters');
@@ -158,9 +170,16 @@ export class ManageDropdownService {
 
       // Validate and normalize dropdown type
       const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      this.logger.log(`[DEBUG] Normalized dropdown type: ${normalizedDropdownType}`);
+
       if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
+
+      // Resolve languageId to primary key
+      const resolvedLanguageId = await this.resolveLanguageId(languageId);
+
+      this.logger.log(`Calling repository for dropdownType: ${normalizedDropdownType}, languageId: ${resolvedLanguageId}`);
 
       const result =
         await this.manageDropdownRepository.findByTypeWithPagination(
@@ -168,8 +187,10 @@ export class ManageDropdownService {
           page,
           limit,
           includeInactive,
-          languageId
+          resolvedLanguageId
         );
+
+      this.logger.log(`Repository returned ${result.data.length} dropdowns, total: ${result.total}`);
 
       return result;
     } catch (error) {
@@ -213,11 +234,14 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
+      // Resolve languageId to primary key
+      const resolvedLanguageId = await this.resolveLanguageId(languageId);
+
       const dropdown =
         await this.manageDropdownRepository.findSingleByTypeAndLanguage(
           normalizedDropdownType,
           publicId,
-          languageId
+          resolvedLanguageId
         );
 
       if (!dropdown) {
@@ -386,10 +410,10 @@ export class ManageDropdownService {
     }
   }
 
-  async bulkOperation(
+  async bulkUpdateDropdowns(
     dropdownType: string,
-    bulkOperationDto: BulkOperationDtoValidated
-  ): Promise<number> {
+    bulkUpdateDto: BulkUpdateManageDropdownDto
+  ): Promise<{ count: number; message: string }> {
     try {
       // Validate and normalize dropdown type
       const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
@@ -397,44 +421,100 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
-      if (
-        !bulkOperationDto.publicIds ||
-        bulkOperationDto.publicIds.length === 0
-      ) {
-        throw new BadRequestException('No dropdown IDs provided');
+      if (!bulkUpdateDto.publicIds || bulkUpdateDto.publicIds.length === 0) {
+        throw new BadRequestException('No dropdown public IDs provided');
       }
 
-      // Verify all dropdowns exist and belong to the correct type
-      const dropdowns = await Promise.all(
-        bulkOperationDto.publicIds.map((publicId) =>
-          this.findByPublicId(publicId)
-        )
-      );
-
-      const invalidDropdowns = dropdowns.filter(
-        (dropdown) => dropdown.dropdownType !== normalizedDropdownType
-      );
-      if (invalidDropdowns.length > 0) {
-        throw new BadRequestException(
-          `Some dropdowns do not belong to type '${normalizedDropdownType}'`
-        );
-      }
-
-      // Log operation for tracking
       this.logger.log(
-        `Starting bulk ${bulkOperationDto.action} operation for ${bulkOperationDto.publicIds.length} dropdowns in type ${normalizedDropdownType}`
+        `Bulk updating ${bulkUpdateDto.publicIds.length} dropdowns in type ${normalizedDropdownType}`
       );
 
-      const operationCount =
-        await this.manageDropdownRepository.bulkOperation(bulkOperationDto);
+      const updateData: Partial<ManageDropdown> = {
+        status: bulkUpdateDto.status,
+      };
+
+      const result = await this.manageDropdownRepository.bulkUpdateByPublicIds(
+        bulkUpdateDto.publicIds,
+        updateData
+      );
 
       this.logger.log(
-        `Bulk ${bulkOperationDto.action} operation completed: ${operationCount} dropdowns affected in type ${normalizedDropdownType}`
+        `Bulk update completed: ${result.count} dropdowns updated in type ${normalizedDropdownType}`
       );
-      return operationCount;
+      return {
+        count: result.count,
+        message: `${result.count} dropdowns updated successfully`,
+      };
     } catch (error) {
       this.logger.error(
-        `Failed to perform bulk ${bulkOperationDto.action} for type ${dropdownType}:`,
+        `Failed to perform bulk update for type ${dropdownType}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  async bulkDeleteDropdowns(
+    dropdownType: string,
+    bulkDeleteDto: BulkDeleteManageDropdownDto
+  ): Promise<{ count: number; message: string }> {
+    try {
+      // Validate and normalize dropdown type
+      const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
+      if (!this.validateDropdownType(normalizedDropdownType)) {
+        throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
+      }
+
+      if (!bulkDeleteDto.publicIds || bulkDeleteDto.publicIds.length === 0) {
+        throw new BadRequestException('No dropdown public IDs provided');
+      }
+
+      this.logger.log(
+        `Bulk deleting ${bulkDeleteDto.publicIds.length} dropdowns in type ${normalizedDropdownType}`
+      );
+
+      // Get all dropdowns to be deleted
+      const dropdownsToDelete = await Promise.all(
+        bulkDeleteDto.publicIds.map((id) => this.findByPublicId(id))
+      );
+
+      // Filter out null results and check eligibility
+      const eligibleDropdowns = dropdownsToDelete.filter((dropdown) => {
+        if (!dropdown) return false;
+        if (dropdown.useCount > 0) {
+          this.logger.warn(
+            `Skipping deletion of dropdown '${dropdown.name}' due to useCount: ${dropdown.useCount}`
+          );
+          return false;
+        }
+        if (dropdown.dropdownType !== normalizedDropdownType) {
+          this.logger.warn(
+            `Skipping deletion of dropdown '${dropdown.name}' as it does not belong to type '${normalizedDropdownType}'`
+          );
+          return false;
+        }
+        return true;
+      });
+
+      // Delete eligible dropdowns
+      const eligiblePublicIds = eligibleDropdowns.map(
+        (dropdown) => dropdown.publicId
+      );
+      const result =
+        await this.manageDropdownRepository.bulkDeleteByPublicIds(
+          eligiblePublicIds
+        );
+
+      this.logger.log(
+        `Bulk deletion completed: ${result.count} dropdowns deleted in type ${normalizedDropdownType}`
+      );
+      return {
+        count: result.count,
+        message: `${result.count} dropdowns deleted successfully`,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to perform bulk delete for type ${dropdownType}:`,
         error
       );
       throw error;
@@ -482,6 +562,45 @@ export class ManageDropdownService {
       limit,
       includeInactive,
       languageId
+    );
+  }
+
+  /**
+   * Resolves languageId parameter to the actual language primary key (id/_id)
+   * Handles three scenarios:
+   * 1. No languageId provided -> returns default language primary key
+   * 2. Language publicId provided -> converts to primary key
+   * 3. Language primary key provided -> validates and returns if valid
+   * @param languageId - Optional language identifier (publicId or primary key)
+   * @returns Promise<string> The language primary key (id/_id)
+   * @throws BadRequestException if languageId is invalid
+   */
+  private async resolveLanguageId(languageId?: string): Promise<string> {
+    if (!languageId) {
+      // No languageId provided, use default language
+      const defaultLanguage = await this.languagesRepository.findDefault();
+      if (!defaultLanguage) {
+        throw new BadRequestException('No default language found');
+      }
+      return defaultLanguage.id;
+    }
+
+    // First, try to find by publicId (most common case)
+    const languageByPublicId =
+      await this.languagesRepository.findByPublicId(languageId);
+    if (languageByPublicId && languageByPublicId.status) {
+      return languageByPublicId.id;
+    }
+
+    // If not found by publicId, try to find by primary key (backward compatibility)
+    const languageById = await this.languagesRepository.findById(languageId);
+    if (languageById && languageById.status) {
+      return languageById.id;
+    }
+
+    // If neither works, throw an error
+    throw new BadRequestException(
+      `Invalid languageId: ${languageId}. Language not found or inactive.`
     );
   }
 

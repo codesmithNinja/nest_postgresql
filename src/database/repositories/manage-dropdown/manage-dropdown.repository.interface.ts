@@ -3,7 +3,6 @@ import {
   ManageDropdown,
   CreateManageDropdownDto,
   ManageDropdownWithLanguage,
-  BulkOperationDto,
 } from '../../entities/manage-dropdown.entity';
 
 export interface IManageDropdownRepository extends IRepository<ManageDropdown> {
@@ -19,14 +18,14 @@ export interface IManageDropdownRepository extends IRepository<ManageDropdown> {
   findByUniqueCode(uniqueCode: number): Promise<ManageDropdownWithLanguage[]>;
   findByTypeForPublic(
     dropdownType: string,
-    languageId?: string
+    languageId: string
   ): Promise<ManageDropdownWithLanguage[]>;
   findByTypeWithPagination(
     dropdownType: string,
     page: number,
     limit: number,
-    includeInactive?: boolean,
-    languageId?: string
+    includeInactive: boolean,
+    languageId: string
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -36,7 +35,7 @@ export interface IManageDropdownRepository extends IRepository<ManageDropdown> {
   findSingleByTypeAndLanguage(
     dropdownType: string,
     publicId: string,
-    languageId?: string
+    languageId: string
   ): Promise<ManageDropdownWithLanguage | null>;
   createMultiLanguage(
     createDto: CreateManageDropdownDto,
@@ -46,7 +45,13 @@ export interface IManageDropdownRepository extends IRepository<ManageDropdown> {
   getDefaultLanguageId(): Promise<string>;
   getAllActiveLanguageIds(): Promise<string[]>;
   incrementUseCount(id: string): Promise<void>;
-  bulkOperation(bulkDto: BulkOperationDto): Promise<number>;
+  bulkUpdateByPublicIds(
+    publicIds: string[],
+    data: Partial<ManageDropdown>
+  ): Promise<{ count: number; updated: ManageDropdown[] }>;
+  bulkDeleteByPublicIds(
+    publicIds: string[]
+  ): Promise<{ count: number; deleted: ManageDropdown[] }>;
   deleteByUniqueCode(uniqueCode: number): Promise<number>;
 }
 

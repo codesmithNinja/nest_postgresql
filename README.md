@@ -41,6 +41,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 
 - **🌍 Languages Management** - Multi-language support with flag images, ISO codes, and direction settings (English, Spanish, French, Arabic)
 - **🏳️ Countries Management** - Country data management with flags and usage tracking
+- **💰 Currencies Management** - Multi-currency support with ISO codes, symbols, and usage tracking
 - **📋 Manage Dropdown** - Dynamic dropdown data management with multi-language support
 - **⚙️ Settings Management** - Dynamic application configuration by groups
 - **👤 Admin Users** - Administrative user management and authentication
@@ -50,6 +51,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 ```
 GET /languages/front                           # Get active languages for frontend
 GET /countries/front                           # Get active countries for frontend
+GET /currencies/front                          # Get active currencies for frontend
 GET /manage-dropdown/:dropdownType/front       # Get active dropdown options by type with language support
 GET /settings/:groupType/front                 # Get settings by group type for frontend
 ```
@@ -84,6 +86,16 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   PATCH  /bulk-update                    # Admin: Bulk update country status
   PATCH  /bulk-delete                    # Admin: Bulk delete countries
 
+/currencies                            # Currencies management
+  GET    /front                          # Public: Get active currencies
+  GET    /                               # Admin: Get all currencies with pagination
+  GET    /:publicId                      # Admin: Get single currency
+  POST   /                               # Admin: Create new currency
+  PATCH  /:publicId                      # Admin: Update currency
+  DELETE /:publicId                      # Admin: Delete currency (only if useCount is 0)
+  PATCH  /bulk-update                    # Admin: Bulk update currency status
+  PATCH  /bulk-delete                    # Admin: Bulk delete currencies (only if useCount is 0)
+
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type
   GET    /:dropdownType/admin            # Admin: Get dropdown options with pagination
@@ -91,7 +103,8 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   GET    /:dropdownType/:publicId        # Admin: Get single dropdown by publicId
   PATCH  /:dropdownType/:publicId        # Admin: Update dropdown option
   DELETE /:dropdownType/:uniqueCode      # Admin: Delete dropdown option (all language variants, useCount must be 0)
-  PATCH  /:dropdownType/bulk             # Admin: Bulk operations (activate/deactivate/delete)
+  PATCH  /:dropdownType/bulk-update      # Admin: Bulk update dropdown option status
+  PATCH  /:dropdownType/bulk-delete      # Admin: Bulk delete dropdown options (useCount must be 0)
 
 /settings                              # Settings management
   GET    /:groupType/front               # Public: Get settings by group type
@@ -101,6 +114,28 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   GET    /admin/cache/stats              # Admin: Get cache statistics
   DELETE /admin/cache/clear/:groupType?  # Admin: Clear cache (all or by group)
 ```
+
+#### Bulk Operations
+
+All admin modules support consistent bulk operations with standardized payload format:
+
+**Bulk Update Payload Example:**
+```json
+{
+  "publicIds": [
+    "627a5038-e5be-4135-9569-404d50c836c1",
+    "e4113de7-5388-4f24-a58c-a22fb77d00a8"
+  ],
+  "status": true
+}
+```
+
+**Key Features:**
+- ✅ All modules use `publicIds` property (never `ids`)
+- ✅ Bulk update only affects `status` field (active/inactive)
+- ✅ Bulk delete validates business constraints (useCount, isDefault, etc.)
+- ✅ Operations are transactional and atomic
+- ✅ Detailed error reporting for failed operations
 
 **📖 Documentation:** Access full API documentation at `http://localhost:3000/api/docs` when running the application.
 

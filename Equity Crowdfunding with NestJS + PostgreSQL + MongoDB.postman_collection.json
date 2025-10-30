@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4ff0e541-2f1e-4bfa-8182-45d2c03a2ff9",
+		"_postman_id": "6623a2b7-b371-4735-a7e0-2299824cd6f5",
 		"name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
 		"description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -227,7 +227,13 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"firstName\": \"Jane Updated\",\n  \"lastName\": \"Smith Updated\",\n  \"email\": \"jane.updated@example.com\",\n  \"photo\": \"https://example.com/new-photo.jpg\",\n  \"active\": true,\n  \"twoFactorAuthVerified\": true\n}"
@@ -301,7 +307,13 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"currentPassword\": \"CurrentAdminPass123\",\n  \"newPassword\": \"NewAdminPass123\",\n  \"confirmPassword\": \"NewAdminPass123\"\n}"
@@ -623,10 +635,26 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"data\": {\n    \"isDefault\": \"NO\"\n  }\n}"
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ],\n  \"status\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/countries/bulk-update",
@@ -656,10 +684,26 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/countries/bulk-delete",
@@ -677,6 +721,312 @@
 								}
 							],
 							"description": "Countries management endpoints for dynamic country configuration with flag uploads and bulk operations."
+						},
+						{
+							"name": "💰 Currencies Management",
+							"item": [
+								{
+									"name": "Get All Currencies",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/currencies?page=1&limit=10&includeInactive=true",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1"
+												},
+												{
+													"key": "limit",
+													"value": "10"
+												},
+												{
+													"key": "includeInactive",
+													"value": "true",
+													"description": "Include inactive currencies in results"
+												}
+											]
+										},
+										"description": "Admin endpoint to retrieve all currencies with pagination and filtering."
+									},
+									"response": []
+								},
+								{
+									"name": "Get Currency by Public ID",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/currencies/:publicId",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies",
+												":publicId"
+											],
+											"variable": [
+												{
+													"key": "publicId",
+													"value": "550e8400-e29b-41d4-a716-446655440000"
+												}
+											]
+										},
+										"description": "Admin endpoint to retrieve a specific currency by its public ID."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Currency",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"United States Dollar\",\n  \"code\": \"USD\",\n  \"symbol\": \"$\",\n  \"status\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/currencies",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies"
+											]
+										},
+										"description": "Admin endpoint to create a new currency. All fields are required except status (defaults to true)."
+									},
+									"response": []
+								},
+								{
+									"name": "Update Currency",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"US Dollar\",\n  \"symbol\": \"$\",\n  \"status\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/currencies/:publicId",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies",
+												":publicId"
+											],
+											"variable": [
+												{
+													"key": "publicId",
+													"value": "550e8400-e29b-41d4-a716-446655440000"
+												}
+											]
+										},
+										"description": "Admin endpoint to update an existing currency. All fields are optional."
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Currency",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/currencies/:publicId",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies",
+												":publicId"
+											],
+											"variable": [
+												{
+													"key": "publicId",
+													"value": "550e8400-e29b-41d4-a716-446655440000"
+												}
+											]
+										},
+										"description": "Admin endpoint to delete a currency. Only allowed if useCount is 0 (currency is not in use)."
+									},
+									"response": []
+								},
+								{
+									"name": "Bulk Update Currencies",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ],\n  \"status\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/currencies/bulk-update",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies",
+												"bulk-update"
+											]
+										},
+										"description": "Admin endpoint to update the status of multiple currencies. Set status to true to activate or false to deactivate."
+									},
+									"response": []
+								},
+								{
+									"name": "Bulk Delete Currencies",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/currencies/bulk-delete",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies",
+												"bulk-delete"
+											]
+										},
+										"description": "Admin endpoint to delete multiple currencies. Only allowed if all currencies have useCount = 0."
+									},
+									"response": []
+								}
+							],
+							"description": "Currencies management endpoints for multi-currency support with ISO codes, symbols, and use count tracking."
 						},
 						{
 							"name": "🔧 Settings Management",
@@ -1486,10 +1836,21 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"ids\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ],\n  \"status\": false\n}"
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ],\n  \"status\": true\n}"
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/languages/bulk-update",
@@ -1519,10 +1880,21 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"ids\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"550e8400-e29b-41d4-a716-446655440001\"\n  ]\n}"
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/languages/bulk-delete",
@@ -1774,7 +2146,7 @@
 									"response": []
 								},
 								{
-									"name": "Bulk Operations",
+									"name": "Bulk Update Dropdowns",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -1786,7 +2158,7 @@
 												}
 											]
 										},
-										"method": "POST",
+										"method": "PATCH",
 										"header": [
 											{
 												"key": "Content-Type",
@@ -1795,19 +2167,81 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"action\": \"activate\",\n  \"publicIds\": [\"550e8400-e29b-41d4-a716-446655440000\", \"660e8400-e29b-41d4-a716-446655440001\"]\n}"
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"],\n  \"status\": true\n}"
 										},
 										"url": {
-											"raw": "{{BASE_URL}}/manage-dropdown/bulk",
+											"raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-update",
 											"host": [
 												"{{BASE_URL}}"
 											],
 											"path": [
 												"manage-dropdown",
-												"bulk"
+												":dropdownType",
+												"bulk-update"
+											],
+											"variable": [
+												{
+													"key": "dropdownType",
+													"value": "industry"
+												}
 											]
 										},
-										"description": "Admin endpoint for bulk operations on dropdowns. Actions: activate, deactivate, delete."
+										"description": "Admin endpoint to update the status of multiple dropdown options. Set status to true to activate or false to deactivate."
+									},
+									"response": []
+								},
+								{
+									"name": "Bulk Delete Dropdowns",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"publicIds\":",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											} [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"]\n}"
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-delete",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"manage-dropdown",
+												":dropdownType",
+												"bulk-delete"
+											],
+											"variable": [
+												{
+													"key": "dropdownType",
+													"value": "industry"
+												}
+											]
+										},
+										"description": "Admin endpoint to delete multiple dropdown options. Only allowed if all dropdown options have useCount = 0."
 									},
 									"response": []
 								}
@@ -1849,7 +2283,13 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Test@123\"\n}"
@@ -1881,7 +2321,13 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"admin@example.com\"\n}"
@@ -1907,7 +2353,13 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"token\": \"{{ADMIN_RESET_TOKEN}}\",\n  \"password\": \"NewAdminPassword123\",\n  \"confirmPassword\": \"NewAdminPassword123\"\n}"
@@ -1951,6 +2403,37 @@
 											]
 										},
 										"description": "Public endpoint to retrieve all countries for frontend usage."
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "💰 Currencies Management",
+							"item": [
+								{
+									"name": "Get All Currencies",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/currencies/front?lang=en",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"currencies",
+												"front"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "en",
+													"description": "Language preference (en, es, fr, ar)"
+												}
+											]
+										},
+										"description": "Public endpoint to retrieve all active currencies for frontend use. No authentication required."
 									},
 									"response": []
 								}
@@ -2173,7 +2656,13 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
@@ -2206,7 +2695,13 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
@@ -2415,7 +2910,13 @@
 											]
 										},
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n    \"companyLogo\": \"https://example.com/logo.jpg\",\n    \"companyName\": \"TechStartup Inc.\",\n    \"companyTagline\": \"Revolutionary tech solution for modern businesses\",\n    \"companyEmail\": \"company@example.com\",\n    \"companyPhoneNumber\": \"+919876543210\",\n    \"companyAddress\": \"Vadodara, Gujarat, India\",\n    \"yearFounded\": 2025,\n    \"website\": \"https://example.com/\",\n    \"companyCategory\": \"Technology\",\n    \"companyIndustry\": \"Software Development\",\n    \"companyDescription\": \"We are building the future of business automation with cutting-edge AI solutions\"\n}"
@@ -2759,7 +3260,13 @@
 									"name": "Create Team Member",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"name\": \"Michael Chen\",\n  \"title\": \"Chief Technology Officer\",\n  \"bio\": \"Former senior engineer at Google with 12 years of experience in scalable systems\",\n  \"linkedIn\": \"https://linkedin.com/in/michaelchen\",\n  \"email\": \"michael.chen@company.com\",\n  \"phone\": \"+1-555-0456\",\n  \"experience\": \"12 years\",\n  \"education\": \"MS Computer Science, Stanford University\",\n  \"previousCompanies\": \"Google, Microsoft, Amazon\",\n  \"photo\": \"https://example.com/michael-photo.jpg\",\n  \"isFounder\": false,\n  \"equityPercentage\": 5.0,\n  \"displayOrder\": 2\n}"
@@ -2788,7 +3295,13 @@
 									"name": "Update Team Member",
 									"request": {
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Chief Technology Officer & Co-Founder\",\n  \"bio\": \"Updated bio with recent achievements and new role\",\n  \"isFounder\": true,\n  \"equityPercentage\": 8.0,\n  \"displayOrder\": 1\n}"
@@ -2883,7 +3396,13 @@
 									"name": "Create Campaign FAQ",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"question\": \"What is the minimum investment amount?\",\n  \"answer\": \"The minimum investment amount is $1,000. This allows smaller investors to participate in our equity crowdfunding campaign while keeping administrative costs manageable.\",\n  \"category\": \"Investment Terms\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
@@ -2912,7 +3431,13 @@
 									"name": "Update Campaign FAQ",
 									"request": {
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"question\": \"What is the minimum investment amount for early investors?\",\n  \"answer\": \"Updated answer with early bird discount information: The minimum investment amount is $1,000, but early investors (first 30 days) can invest with a minimum of $500.\",\n  \"displayOrder\": 1\n}"
@@ -3007,7 +3532,13 @@
 									"name": "Create Extras Video",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Product Demo - Core Features\",\n  \"description\": \"Comprehensive demonstration of our platform's key features and user interface\",\n  \"videoUrl\": \"https://example.com/videos/product-demo.mp4\",\n  \"thumbnailUrl\": \"https://example.com/thumbnails/product-demo.jpg\",\n  \"duration\": 180,\n  \"category\": \"Product Demo\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
@@ -3036,7 +3567,13 @@
 									"name": "Update Extras Video",
 									"request": {
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Product Demo - Updated Features\",\n  \"description\": \"Updated demo showcasing new features released in v2.0\",\n  \"displayOrder\": 1\n}"
@@ -3131,7 +3668,13 @@
 									"name": "Create Extras Image",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Product Interface Screenshot\",\n  \"description\": \"Main dashboard showing key metrics and analytics features\",\n  \"imageUrl\": \"https://example.com/images/dashboard-screenshot.jpg\",\n  \"altText\": \"Product dashboard interface with analytics charts\",\n  \"category\": \"Product Screenshots\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
@@ -3160,7 +3703,13 @@
 									"name": "Update Extras Image",
 									"request": {
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Updated Product Interface\",\n  \"description\": \"Updated dashboard with new v2.0 features and improved UX\",\n  \"displayOrder\": 1\n}"
@@ -3255,7 +3804,13 @@
 									"name": "Create Extras Document",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Financial Projections 2024-2027\",\n  \"description\": \"Detailed financial projections including revenue forecasts, expense breakdowns, and profitability timeline\",\n  \"documentUrl\": \"https://example.com/documents/financial-projections.pdf\",\n  \"fileType\": \"PDF\",\n  \"fileSize\": 2048000,\n  \"category\": \"Financial Documents\",\n  \"displayOrder\": 1,\n  \"isPublic\": true,\n  \"requiresAccess\": false\n}"
@@ -3284,7 +3839,13 @@
 									"name": "Update Extras Document",
 									"request": {
 										"method": "PATCH",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Updated Financial Projections 2024-2027\",\n  \"description\": \"Revised financial projections with Q1 2024 actual results incorporated\",\n  \"isPublic\": false,\n  \"requiresAccess\": true\n}"
@@ -3362,7 +3923,13 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"firstName\": \"Divyang\",\n  \"lastName\": \"Patel\",\n  \"email\": \"divyang.rockersinfo@gmail.com\",\n  \"password\": \"Test@123\",\n  \"phoneNumber\": \"+919601000507\",\n  \"userLocation\": \"Vadodara, Gujarat, India\",\n  \"zipcode\": \"390001\",\n  \"aboutYourself\": \"Experienced entrepreneur and investor\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"LinkedIn\",\n      \"url\": \"https://linkedin.com/in/divyang\"\n    },\n    {\n      \"title\": \"Portfolio\",\n      \"url\": \"https://divyang.com\"\n    }\n  ]\n}"
@@ -3441,7 +4008,13 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"divyang.rockersinfo@gmail.com\",\n  \"password\": \"Test@123\"\n}"
@@ -3470,7 +4043,13 @@
 									"name": "Forgot Password",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
@@ -3493,7 +4072,13 @@
 									"name": "Reset Password",
 									"request": {
 										"method": "POST",
-										"header": [],
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"token\": \"{{RESET_TOKEN}}\",\n  \"password\": \"NewSecurePassword123\"\n}"

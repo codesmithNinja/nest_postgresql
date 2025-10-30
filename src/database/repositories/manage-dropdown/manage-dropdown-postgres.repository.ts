@@ -5,7 +5,6 @@ import {
   ManageDropdown,
   CreateManageDropdownDto,
   ManageDropdownWithLanguage,
-  BulkOperationDto,
   MinimalLanguage,
 } from '../../entities/manage-dropdown.entity';
 import { IManageDropdownRepository } from './manage-dropdown.repository.interface';
@@ -124,20 +123,15 @@ export class ManageDropdownPostgresRepository
 
   async findByTypeForPublic(
     dropdownType: string,
-    languageId?: string
+    languageId: string // Required - service layer resolves this
   ): Promise<ManageDropdownWithLanguage[]> {
     const whereClause: Record<string, unknown> = {
       dropdownType,
       status: true,
     };
 
-    // If languageId is provided, use it; otherwise get default language
-    if (languageId) {
-      whereClause.languageId = languageId;
-    } else {
-      const defaultLanguageId = await this.getDefaultLanguageId();
-      whereClause.languageId = defaultLanguageId;
-    }
+    // Use the resolved languageId directly (already resolved by service layer)
+    whereClause.languageId = languageId;
 
     const dropdowns = await this.prisma.manageDropdown.findMany({
       where: whereClause,
@@ -186,37 +180,64 @@ export class ManageDropdownPostgresRepository
     });
   }
 
-  async bulkOperation(bulkDto: BulkOperationDto): Promise<number> {
-    let updateData: Record<string, unknown> = {};
+  async bulkUpdateByPublicIds(
+    publicIds: string[],
+    data: Partial<ManageDropdown>
+  ): Promise<{ count: number; updated: ManageDropdown[] }> {
+    const updateData: Record<string, unknown> = {};
 
-    switch (bulkDto.action) {
-      case 'activate':
-        updateData = { status: true };
-        break;
-      case 'deactivate':
-        updateData = { status: false };
-        break;
-      case 'delete':
-        updateData = { status: false };
-        break;
-      default:
-        throw new Error(`Unsupported bulk action: ${String(bulkDto.action)}`);
-    }
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.useCount !== undefined) updateData.useCount = data.useCount;
 
     const result = await this.prisma.manageDropdown.updateMany({
-      where: { publicId: { in: bulkDto.publicIds } },
+      where: { publicId: { in: publicIds } },
       data: updateData,
     });
 
-    return result.count;
+    const updatedDropdowns = await this.prisma.manageDropdown.findMany({
+      where: { publicId: { in: publicIds } },
+    });
+
+    return {
+      count: result.count,
+      updated: updatedDropdowns as ManageDropdown[],
+    };
+  }
+
+  async bulkDeleteByPublicIds(
+    publicIds: string[]
+  ): Promise<{ count: number; deleted: ManageDropdown[] }> {
+    // First get dropdowns to be deleted for return value
+    const dropdownsToDelete = await this.prisma.manageDropdown.findMany({
+      where: { publicId: { in: publicIds } },
+    });
+
+    // Check if any dropdown is in use
+    for (const dropdown of dropdownsToDelete) {
+      if (dropdown.useCount > 0) {
+        throw new Error(
+          `Cannot delete dropdown ${dropdown.publicId} with useCount: ${dropdown.useCount}`
+        );
+      }
+    }
+
+    const deleteResult = await this.prisma.manageDropdown.deleteMany({
+      where: { publicId: { in: publicIds } },
+    });
+
+    return {
+      count: deleteResult.count,
+      deleted: dropdownsToDelete as ManageDropdown[],
+    };
   }
 
   async findByTypeWithPagination(
     dropdownType: string,
     page: number,
     limit: number,
-    includeInactive = false,
-    languageId?: string
+    includeInactive: boolean,
+    languageId: string // Required - service layer resolves this
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -230,13 +251,8 @@ export class ManageDropdownPostgresRepository
       whereClause.status = true;
     }
 
-    // If languageId is provided, use it; otherwise get default language
-    if (languageId) {
-      whereClause.languageId = languageId;
-    } else {
-      const defaultLanguageId = await this.getDefaultLanguageId();
-      whereClause.languageId = defaultLanguageId;
-    }
+    // Use the resolved languageId directly (already resolved by service layer)
+    whereClause.languageId = languageId;
 
     const [dropdowns, total] = await Promise.all([
       this.prisma.manageDropdown.findMany({
@@ -417,20 +433,15 @@ export class ManageDropdownPostgresRepository
   async findSingleByTypeAndLanguage(
     dropdownType: string,
     publicId: string,
-    languageId?: string
+    languageId: string // Required - service layer resolves this
   ): Promise<ManageDropdownWithLanguage | null> {
     const whereClause: Record<string, unknown> = {
       dropdownType,
       publicId,
     };
 
-    // If languageId is provided, use it; otherwise get default language
-    if (languageId) {
-      whereClause.languageId = languageId;
-    } else {
-      const defaultLanguageId = await this.getDefaultLanguageId();
-      whereClause.languageId = defaultLanguageId;
-    }
+    // Use the resolved languageId directly (already resolved by service layer)
+    whereClause.languageId = languageId;
 
     const dropdown = await this.prisma.manageDropdown.findFirst({
       where: whereClause,

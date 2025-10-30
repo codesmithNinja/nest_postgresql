@@ -212,7 +212,7 @@ export class BulkUpdateCountryDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsUUID(4, { each: true })
-  ids!: string[];
+  publicIds!: string[];
 
   @ApiProperty({
     description: 'Country status (active/inactive)',
@@ -230,7 +230,7 @@ export class BulkDeleteCountryDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsUUID(4, { each: true })
-  ids!: string[];
+  publicIds!: string[];
 }
 
 export class CountryResponseDto {

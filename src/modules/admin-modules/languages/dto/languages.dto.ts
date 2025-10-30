@@ -267,7 +267,7 @@ export class BulkUpdateLanguageDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsUUID(4, { each: true })
-  ids!: string[];
+  publicIds!: string[];
 
   @ApiProperty({
     description: 'Language status (active/inactive)',
@@ -285,7 +285,7 @@ export class BulkDeleteLanguageDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsUUID(4, { each: true })
-  ids!: string[];
+  publicIds!: string[];
 }
 
 export class LanguageResponseDto {

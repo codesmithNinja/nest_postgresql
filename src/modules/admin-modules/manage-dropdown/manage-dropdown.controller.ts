@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
   HttpStatus,
-  ValidationPipe,
   Logger,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,7 +25,8 @@ import { ManageDropdownService } from './manage-dropdown.service';
 import {
   CreateManageDropdownDto,
   UpdateManageDropdownDto,
-  BulkOperationDto,
+  BulkUpdateManageDropdownDto,
+  BulkDeleteManageDropdownDto,
   AdminQueryDto,
   ManageDropdownResponseDto,
   DropdownTypeParamDto,
@@ -307,7 +307,7 @@ export class ManageDropdownController {
   })
   async createDropdown(
     @Param('dropdownType') dropdownType: string,
-    @Body(ValidationPipe) createDropdownDto: CreateManageDropdownDto
+    @Body() createDropdownDto: CreateManageDropdownDto
   ): Promise<{
     message: string;
     statusCode: number;
@@ -334,6 +334,144 @@ export class ManageDropdownController {
         updatedAt: dropdown.updatedAt,
       } as ManageDropdownResponseDto,
     };
+  }
+
+  @Patch(':dropdownType/bulk-update')
+  @UseGuards(AdminJwtUserGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Bulk update dropdown options status',
+    description:
+      'Update the status of multiple dropdown options. Admin authentication required.',
+  })
+  @ApiParam({
+    name: 'dropdownType',
+    description: 'Dropdown type (e.g., industry, category)',
+    example: 'industry',
+  })
+  @ApiBody({ type: BulkUpdateManageDropdownDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Bulk update completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        statusCode: { type: 'number' },
+        data: {
+          type: 'object',
+          properties: {
+            affectedCount: { type: 'number' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid bulk update parameters',
+    type: ManageDropdownErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Admin authentication required',
+  })
+  async bulkUpdateDropdowns(
+    @Param('dropdownType') dropdownType: string,
+    @Body() bulkUpdateDto: BulkUpdateManageDropdownDto
+  ) {
+    try {
+      this.logger.log(
+        `Bulk update operation on ${bulkUpdateDto.publicIds.length} dropdown options for type: ${dropdownType}`
+      );
+
+      const result = await this.manageDropdownService.bulkUpdateDropdowns(
+        dropdownType,
+        bulkUpdateDto
+      );
+
+      return this.i18nResponse.translateAndRespond(
+        'dropdowns.bulk_update_success',
+        HttpStatus.OK,
+        result
+      );
+    } catch (error) {
+      this.logger.error('Failed bulk update operation', (error as Error).stack);
+
+      return this.i18nResponse.translateError(
+        'dropdowns.bulk_update_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Patch(':dropdownType/bulk-delete')
+  @UseGuards(AdminJwtUserGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Bulk delete dropdown options',
+    description:
+      'Delete multiple dropdown options. Admin authentication required. Only allowed if useCount is 0 for all options.',
+  })
+  @ApiParam({
+    name: 'dropdownType',
+    description: 'Dropdown type (e.g., industry, category)',
+    example: 'industry',
+  })
+  @ApiBody({ type: BulkDeleteManageDropdownDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Bulk delete operation completed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        statusCode: { type: 'number' },
+        data: {
+          type: 'object',
+          properties: {
+            deletedCount: { type: 'number' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'One or more dropdown options are in use (useCount > 0)',
+    type: ManageDropdownErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Admin authentication required',
+  })
+  async bulkDeleteDropdowns(
+    @Param('dropdownType') dropdownType: string,
+    @Body() bulkDeleteDto: BulkDeleteManageDropdownDto
+  ) {
+    try {
+      this.logger.log(
+        `Bulk delete operation on ${bulkDeleteDto.publicIds.length} dropdown options for type: ${dropdownType}`
+      );
+
+      const result = await this.manageDropdownService.bulkDeleteDropdowns(
+        dropdownType,
+        bulkDeleteDto
+      );
+
+      return this.i18nResponse.translateAndRespond(
+        'dropdowns.bulk_delete_success',
+        HttpStatus.OK,
+        result
+      );
+    } catch (error) {
+      this.logger.error('Failed bulk delete operation', (error as Error).stack);
+
+      return this.i18nResponse.translateError(
+        'dropdowns.bulk_delete_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Get(':dropdownType/:publicId')
@@ -429,7 +567,7 @@ export class ManageDropdownController {
   async updateDropdown(
     @Param('dropdownType') dropdownType: string,
     @Param('publicId') publicId: string,
-    @Body(ValidationPipe) updateDropdownDto: UpdateManageDropdownDto,
+    @Body() updateDropdownDto: UpdateManageDropdownDto,
     @Query('languageId') languageId?: string
   ): Promise<{
     message: string;
@@ -538,66 +676,6 @@ export class ManageDropdownController {
           this.transformToResponseDto(dropdown)
         ),
       },
-    };
-  }
-
-  @Patch(':dropdownType/bulk')
-  @UseGuards(AdminJwtUserGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Bulk operations on dropdown options',
-    description:
-      'Perform bulk operations (activate, deactivate, delete) on multiple dropdown options. Admin authentication required.',
-  })
-  @ApiParam({
-    name: 'dropdownType',
-    description: 'Dropdown type (e.g., industry, category)',
-    example: 'industry',
-  })
-  @ApiBody({ type: BulkOperationDto })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Bulk operation completed successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string' },
-        statusCode: { type: 'number' },
-        data: {
-          type: 'object',
-          properties: {
-            affectedCount: { type: 'number' },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid bulk operation parameters',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Admin authentication required',
-  })
-  async bulkOperation(
-    @Param('dropdownType') dropdownType: string,
-    @Body(new ValidationPipe({ transform: true, whitelist: true }))
-    bulkOperationDto: BulkOperationDto
-  ): Promise<{
-    message: string;
-    statusCode: number;
-    data: { affectedCount: number };
-  }> {
-    const affectedCount = await this.manageDropdownService.bulkOperation(
-      dropdownType,
-      bulkOperationDto
-    );
-
-    return {
-      message: `Bulk ${bulkOperationDto.action} operation completed successfully`,
-      statusCode: HttpStatus.OK,
-      data: { affectedCount },
     };
   }
 }
