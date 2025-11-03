@@ -92,9 +92,10 @@ export class ManageDropdownMongodbRepository
       doc.dropdownType = entity.dropdownType;
     // languageId must be the primary key (_id) of the language, not publicId
     if (entity.languageId !== undefined) {
-      doc.languageId = typeof entity.languageId === 'string'
-        ? new Types.ObjectId(entity.languageId)
-        : entity.languageId;
+      doc.languageId =
+        typeof entity.languageId === 'string'
+          ? new Types.ObjectId(entity.languageId)
+          : entity.languageId;
     }
     if (entity.status !== undefined) doc.status = entity.status;
     if (entity.useCount !== undefined) doc.useCount = entity.useCount;
@@ -107,7 +108,9 @@ export class ManageDropdownMongodbRepository
     const dropdown = new this.manageDropdownModel({
       publicId: uuidv4(),
       ...createDto,
-      languageId: createDto.languageId ? new Types.ObjectId(createDto.languageId) : undefined,
+      languageId: createDto.languageId
+        ? new Types.ObjectId(createDto.languageId)
+        : undefined,
     });
     const savedDropdown = await dropdown.save();
     return this.toEntity(savedDropdown);
@@ -374,7 +377,11 @@ export class ManageDropdownMongodbRepository
         // Handle different languageId formats
         if (typeof filter.languageId === 'string') {
           mongoFilter.languageId = new Types.ObjectId(filter.languageId);
-        } else if (typeof filter.languageId === 'object' && filter.languageId && 'publicId' in filter.languageId) {
+        } else if (
+          typeof filter.languageId === 'object' &&
+          filter.languageId &&
+          'publicId' in filter.languageId
+        ) {
           // If it's a MinimalLanguage object, we need to convert it to ObjectId
           // This shouldn't happen in normal operation, but handle gracefully
           mongoFilter.languageId = filter.languageId;

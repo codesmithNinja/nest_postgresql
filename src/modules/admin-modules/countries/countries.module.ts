@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CountriesController } from './countries.controller';
 import { CountriesService } from './countries.service';
 import { AdminUsersModule } from '../admin-users/admin-users.module';
+import { FileUploadModule } from '../../../common/modules/file-upload.module';
 
 // Repositories
 import { COUNTRIES_REPOSITORY } from '../../../database/repositories/countries/countries.repository.interface';
@@ -24,6 +25,7 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
     ConfigModule,
     MongooseModule.forFeature([{ name: Country.name, schema: CountrySchema }]),
     AdminUsersModule,
+    FileUploadModule,
   ],
   controllers: [CountriesController],
   providers: [

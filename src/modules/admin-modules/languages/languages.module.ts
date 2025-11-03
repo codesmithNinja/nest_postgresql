@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { LanguagesController } from './languages.controller';
 import { LanguagesService } from './languages.service';
 import { AdminUsersModule } from '../admin-users/admin-users.module';
+import { FileUploadModule } from '../../../common/modules/file-upload.module';
 
 // Repositories
 import { LANGUAGES_REPOSITORY } from '../../../database/repositories/languages/languages.repository.interface';
@@ -26,6 +27,7 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
       { name: Language.name, schema: LanguageSchema },
     ]),
     AdminUsersModule,
+    FileUploadModule,
   ],
   controllers: [LanguagesController],
   providers: [

@@ -1,4 +1,3 @@
-import { memoryStorage } from 'multer';
 import {
   Body,
   Controller,
@@ -11,20 +10,18 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
-  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
-  ApiConsumes,
   ApiParam,
 } from '@nestjs/swagger';
+import { UploadSingleFile } from '../../../common/decorators/upload-files.decorator';
 import { Throttle } from '@nestjs/throttler';
 
 import { CountriesService } from './countries.service';
@@ -165,9 +162,22 @@ export class CountriesController {
   @Post()
   @ApiOperation({
     summary: 'Create new country',
-    description: 'Admin endpoint to create a new country with flag upload',
+    description: `Admin endpoint to create a new country with flag upload.
+
+    **Supports both upload formats:**
+    - Multipart/form-data (Postman): Send flag as form field
+    - Binary upload (React): Send raw image data with X-Filename header`,
   })
-  @ApiConsumes('multipart/form-data')
+  @UploadSingleFile('flag', {
+    maxFileSize: 5 * 1024 * 1024, // 5MB for flag images
+    allowedMimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+    ],
+  })
   @ApiBody({
     type: CreateCountryDto,
     description: 'Country data with flag file upload',
@@ -185,12 +195,14 @@ export class CountriesController {
     status: 409,
     description: 'Country already exists (name, ISO2, or ISO3 conflict)',
   })
-  @UseInterceptors(FileInterceptor('flag', { storage: memoryStorage() }))
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async createCountry(
     @Body(ValidationPipe) createCountryDto: CreateCountryDto,
-    @UploadedFile() flag: Express.Multer.File
+    @UploadedFiles() files: Express.Multer.File[]
   ) {
+    // Extract flag file from files array (should be single file due to UploadSingleFile decorator)
+    const flag = files && files.length > 0 ? files[0] : null;
+
     // Only upload file AFTER validation passes
     if (flag) {
       const flagPath = await this.countriesService.handleFlagUpload(
@@ -207,14 +219,27 @@ export class CountriesController {
   @Patch(':publicId')
   @ApiOperation({
     summary: 'Update country',
-    description: 'Admin endpoint to update a country with optional flag upload',
+    description: `Admin endpoint to update a country with optional flag upload.
+
+    **Supports both upload formats:**
+    - Multipart/form-data (Postman): Send flag as form field
+    - Binary upload (React): Send raw image data with X-Filename header`,
   })
   @ApiParam({
     name: 'publicId',
     description: 'Public ID of the country to update',
     type: 'string',
   })
-  @ApiConsumes('multipart/form-data')
+  @UploadSingleFile('flag', {
+    maxFileSize: 5 * 1024 * 1024, // 5MB for flag images
+    allowedMimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+    ],
+  })
   @ApiBody({
     type: UpdateCountryDto,
     description: 'Country update data with optional flag file upload',
@@ -236,12 +261,14 @@ export class CountriesController {
     status: 409,
     description: 'Country data conflict (name, ISO2, or ISO3 already exists)',
   })
-  @UseInterceptors(FileInterceptor('flag', { storage: memoryStorage() }))
   async updateCountry(
     @Param('publicId') publicId: string,
     @Body(ValidationPipe) updateCountryDto: UpdateCountryDto,
-    @UploadedFile() flag: Express.Multer.File
+    @UploadedFiles() files: Express.Multer.File[]
   ) {
+    // Extract flag file from files array (should be single file due to UploadSingleFile decorator)
+    const flag = files && files.length > 0 ? files[0] : null;
+
     if (flag) {
       // Get existing country for flag handling
       const existingCountry =

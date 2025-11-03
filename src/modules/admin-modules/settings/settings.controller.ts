@@ -12,17 +12,15 @@ import {
   HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiConsumes,
   ApiBearerAuth,
   ApiExcludeEndpoint,
 } from '@nestjs/swagger';
-import * as multer from 'multer';
+import { UploadFiles } from '../../../common/decorators/upload-files.decorator';
 import { SettingsService } from './settings.service';
 import { JwtAdminGuard } from '../../../common/guards/jwt-admin.guard';
 import { Public } from '../../../common/decorators/public.decorator';
@@ -174,26 +172,38 @@ export class SettingsController {
 
   @Post(':groupType/admin')
   @UseGuards(JwtAdminGuard)
-  @UseInterceptors(
-    FilesInterceptor('files', 20, {
-      storage: multer.memoryStorage(),
-      limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB per file
-        files: 20, // Maximum 20 files
-      },
-    })
-  )
+  @UploadFiles({
+    maxFiles: 20,
+    maxFileSize: 10 * 1024 * 1024, // 10MB per file
+    allowedMimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+      'image/x-icon', // For favicon
+      'application/pdf',
+    ],
+  })
   @ApiBearerAuth()
-  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Create or update settings (Admin)',
     description: `Create or update settings for a specific group type.
 
-    **Form Data Structure:**
+    **Supports both upload formats:**
+
+    **1. Multipart/form-data (Postman style):**
     - Text settings: Send as regular form fields (key: value)
     - File settings: Send files with field names as keys
+    - Content-Type: multipart/form-data
 
-    **Example form data:**
+    **2. Binary upload (React style):**
+    - Send raw file data directly
+    - Include filename in X-Filename header
+    - Content-Type: application/octet-stream or specific MIME type
+    - For settings, use fieldName matching the setting key (e.g., 'siteLogo')
+
+    **Example multipart form data:**
     - siteName: "My Website"
     - primaryColor: "#000000"
     - siteLogo: [file]
@@ -201,12 +211,19 @@ export class SettingsController {
     - favIcon: [file]
     - placeholderLogo: [file]
 
+    **Example binary upload headers:**
+    - X-Filename: logo.png
+    - Content-Type: image/png
+    - Field-Name: siteLogo (for identifying which setting to update)
+
     **Behavior:**
     - If setting exists: Updates the existing setting
     - If setting doesn't exist: Creates new setting
     - Files automatically get recordType: FILE
     - Text values get recordType: STRING
-    - Old files are automatically deleted when updated`,
+    - Old files are automatically deleted when updated
+    - Maximum file size: 10MB per file
+    - Maximum files: 20 files`,
   })
   @ApiParam({
     name: 'groupType',
@@ -258,6 +275,18 @@ export class SettingsController {
       );
       this.logger.debug(`Body keys: ${Object.keys(body || {}).join(', ')}`);
       this.logger.debug(`Files count: ${files?.length || 0}`);
+
+      // Log upload method for debugging
+      if (files && files.length > 0) {
+        this.logger.debug(
+          `File upload detected - files processed by universal interceptor`
+        );
+        files.forEach((file, index) => {
+          this.logger.debug(
+            `File ${index + 1}: ${file.originalname} (${file.mimetype}, ${file.size} bytes)`
+          );
+        });
+      }
 
       // Validate that we have some data to process
       const hasBodyData = body && Object.keys(body).length > 0;

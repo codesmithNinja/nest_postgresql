@@ -1,4 +1,3 @@
-import { memoryStorage } from 'multer';
 import {
   Body,
   Controller,
@@ -11,20 +10,18 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
-  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
-  ApiConsumes,
   ApiParam,
 } from '@nestjs/swagger';
+import { UploadSingleFile } from '../../../common/decorators/upload-files.decorator';
 import { Throttle } from '@nestjs/throttler';
 
 import { LanguagesService } from './languages.service';
@@ -166,10 +163,22 @@ export class LanguagesController {
   @Post()
   @ApiOperation({
     summary: 'Create new language',
-    description:
-      'Admin endpoint to create a new language with flag image upload',
+    description: `Admin endpoint to create a new language with flag image upload.
+
+    **Supports both upload formats:**
+    - Multipart/form-data (Postman): Send flagImage as form field
+    - Binary upload (React): Send raw image data with X-Filename header`,
   })
-  @ApiConsumes('multipart/form-data')
+  @UploadSingleFile('flagImage', {
+    maxFileSize: 5 * 1024 * 1024, // 5MB for flag images
+    allowedMimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+    ],
+  })
   @ApiBody({
     type: CreateLanguageDto,
     description: 'Language data with flag image file upload',
@@ -188,12 +197,14 @@ export class LanguagesController {
     description:
       'Language already exists (name, folder, ISO2, or ISO3 conflict)',
   })
-  @UseInterceptors(FileInterceptor('flagImage', { storage: memoryStorage() }))
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async createLanguage(
     @Body(ValidationPipe) createLanguageDto: CreateLanguageDto,
-    @UploadedFile() flagImage: Express.Multer.File
+    @UploadedFiles() files: Express.Multer.File[]
   ) {
+    // Extract flag image file from files array (should be single file due to UploadSingleFile decorator)
+    const flagImage = files && files.length > 0 ? files[0] : null;
+
     // Only upload file AFTER validation passes
     if (flagImage) {
       const flagImagePath = await this.languagesService.handleFlagImageUpload(
@@ -210,15 +221,27 @@ export class LanguagesController {
   @Patch(':publicId')
   @ApiOperation({
     summary: 'Update language',
-    description:
-      'Admin endpoint to update a language with optional flag image upload',
+    description: `Admin endpoint to update a language with optional flag image upload.
+
+    **Supports both upload formats:**
+    - Multipart/form-data (Postman): Send flagImage as form field
+    - Binary upload (React): Send raw image data with X-Filename header`,
   })
   @ApiParam({
     name: 'publicId',
     description: 'Public ID of the language to update',
     type: 'string',
   })
-  @ApiConsumes('multipart/form-data')
+  @UploadSingleFile('flagImage', {
+    maxFileSize: 5 * 1024 * 1024, // 5MB for flag images
+    allowedMimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
+    ],
+  })
   @ApiBody({
     type: UpdateLanguageDto,
     description: 'Language update data with optional flag image file upload',
@@ -241,12 +264,14 @@ export class LanguagesController {
     description:
       'Language data conflict (name, folder, ISO2, or ISO3 already exists)',
   })
-  @UseInterceptors(FileInterceptor('flagImage', { storage: memoryStorage() }))
   async updateLanguage(
     @Param('publicId') publicId: string,
     @Body(ValidationPipe) updateLanguageDto: UpdateLanguageDto,
-    @UploadedFile() flagImage: Express.Multer.File
+    @UploadedFiles() files: Express.Multer.File[]
   ) {
+    // Extract flag image file from files array (should be single file due to UploadSingleFile decorator)
+    const flagImage = files && files.length > 0 ? files[0] : null;
+
     if (flagImage) {
       // Get existing language for flag handling
       const existingLanguage =

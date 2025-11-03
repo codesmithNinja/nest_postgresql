@@ -161,7 +161,9 @@ export class ManageDropdownService {
     limit: number;
   }> {
     try {
-      this.logger.log(`findByTypeForAdmin called with dropdownType: ${dropdownType}, languageId: ${languageId}`);
+      this.logger.log(
+        `findByTypeForAdmin called with dropdownType: ${dropdownType}, languageId: ${languageId}`
+      );
 
       // Validate pagination parameters
       if (page < 1 || limit < 1 || limit > 100) {
@@ -170,7 +172,9 @@ export class ManageDropdownService {
 
       // Validate and normalize dropdown type
       const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
-      this.logger.log(`[DEBUG] Normalized dropdown type: ${normalizedDropdownType}`);
+      this.logger.log(
+        `[DEBUG] Normalized dropdown type: ${normalizedDropdownType}`
+      );
 
       if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
@@ -179,7 +183,9 @@ export class ManageDropdownService {
       // Resolve languageId to primary key
       const resolvedLanguageId = await this.resolveLanguageId(languageId);
 
-      this.logger.log(`Calling repository for dropdownType: ${normalizedDropdownType}, languageId: ${resolvedLanguageId}`);
+      this.logger.log(
+        `Calling repository for dropdownType: ${normalizedDropdownType}, languageId: ${resolvedLanguageId}`
+      );
 
       const result =
         await this.manageDropdownRepository.findByTypeWithPagination(
@@ -190,7 +196,9 @@ export class ManageDropdownService {
           resolvedLanguageId
         );
 
-      this.logger.log(`Repository returned ${result.data.length} dropdowns, total: ${result.total}`);
+      this.logger.log(
+        `Repository returned ${result.data.length} dropdowns, total: ${result.total}`
+      );
 
       return result;
     } catch (error) {
