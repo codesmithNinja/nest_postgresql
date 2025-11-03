@@ -221,7 +221,31 @@ export class UniversalFileUploadInterceptor implements NestInterceptor {
 
     requestWithFiles.files = processedUpload.files;
 
-    // For binary uploads, also attach form data if any
+    // CRITICAL FIX: Remove file field names from request.body to prevent ValidationPipe errors
+    if (processedUpload.files && processedUpload.files.length > 0) {
+      const currentBody = (request.body as Record<string, unknown>) || {};
+      const cleanedBody: Record<string, unknown> = {};
+
+      // Get all file field names that should be removed from body
+      const fileFieldNames = new Set(
+        processedUpload.files.map((file) => file.fieldname)
+      );
+
+      // Only keep non-file fields in the body
+      Object.entries(currentBody).forEach(([key, value]) => {
+        if (!fileFieldNames.has(key)) {
+          cleanedBody[key] = value;
+        }
+      });
+
+      request.body = cleanedBody;
+
+      this.logger.debug(
+        `Cleaned ${fileFieldNames.size} file field names from request body: ${Array.from(fileFieldNames).join(', ')}`
+      );
+    }
+
+    // For binary uploads, also attach form data if any (non-file data only)
     if (processedUpload.formData) {
       request.body = {
         ...((request.body as Record<string, unknown>) || {}),

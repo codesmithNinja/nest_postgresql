@@ -30,6 +30,7 @@ import {
   SettingsListResponseDto,
   GroupTypeParamDto,
   SettingsErrorResponseDto,
+  CreateUpdateSettingsFormDto,
 } from './dto/settings.dto';
 import {
   SettingsNotFoundException,
@@ -266,7 +267,7 @@ export class SettingsController {
   })
   async createOrUpdateSettings(
     @Param() params: GroupTypeParamDto,
-    @Body() body: Record<string, string>,
+    @Body() body: CreateUpdateSettingsFormDto,
     @UploadedFiles() files?: Express.Multer.File[]
   ) {
     try {
