@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6623a2b7-b371-4735-a7e0-2299824cd6f5",
+		"_postman_id": "8f1833e5-3c20-470a-b3c8-1a62b89f48f2",
 		"name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
 		"description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -227,13 +227,7 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"firstName\": \"Jane Updated\",\n  \"lastName\": \"Smith Updated\",\n  \"email\": \"jane.updated@example.com\",\n  \"photo\": \"https://example.com/new-photo.jpg\",\n  \"active\": true,\n  \"twoFactorAuthVerified\": true\n}"
@@ -307,13 +301,7 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"currentPassword\": \"CurrentAdminPass123\",\n  \"newPassword\": \"NewAdminPass123\",\n  \"confirmPassword\": \"NewAdminPass123\"\n}"
@@ -480,29 +468,29 @@
 											"formdata": [
 												{
 													"key": "name",
-													"value": "United States",
+													"value": "Spain",
 													"type": "text"
 												},
 												{
 													"key": "iso2",
-													"value": "US",
+													"value": "SP",
 													"type": "text"
 												},
 												{
 													"key": "iso3",
-													"value": "USA",
+													"value": "SPA",
 													"type": "text"
 												},
 												{
 													"key": "isDefault",
-													"value": "NO",
+													"value": "YES",
 													"type": "text"
 												},
 												{
 													"key": "flag",
-													"value": "",
 													"description": "Country flag image (PNG, JPG, JPEG)",
-													"type": "file"
+													"type": "file",
+													"src": "/C:/Users/DELL/Desktop/Spain.png"
 												}
 											]
 										},
@@ -540,17 +528,20 @@
 												{
 													"key": "name",
 													"value": "United States of America",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "iso2",
 													"value": "US",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "iso3",
 													"value": "USA",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "isDefault",
@@ -578,7 +569,7 @@
 											"variable": [
 												{
 													"key": "publicId",
-													"value": "550e8400-e29b-41d4-a716-446655440000"
+													"value": "bb041da0-21e8-404e-aca6-81a0429a2ec9"
 												}
 											]
 										},
@@ -635,21 +626,10 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ],\n  \"status\": true\n}",
+											"raw": "{\n    \"publicIds\": [\n        \"7ec991a2-04d8-45bc-8429-523f414fab4f\",\n        \"bb041da0-21e8-404e-aca6-81a0429a2ec9\"\n    ],\n    \"status\": true\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -684,26 +664,10 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
+											"raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/countries/bulk-delete",
@@ -825,7 +789,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"United States Dollar\",\n  \"code\": \"USD\",\n  \"symbol\": \"$\",\n  \"status\": true\n}",
+											"raw": "{\n    \"name\": \"Indian Rupee\",\n    \"code\": \"INR\",\n    \"symbol\": \"₹\",\n    \"status\": true\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -951,12 +915,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ],\n  \"status\": true\n}",
+											"raw": "{\n  \"publicIds\": [\n    \"111c6a6e-af51-4b7d-8d65-642714800571\",\n    \"1e9f7dc0-5ab5-40b7-8fdd-46458901c865\"\n  ],\n  \"status\": true\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -999,12 +958,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}",
+											"raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -1059,7 +1013,8 @@
 											"variable": [
 												{
 													"key": "groupType",
-													"value": "site_setting"
+													"value": "site-setting",
+													"description": "site-setting\nrecaptcha-setting\ngoogle-map-setting\nnewsletter-setting\nproject-setting\ndate-and-time-setting\nmeta-setting\namount-setting\nemail-setting\nmaintenance-mode-setting"
 												}
 											]
 										},
@@ -1354,6 +1309,11 @@
 													"key": "cryptoPaymentCurrencyId",
 													"value": "673abcea9d6aa4a7379953f3\"",
 													"type": "text"
+												},
+												{
+													"key": "test",
+													"value": "test",
+													"type": "text"
 												}
 											]
 										},
@@ -1370,7 +1330,8 @@
 											"variable": [
 												{
 													"key": "groupType",
-													"value": "site_setting"
+													"value": "site-setting",
+													"description": "site-setting\nrecaptcha-setting\ngoogle-map-setting\nnewsletter-setting\nproject-setting\ndate-and-time-setting\nmeta-setting\namount-setting\nemail-setting\nmaintenance-mode-setting"
 												}
 											]
 										},
@@ -1406,7 +1367,7 @@
 											"variable": [
 												{
 													"key": "groupType",
-													"value": "site_setting"
+													"value": "site-setting"
 												}
 											]
 										},
@@ -1475,8 +1436,8 @@
 											"variable": [
 												{
 													"key": "groupType",
-													"value": "site_setting",
-													"description": "Group type to clear cache for"
+													"value": "site-setting",
+													"description": "site-setting\nrecaptcha-setting\ngoogle-map-setting\nnewsletter-setting\nproject-setting\ndate-and-time-setting\nmeta-setting\namount-setting\nemail-setting\nmaintenance-mode-setting"
 												}
 											]
 										},
@@ -1725,32 +1686,38 @@
 												{
 													"key": "name",
 													"value": "English (US)",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "folder",
 													"value": "en-us",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "iso2",
 													"value": "EN",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "iso3",
 													"value": "ENG",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "direction",
 													"value": "ltr",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "status",
 													"value": "true",
-													"type": "text"
+													"type": "text",
+													"disabled": true
 												},
 												{
 													"key": "isDefault",
@@ -1760,9 +1727,9 @@
 												},
 												{
 													"key": "flagImage",
-													"value": "",
 													"description": "Updated language flag image (PNG, JPG, JPEG, SVG)",
 													"type": "file",
+													"src": [],
 													"disabled": true
 												}
 											]
@@ -1779,7 +1746,7 @@
 											"variable": [
 												{
 													"key": "publicId",
-													"value": "550e8400-e29b-41d4-a716-446655440000"
+													"value": "3f7f36d7-04bf-4726-9558-b82e3ebc1308"
 												}
 											]
 										},
@@ -1836,21 +1803,15 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
+											"raw": "{\n    \"publicIds\": [\n        \"c30f0644-e3d6-463f-abf9-2796e5d1bd4f\",\n        \"153a0d8f-93a0-4e78-aed8-9f32a53c47f5\"\n    ],\n    \"status\": true\n}",
 											"options": {
 												"raw": {
 													"language": "json"
 												}
-											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ],\n  \"status\": true\n}"
+											}
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/languages/bulk-update",
@@ -1880,21 +1841,10 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
+											"raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/languages/bulk-delete",
@@ -1951,25 +1901,16 @@
 													"value": "10"
 												},
 												{
-													"key": "dropdownType",
-													"value": "",
-													"disabled": true
-												},
-												{
-													"key": "languageCode",
-													"value": "",
-													"disabled": true
-												},
-												{
-													"key": "includeInactive",
-													"value": "false",
+													"key": "languageId",
+													"value": "68ee3f3824ecabe3ca09ed24",
 													"disabled": true
 												}
 											],
 											"variable": [
 												{
 													"key": "dropdownType",
-													"value": "campaign-stage"
+													"value": "investor-type",
+													"description": "investor-type\ncompany-industry\ncampaign-stage\naccount-type\ninvesting-source"
 												}
 											]
 										},
@@ -2167,12 +2108,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"],\n  \"status\": true\n}"
+											"raw": "{\n    \"publicIds\": [\n        \"2755f283-40b2-42a9-a038-aea7edac172a\",\n        \"4ba38f94-c7b8-4172-b395-958b4e591313\"\n    ],\n    \"status\": true\n}"
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-update",
@@ -2217,12 +2153,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"publicIds\":",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											} [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"]\n}"
+											"raw": "{\n  \"publicIds\": [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"]\n}"
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-delete",
@@ -2283,16 +2214,15 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Test@123\"\n}"
+											"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"Test@123\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
 										},
 										"url": {
 											"raw": "{{BASE_URL}}/admins/login?lang=en",
@@ -2321,13 +2251,7 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"admin@example.com\"\n}"
@@ -2353,13 +2277,7 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"token\": \"{{ADMIN_RESET_TOKEN}}\",\n  \"password\": \"NewAdminPassword123\",\n  \"confirmPassword\": \"NewAdminPassword123\"\n}"
@@ -2460,7 +2378,8 @@
 											"variable": [
 												{
 													"key": "groupType",
-													"value": "site_setting"
+													"value": "site-setting",
+													"description": "site-setting\nrecaptcha-setting\ngoogle-map-setting\nnewsletter-setting\nproject-setting\ndate-and-time-setting\nmeta-setting\namount-setting\nemail-setting\nmaintenance-mode-setting"
 												}
 											]
 										},
@@ -2566,7 +2485,7 @@
 											"variable": [
 												{
 													"key": "dropdownType",
-													"value": "campaign-stage"
+													"value": "account-type"
 												}
 											]
 										},
@@ -2656,13 +2575,7 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
@@ -2695,13 +2608,7 @@
 											]
 										},
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
@@ -2910,13 +2817,7 @@
 											]
 										},
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n    \"companyLogo\": \"https://example.com/logo.jpg\",\n    \"companyName\": \"TechStartup Inc.\",\n    \"companyTagline\": \"Revolutionary tech solution for modern businesses\",\n    \"companyEmail\": \"company@example.com\",\n    \"companyPhoneNumber\": \"+919876543210\",\n    \"companyAddress\": \"Vadodara, Gujarat, India\",\n    \"yearFounded\": 2025,\n    \"website\": \"https://example.com/\",\n    \"companyCategory\": \"Technology\",\n    \"companyIndustry\": \"Software Development\",\n    \"companyDescription\": \"We are building the future of business automation with cutting-edge AI solutions\"\n}"
@@ -3260,13 +3161,7 @@
 									"name": "Create Team Member",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"name\": \"Michael Chen\",\n  \"title\": \"Chief Technology Officer\",\n  \"bio\": \"Former senior engineer at Google with 12 years of experience in scalable systems\",\n  \"linkedIn\": \"https://linkedin.com/in/michaelchen\",\n  \"email\": \"michael.chen@company.com\",\n  \"phone\": \"+1-555-0456\",\n  \"experience\": \"12 years\",\n  \"education\": \"MS Computer Science, Stanford University\",\n  \"previousCompanies\": \"Google, Microsoft, Amazon\",\n  \"photo\": \"https://example.com/michael-photo.jpg\",\n  \"isFounder\": false,\n  \"equityPercentage\": 5.0,\n  \"displayOrder\": 2\n}"
@@ -3295,13 +3190,7 @@
 									"name": "Update Team Member",
 									"request": {
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Chief Technology Officer & Co-Founder\",\n  \"bio\": \"Updated bio with recent achievements and new role\",\n  \"isFounder\": true,\n  \"equityPercentage\": 8.0,\n  \"displayOrder\": 1\n}"
@@ -3396,13 +3285,7 @@
 									"name": "Create Campaign FAQ",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"question\": \"What is the minimum investment amount?\",\n  \"answer\": \"The minimum investment amount is $1,000. This allows smaller investors to participate in our equity crowdfunding campaign while keeping administrative costs manageable.\",\n  \"category\": \"Investment Terms\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
@@ -3431,13 +3314,7 @@
 									"name": "Update Campaign FAQ",
 									"request": {
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"question\": \"What is the minimum investment amount for early investors?\",\n  \"answer\": \"Updated answer with early bird discount information: The minimum investment amount is $1,000, but early investors (first 30 days) can invest with a minimum of $500.\",\n  \"displayOrder\": 1\n}"
@@ -3532,13 +3409,7 @@
 									"name": "Create Extras Video",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Product Demo - Core Features\",\n  \"description\": \"Comprehensive demonstration of our platform's key features and user interface\",\n  \"videoUrl\": \"https://example.com/videos/product-demo.mp4\",\n  \"thumbnailUrl\": \"https://example.com/thumbnails/product-demo.jpg\",\n  \"duration\": 180,\n  \"category\": \"Product Demo\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
@@ -3567,13 +3438,7 @@
 									"name": "Update Extras Video",
 									"request": {
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Product Demo - Updated Features\",\n  \"description\": \"Updated demo showcasing new features released in v2.0\",\n  \"displayOrder\": 1\n}"
@@ -3668,13 +3533,7 @@
 									"name": "Create Extras Image",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Product Interface Screenshot\",\n  \"description\": \"Main dashboard showing key metrics and analytics features\",\n  \"imageUrl\": \"https://example.com/images/dashboard-screenshot.jpg\",\n  \"altText\": \"Product dashboard interface with analytics charts\",\n  \"category\": \"Product Screenshots\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
@@ -3703,13 +3562,7 @@
 									"name": "Update Extras Image",
 									"request": {
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Updated Product Interface\",\n  \"description\": \"Updated dashboard with new v2.0 features and improved UX\",\n  \"displayOrder\": 1\n}"
@@ -3804,13 +3657,7 @@
 									"name": "Create Extras Document",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Financial Projections 2024-2027\",\n  \"description\": \"Detailed financial projections including revenue forecasts, expense breakdowns, and profitability timeline\",\n  \"documentUrl\": \"https://example.com/documents/financial-projections.pdf\",\n  \"fileType\": \"PDF\",\n  \"fileSize\": 2048000,\n  \"category\": \"Financial Documents\",\n  \"displayOrder\": 1,\n  \"isPublic\": true,\n  \"requiresAccess\": false\n}"
@@ -3839,13 +3686,7 @@
 									"name": "Update Extras Document",
 									"request": {
 										"method": "PATCH",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"title\": \"Updated Financial Projections 2024-2027\",\n  \"description\": \"Revised financial projections with Q1 2024 actual results incorporated\",\n  \"isPublic\": false,\n  \"requiresAccess\": true\n}"
@@ -3923,13 +3764,7 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"firstName\": \"Divyang\",\n  \"lastName\": \"Patel\",\n  \"email\": \"divyang.rockersinfo@gmail.com\",\n  \"password\": \"Test@123\",\n  \"phoneNumber\": \"+919601000507\",\n  \"userLocation\": \"Vadodara, Gujarat, India\",\n  \"zipcode\": \"390001\",\n  \"aboutYourself\": \"Experienced entrepreneur and investor\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"LinkedIn\",\n      \"url\": \"https://linkedin.com/in/divyang\"\n    },\n    {\n      \"title\": \"Portfolio\",\n      \"url\": \"https://divyang.com\"\n    }\n  ]\n}"
@@ -4008,13 +3843,7 @@
 											"type": "noauth"
 										},
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"divyang.rockersinfo@gmail.com\",\n  \"password\": \"Test@123\"\n}"
@@ -4043,13 +3872,7 @@
 									"name": "Forgot Password",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
@@ -4072,13 +3895,7 @@
 									"name": "Reset Password",
 									"request": {
 										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json",
-												"type": "text"
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "{\n  \"token\": \"{{RESET_TOKEN}}\",\n  \"password\": \"NewSecurePassword123\"\n}"

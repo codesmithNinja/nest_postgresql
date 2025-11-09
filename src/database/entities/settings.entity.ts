@@ -5,7 +5,7 @@ export interface Settings {
   groupType: string;
   recordType: RecordType;
   key: string;
-  value: string;
+  value: string | number | boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,12 +14,12 @@ export interface CreateSettingsData {
   groupType: string;
   recordType?: RecordType;
   key: string;
-  value: string;
+  value: string | number | boolean;
 }
 
 export interface UpdateSettingsData {
   recordType?: RecordType;
-  value?: string;
+  value?: string | number | boolean;
 }
 
 export interface SettingsFilter {

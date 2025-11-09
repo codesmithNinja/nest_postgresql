@@ -46,37 +46,19 @@ export class GroupTypeValidationMiddleware implements NestMiddleware {
     }
 
     // Additional business rules
-    return this.isAllowedGroupType(groupType);
+    return this.isAllowedGroupType();
   }
 
-  private isAllowedGroupType(groupType: string): boolean {
-    // Define restricted group types that are not allowed
-    const restrictedGroupTypes = [
-      'system',
-      'internal',
-      'secret',
-      'private',
-      'admin_internal',
-      'config_internal',
-    ];
+  private isAllowedGroupType(): boolean {
+    // REMOVED: All restrictions removed for full dynamic flexibility
+    // Previously blocked: system, internal, secret, private, admin_internal, config_internal
+    // Previously blocked prefixes: sys_, internal_, secret_
 
-    const normalizedGroupType = groupType.toLowerCase();
+    // Now allows ANY groupType including:
+    // - site_setting, amount_setting, revenue_setting (user examples)
+    // - system, internal, secret (previously blocked)
+    // - custom_group_123, API_CONFIG_v2, any-format
 
-    // Check if group type is in restricted list
-    if (restrictedGroupTypes.includes(normalizedGroupType)) {
-      return false;
-    }
-
-    // Check for reserved prefixes
-    const restrictedPrefixes = ['sys_', 'internal_', 'secret_'];
-    const hasRestrictedPrefix = restrictedPrefixes.some((prefix) =>
-      normalizedGroupType.startsWith(prefix)
-    );
-
-    if (hasRestrictedPrefix) {
-      return false;
-    }
-
-    return true;
+    return true; // Accept everything for maximum flexibility
   }
 }

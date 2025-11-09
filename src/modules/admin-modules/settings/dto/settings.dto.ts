@@ -105,10 +105,29 @@ export class SettingsResponseDto {
   key!: string;
 
   @ApiProperty({
-    description: 'Settings value',
-    example: 'My Website',
+    description:
+      'Settings value - supports mixed data types (string, number, boolean)',
+    examples: {
+      string: {
+        value: 'My Website',
+        description: 'String value example',
+      },
+      number: {
+        value: 1000,
+        description: 'Number value example',
+      },
+      boolean: {
+        value: true,
+        description: 'Boolean value example',
+      },
+      filePath: {
+        value: '/uploads/settings/logo.png',
+        description: 'File path for uploaded files',
+      },
+    },
+    oneOf: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
   })
-  value!: string;
+  value!: string | number | boolean;
 
   @ApiProperty({
     description: 'Creation timestamp',
@@ -199,286 +218,69 @@ export class SettingsErrorResponseDto {
   statusCode!: number;
 }
 
-export class CreateUpdateSettingsFormDto {
-  // Site Settings
-  @ApiPropertyOptional({
-    description: 'Site name',
-    example: 'Equity Crowdfunding',
-  })
-  @IsOptional()
-  @IsString()
-  siteName?: string;
-
-  @ApiPropertyOptional({
-    description: 'Site primary color',
-    example: '#5c46ca',
-  })
-  @IsOptional()
-  @IsString()
-  sitePrimaryColor?: string;
-
-  @ApiPropertyOptional({
-    description: 'Site secondary color',
-    example: '#b5ace2',
-  })
-  @IsOptional()
-  @IsString()
-  siteSecondaryColor?: string;
-
-  @ApiPropertyOptional({
-    description: 'Google Analytics code',
-    example: 'GA-XXXXXXXXX',
-  })
-  @IsOptional()
-  @IsString()
-  googleAnalyticsCode?: string;
-
-  @ApiPropertyOptional({
-    description: 'Payment method',
-    example: 'normal-payment',
-  })
-  @IsOptional()
-  @IsString()
-  paymentMethod?: string;
-
-  @ApiPropertyOptional({
-    description: 'Editor type',
-    example: 'ckeditorMode',
-  })
-  @IsOptional()
-  @IsString()
-  editorType?: string;
-
-  @ApiPropertyOptional({
-    description: 'TinyMCE AI URL',
-    example: 'https://api.tinymce.com/ai',
-  })
-  @IsOptional()
-  @IsString()
-  tinymceAIURL?: string;
-
-  @ApiPropertyOptional({
-    description: 'TinyMCE AI Token',
-    example: 'tinymceToken',
-  })
-  @IsOptional()
-  @IsString()
-  tinymceAIToken?: string;
-
-  @ApiPropertyOptional({
-    description: 'Enable secondary market',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  enableSecondaryMarket?: string;
-
-  @ApiPropertyOptional({
-    description: 'Enable web notification',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  enableWebNotification?: string;
-
-  @ApiPropertyOptional({
-    description: 'Enable share certificate',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  enableShareCertificate?: string;
-
-  @ApiPropertyOptional({
-    description: 'Two factor auth required for admin',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  twoFactorAuthRequiredAdmin?: string;
-
-  @ApiPropertyOptional({
-    description: 'Two factor auth required for front',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  twoFactorAuthRequiredFront?: string;
-
-  @ApiPropertyOptional({
-    description: 'Only admin can create campaign',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  onlyAdminCreateCampaign?: string;
-
-  @ApiPropertyOptional({
-    description: 'AI Assistant enabled',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  AIAssintant?: string;
-
-  @ApiPropertyOptional({
-    description: 'Enable SSN masking',
-    example: 'YES',
-    enum: ['YES', 'NO'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['YES', 'NO'])
-  enableSSNMasking?: string;
-
-  // Email Settings
-  @ApiPropertyOptional({
-    description: 'SMTP host',
-    example: 'smtp.gmail.com',
-  })
-  @IsOptional()
-  @IsString()
-  smtpHost?: string;
-
-  @ApiPropertyOptional({
-    description: 'SMTP port',
-    example: '587',
-  })
-  @IsOptional()
-  @IsString()
-  smtpPort?: string;
-
-  @ApiPropertyOptional({
-    description: 'SMTP username',
-    example: 'user@example.com',
-  })
-  @IsOptional()
-  @IsString()
-  smtpUsername?: string;
-
-  @ApiPropertyOptional({
-    description: 'SMTP password',
-    example: 'password123',
-  })
-  @IsOptional()
-  @IsString()
-  smtpPassword?: string;
-
-  @ApiPropertyOptional({
-    description: 'SMTP encryption',
-    example: 'tls',
-    enum: ['ssl', 'tls', 'none'],
-  })
-  @IsOptional()
-  @IsString()
-  @IsEnum(['ssl', 'tls', 'none'])
-  smtpEncryption?: string;
-
-  // API Settings
-  @ApiPropertyOptional({
-    description: 'Stripe public key',
-    example: 'pk_test_xxxxxxxx',
-  })
-  @IsOptional()
-  @IsString()
-  stripePublicKey?: string;
-
-  @ApiPropertyOptional({
-    description: 'Stripe secret key',
-    example: 'sk_test_xxxxxxxx',
-  })
-  @IsOptional()
-  @IsString()
-  stripeSecretKey?: string;
-
-  @ApiPropertyOptional({
-    description: 'Plaid client ID',
-    example: 'plaid_client_id',
-  })
-  @IsOptional()
-  @IsString()
-  plaidClientId?: string;
-
-  @ApiPropertyOptional({
-    description: 'Plaid secret',
-    example: 'plaid_secret',
-  })
-  @IsOptional()
-  @IsString()
-  plaidSecret?: string;
-
-  @ApiPropertyOptional({
-    description: 'AWS access key',
-    example: 'AKIAXXXXXXXXXXXXXXXX',
-  })
-  @IsOptional()
-  @IsString()
-  awsAccessKey?: string;
-
-  @ApiPropertyOptional({
-    description: 'AWS secret key',
-    example: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-  })
-  @IsOptional()
-  @IsString()
-  awsSecretKey?: string;
-
-  @ApiPropertyOptional({
-    description: 'AWS region',
-    example: 'us-east-1',
-  })
-  @IsOptional()
-  @IsString()
-  awsRegion?: string;
-
-  @ApiPropertyOptional({
-    description: 'AWS S3 bucket',
-    example: 'my-bucket',
-  })
-  @IsOptional()
-  @IsString()
-  awsS3Bucket?: string;
-
-  // Social Media Settings
-  @ApiPropertyOptional({
-    description: 'Facebook app ID',
-    example: 'facebook_app_id',
-  })
-  @IsOptional()
-  @IsString()
-  facebookAppId?: string;
-
-  @ApiPropertyOptional({
-    description: 'Google client ID',
-    example: 'google_client_id',
-  })
-  @IsOptional()
-  @IsString()
-  googleClientId?: string;
-
-  @ApiPropertyOptional({
-    description: 'LinkedIn client ID',
-    example: 'linkedin_client_id',
-  })
-  @IsOptional()
-  @IsString()
-  linkedinClientId?: string;
-
-  // Other dynamic settings - allow any string fields
-  // Note: Index signature allows additional properties for ValidationPipe compatibility
+/**
+ * Dynamic Settings DTO - Accepts ANY key-value pairs without validation
+ *
+ * This DTO is designed to handle completely dynamic settings for any groupType:
+ * - site_setting: siteName, sitePrimaryColor, siteSecondaryColor, enableWebNotification, etc.
+ * - amount_setting: Custom fields specific to amount configuration
+ * - revenue_setting: Custom fields specific to revenue configuration
+ * - email_setting: smtpHost, smtpPort, smtpUsername, smtpPassword, etc.
+ * - api_setting: stripePublicKey, stripeSecretKey, plaidClientId, etc.
+ * - social_setting: facebookAppId, googleClientId, linkedinClientId, etc.
+ * - ANY_CUSTOM_GROUPTYPE: anyFieldName1, anyFieldName2, etc.
+ *
+ * Features:
+ * - No validation decorators - accepts everything
+ * - Undefined values converted to empty strings
+ * - File uploads handled separately via @UploadedFiles()
+ * - Mixed text + file uploads in single request
+ * - Works with both Postman form-data and React binary uploads
+ *
+ * Examples:
+ * - Text fields: siteName="My Site", customColor="#FF0000", anyField="value"
+ * - File fields: siteLogo=[file], darkLogo=[file], customImage=[file]
+ * - Edge cases: emptyField="", undefinedField=undefined (→ becomes "")
+ */
+export class DynamicSettingsDto {
+  /**
+   * Dynamic key-value pairs for settings - no predefined schema
+   *
+   * **🚀 DYNAMIC SETTINGS - Accept ANY field names with mixed data types**
+   *
+   * **✨ Mixed Data Type Support:**
+   * - string: "My Website" → stored as string
+   * - boolean: true/false → stored as actual boolean
+   * - number: 1000 → stored as actual number
+   * - undefined: undefined → converted to empty string ""
+   *
+   * **📂 Examples by groupType:**
+   *
+   * **site_setting:**
+   * - siteName: "My Platform" (string)
+   * - enableFeatures: true (boolean)
+   * - maxUsers: 1000 (number)
+   * - primaryColor: "#FF5722" (string)
+   *
+   * **amount_setting:**
+   * - minimumInvestment: 100 (number)
+   * - maximumInvestment: 10000 (number)
+   * - defaultCurrency: "USD" (string)
+   * - feePercentage: 2.5 (number)
+   *
+   * **revenue_setting:**
+   * - revenueSharePercentage: 15.5 (number)
+   * - payoutFrequency: "monthly" (string)
+   * - minimumThreshold: 1000 (number)
+   * - autoPayouts: true (boolean)
+   *
+   * **Custom fields:**
+   * - customField1: "any value" (string)
+   * - special-key-name: 42 (number)
+   * - any_field_name_you_want: false (boolean)
+   *
+   * **📁 File Upload Support:**
+   * Files are handled separately via @UploadedFiles() and stored as file paths
+   */
   [key: string]: unknown;
 }

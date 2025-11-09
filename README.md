@@ -43,7 +43,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **🏳️ Countries Management** - Country data management with flags and usage tracking
 - **💰 Currencies Management** - Multi-currency support with ISO codes, symbols, and usage tracking
 - **📋 Manage Dropdown** - Dynamic dropdown data management with multi-language support
-- **⚙️ Settings Management** - Dynamic application configuration by groups
+- **⚙️ Dynamic Settings Management** - Fully dynamic application configuration with mixed data type support (boolean, number, string) and file uploads
 - **👤 Admin Users** - Administrative user management and authentication
 
 #### Public API Endpoints (No Authentication Required)
@@ -106,10 +106,10 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   PATCH  /:dropdownType/bulk-update      # Admin: Bulk update dropdown option status
   PATCH  /:dropdownType/bulk-delete      # Admin: Bulk delete dropdown options (useCount must be 0)
 
-/settings                              # Settings management
+/settings                              # Dynamic settings management
   GET    /:groupType/front               # Public: Get settings by group type
   GET    /:groupType/admin               # Admin: Get settings with admin access
-  POST   /:groupType/admin               # Admin: Create or update settings (supports file upload)
+  POST   /:groupType/admin               # Admin: Create/update dynamic settings with mixed data types
   DELETE /:groupType/admin               # Admin: Delete all settings by group type
   GET    /admin/cache/stats              # Admin: Get cache statistics
   DELETE /admin/cache/clear/:groupType?  # Admin: Clear cache (all or by group)
@@ -138,6 +138,57 @@ All admin modules support consistent bulk operations with standardized payload f
 - ✅ Detailed error reporting for failed operations
 
 **📖 Documentation:** Access full API documentation at `http://localhost:3000/api/docs` when running the application.
+
+### 🔧 Dynamic Settings System
+
+The settings module provides a **fully dynamic configuration system** that accepts any field names and data types without predefined schemas:
+
+#### **Key Features:**
+- **✅ Mixed Data Type Support** - Stores actual booleans, numbers, and strings (not string representations)
+- **✅ Unlimited Dynamic Fields** - Accept any JSON field names without validation restrictions
+- **✅ File Upload Support** - Mixed form-data with text fields + file uploads
+- **✅ Smart Type Handling** - undefined → empty string, preserves boolean/number types
+- **✅ Dynamic Group Types** - Unlimited custom groupType categories
+
+#### **Supported Group Types:**
+```
+site_setting       - Site configuration (colors, name, features)
+amount_setting     - Investment amounts and currency settings
+revenue_setting    - Revenue sharing and payout configuration
+email_setting      - SMTP and email configuration
+api_setting        - API keys and credentials
+custom_group_*     - Any custom group type you create
+```
+
+#### **Data Type Examples:**
+```json
+{
+  "siteName": "My Company",           // → string
+  "enableFeature": true,              // → boolean (actual boolean, not "true")
+  "maxUsers": 1000,                   // → number (actual number, not "1000")
+  "customSetting": "any value",       // → string
+  "undefinedValue": undefined         // → "" (empty string)
+}
+```
+
+#### **Mixed Form-Data Support:**
+```
+POST /settings/site_setting/admin
+Content-Type: multipart/form-data
+
+siteName=My Company                   (text field)
+enableNotifications=true              (boolean field)
+maxUsers=500                         (number field)
+siteLogo=@logo.png                   (file upload)
+favicon=@icon.ico                    (file upload)
+```
+
+**No Schema Restrictions** - The API dynamically accepts any field structure, making it perfect for:
+- Feature flags and toggles
+- Configuration parameters
+- Theme and branding settings
+- API credentials and keys
+- Business logic parameters
 
 ## Project Setup
 

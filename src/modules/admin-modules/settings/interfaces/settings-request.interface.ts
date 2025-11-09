@@ -9,13 +9,13 @@ export interface SettingsRequest extends Request {
 
 export interface CreateSettingsRequest extends SettingsRequest {
   body: {
-    [key: string]: string | Express.Multer.File;
+    [key: string]: string | number | boolean | Express.Multer.File;
   };
 }
 
 export interface FormDataSettingsItem {
   key: string;
-  value: string | Express.Multer.File;
+  value: string | number | boolean | Express.Multer.File;
   recordType: RecordType;
   originalValue?: string; // For file cleanup in case of update
 }
@@ -23,8 +23,8 @@ export interface FormDataSettingsItem {
 export interface ProcessedFormDataSettings {
   textSettings: Array<{
     key: string;
-    value: string;
-    recordType: RecordType.STRING;
+    value: string | number | boolean;
+    recordType: RecordType.STRING | RecordType.NUMBER | RecordType.BOOLEAN;
   }>;
   fileSettings: Array<{
     key: string;

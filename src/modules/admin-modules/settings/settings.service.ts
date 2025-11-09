@@ -147,7 +147,7 @@ export class SettingsService implements OnModuleInit {
 
   async createOrUpdateSettings(
     groupType: string,
-    formData: Record<string, string | Express.Multer.File>
+    formData: Record<string, string | number | boolean | Express.Multer.File>
   ): Promise<Settings[]> {
     this.logger.log(`Processing form data for group type: ${groupType}`);
 
@@ -267,7 +267,11 @@ export class SettingsService implements OnModuleInit {
       }
 
       // If it's a file setting, delete the file
-      if (setting.recordType === RecordType.FILE && setting.value) {
+      if (
+        setting.recordType === RecordType.FILE &&
+        setting.value &&
+        typeof setting.value === 'string'
+      ) {
         await this.deleteOldFile(setting.value);
       }
 
@@ -297,7 +301,11 @@ export class SettingsService implements OnModuleInit {
 
       // Delete all associated files
       for (const setting of settings) {
-        if (setting.recordType === RecordType.FILE && setting.value) {
+        if (
+          setting.recordType === RecordType.FILE &&
+          setting.value &&
+          typeof setting.value === 'string'
+        ) {
           await this.deleteOldFile(setting.value);
         }
       }
@@ -345,18 +353,32 @@ export class SettingsService implements OnModuleInit {
 
   private async processFormDataSettings(
     groupType: string,
-    formData: Record<string, string | Express.Multer.File>
+    formData: Record<string, string | number | boolean | Express.Multer.File>
   ): Promise<ProcessedFormDataSettings> {
     const textSettings: ProcessedFormDataSettings['textSettings'] = [];
     const fileSettings: ProcessedFormDataSettings['fileSettings'] = [];
 
     for (const [key, value] of Object.entries(formData)) {
       if (typeof value === 'string') {
-        // Text setting
+        // String setting
         textSettings.push({
           key,
           value,
           recordType: RecordType.STRING,
+        });
+      } else if (typeof value === 'number') {
+        // Number setting - preserve as number
+        textSettings.push({
+          key,
+          value,
+          recordType: RecordType.NUMBER,
+        });
+      } else if (typeof value === 'boolean') {
+        // Boolean setting - preserve as boolean
+        textSettings.push({
+          key,
+          value,
+          recordType: RecordType.BOOLEAN,
         });
       } else if (value && typeof value === 'object' && 'buffer' in value) {
         // File setting
@@ -368,7 +390,8 @@ export class SettingsService implements OnModuleInit {
           file: value,
           recordType: RecordType.FILE,
           oldFilePath:
-            existingSetting?.recordType === RecordType.FILE
+            existingSetting?.recordType === RecordType.FILE &&
+            typeof existingSetting.value === 'string'
               ? existingSetting.value
               : undefined,
         });

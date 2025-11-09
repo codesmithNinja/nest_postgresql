@@ -119,6 +119,7 @@ src/
 - **ActiveStatus**: PENDING, ACTIVE, INACTIVE, DELETED
 - **NotificationStatus**: YES, NO
 - **DatabaseType**: postgres, mongodb
+- **RecordType**: STRING, NUMBER, BOOLEAN, FILE (for Settings module mixed data types)
 
 ## API Endpoints Structure
 
@@ -306,12 +307,40 @@ return ResponseHandler.error('Error message', 400);
 
 Admin modules follow consistent patterns for similar functionality:
 
-**Settings Module Pattern** (Reference Implementation):
+**Settings Module Pattern** (Revolutionary Dynamic Implementation):
 
-- `GET /:groupType/front` - Public endpoint (no auth)
-- `GET /:groupType/admin` - Admin endpoint (with auth)
-- Uses `GroupTypeParamDto` for parameter validation
+- **🔧 Fully Dynamic Configuration**: Accept ANY field names without schema restrictions or predefined validations
+- **📊 Mixed Data Type Support**: Store actual booleans, numbers, and strings (not string representations)
+- **📁 File Upload Integration**: Seamlessly handle text fields + file uploads via multipart form-data
+- **🗂️ Unlimited Group Types**: Support for any custom groupType (site_setting, amount_setting, revenue_setting, etc.)
+- **⚡ Zero Validation Constraints**: No schema restrictions - accepts everything dynamically
+
+**API Endpoints:**
+- `GET /:groupType/front` - Public endpoint (no auth) - Get settings for frontend
+- `GET /:groupType/admin` - Admin endpoint (with auth) - Get settings with admin access
+- `POST /:groupType/admin` - Admin endpoint (with auth) - Create/update dynamic settings with mixed data types and files
+- `DELETE /:groupType/admin` - Admin endpoint (with auth) - Delete all settings by group type
+- `GET /admin/cache/stats` - Admin endpoint - Get cache statistics
+- `DELETE /admin/cache/clear/:groupType?` - Admin endpoint - Clear cache (all or by group)
+
+**Dynamic Features:**
+- Uses `Record<string, unknown>` to bypass all validation constraints
+- MongoDB Schema.Types.Mixed for flexible data storage
+- Smart type handling: undefined → empty string, preserves boolean/number types
 - Response format: `{ settings, groupType, count }`
+- Cache management with Node-cache for optimal performance
+
+**Example Usage:**
+```json
+POST /settings/site_setting/admin
+{
+  "siteName": "My Website",           // → string
+  "enableFeatures": true,             // → boolean
+  "maxUsers": 1000,                   // → number
+  "customField": "any value",         // → string
+  "undefinedField": undefined         // → "" (empty string)
+}
+```
 
 **Manage-Dropdown Module** (Aligned Implementation):
 

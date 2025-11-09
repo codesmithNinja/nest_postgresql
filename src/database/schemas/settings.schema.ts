@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 import { RecordType } from '../../common/enums/database-type.enum';
 
 export type SettingsDocument = Settings & Document;
@@ -24,8 +24,17 @@ export class Settings {
   @Prop({ required: true, trim: true, lowercase: true })
   key!: string;
 
-  @Prop({ required: true, trim: true })
-  value!: string;
+  @Prop({
+    type: MongooseSchema.Types.Mixed,
+    required: [
+      function (this: Settings) {
+        // Custom required function that allows empty strings but not null/undefined
+        return this.value !== null && this.value !== undefined;
+      },
+      'Value cannot be null or undefined',
+    ],
+  })
+  value!: string | number | boolean;
 
   @Prop({ type: Date, default: Date.now })
   createdAt!: Date;

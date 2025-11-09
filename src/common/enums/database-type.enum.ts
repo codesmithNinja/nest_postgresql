@@ -45,5 +45,7 @@ export enum TermSlug {
 
 export enum RecordType {
   STRING = 'STRING',
+  NUMBER = 'NUMBER',
+  BOOLEAN = 'BOOLEAN',
   FILE = 'FILE',
 }

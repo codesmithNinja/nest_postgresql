@@ -30,7 +30,6 @@ import {
   SettingsListResponseDto,
   GroupTypeParamDto,
   SettingsErrorResponseDto,
-  CreateUpdateSettingsFormDto,
 } from './dto/settings.dto';
 import {
   SettingsNotFoundException,
@@ -188,48 +187,83 @@ export class SettingsController {
   })
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Create or update settings (Admin)',
-    description: `Create or update settings for a specific group type.
+    summary: 'Create or update dynamic settings (Admin)',
+    description: `🚀 **FULLY DYNAMIC SETTINGS API** - Accepts ANY groupType with ANY field names!
 
-    **Supports both upload formats:**
+    **✨ Dynamic GroupType Support:**
+    - site_setting: siteName, sitePrimaryColor, enableWebNotification, etc.
+    - amount_setting: minimumInvestment, maximumInvestment, defaultCurrency, etc.
+    - revenue_setting: revenueSharePercentage, payoutFrequency, etc.
+    - email_setting: smtpHost, smtpPort, smtpUsername, etc.
+    - api_setting: stripePublicKey, awsAccessKey, etc.
+    - **ANY_CUSTOM_GROUPTYPE**: Your own custom group names!
 
-    **1. Multipart/form-data (Postman style):**
-    - Text settings: Send as regular form fields (key: value)
-    - File settings: Send files with field names as keys
-    - Content-Type: multipart/form-data
+    **💡 Dynamic Field Support:**
+    - NO predefined schema - send ANY field names you want
+    - NO validation restrictions - accepts everything
+    - Edge cases: undefined → empty string, null → empty string
 
-    **2. Binary upload (React style):**
-    - Send raw file data directly
-    - Include filename in X-Filename header
-    - Content-Type: application/octet-stream or specific MIME type
-    - For settings, use fieldName matching the setting key (e.g., 'siteLogo')
+    **📤 Upload Format Support:**
 
-    **Example multipart form data:**
-    - siteName: "My Website"
-    - primaryColor: "#000000"
-    - siteLogo: [file]
-    - darkLogo: [file]
-    - favIcon: [file]
-    - placeholderLogo: [file]
+    **1. Postman Multipart/form-data:**
+    \`\`\`
+    Content-Type: multipart/form-data
 
-    **Example binary upload headers:**
-    - X-Filename: logo.png
-    - Content-Type: image/png
-    - Field-Name: siteLogo (for identifying which setting to update)
+    siteName: "My Platform"
+    customColor: "#FF5722"
+    newField123: "any value"
+    siteLogo: [file]
+    customImage: [file]
+    \`\`\`
 
-    **Behavior:**
-    - If setting exists: Updates the existing setting
-    - If setting doesn't exist: Creates new setting
-    - Files automatically get recordType: FILE
-    - Text values get recordType: STRING
-    - Old files are automatically deleted when updated
-    - Maximum file size: 10MB per file
-    - Maximum files: 20 files`,
+    **2. React Binary Upload:**
+    \`\`\`
+    Content-Type: application/octet-stream
+    X-Filename: logo.png
+    Field-Name: siteLogo
+    [binary data]
+    \`\`\`
+
+    **📝 Example Requests:**
+
+    **site_setting:**
+    - siteName, siteLogo, enableNotifications, customTheme
+
+    **amount_setting:**
+    - minAmount, maxAmount, currency, feePercentage
+
+    **revenue_setting:**
+    - sharePercent, payoutCycle, minimumThreshold
+
+    **🎯 Smart Behavior:**
+    - Undefined/null values → stored as empty strings
+    - Mixed text + files in single request
+    - Auto file type detection (STRING vs FILE)
+    - Max 20 files, 10MB each
+    - Supports: images, SVG, favicon, PDF`,
   })
   @ApiParam({
     name: 'groupType',
-    description: 'Settings group type',
-    example: 'site_setting',
+    description:
+      'Any custom group type - no restrictions! Examples: site_setting, amount_setting, revenue_setting, my_custom_group, API_CONFIG_v2',
+    examples: {
+      site_setting: {
+        value: 'site_setting',
+        description: 'Site configuration settings',
+      },
+      amount_setting: {
+        value: 'amount_setting',
+        description: 'Amount/investment configuration',
+      },
+      revenue_setting: {
+        value: 'revenue_setting',
+        description: 'Revenue sharing configuration',
+      },
+      custom_group: {
+        value: 'my_custom_group_123',
+        description: 'Any custom group name you want',
+      },
+    },
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -267,7 +301,7 @@ export class SettingsController {
   })
   async createOrUpdateSettings(
     @Param() params: GroupTypeParamDto,
-    @Body() body: CreateUpdateSettingsFormDto,
+    @Body() body: Record<string, unknown>,
     @UploadedFiles() files?: Express.Multer.File[]
   ) {
     try {
@@ -300,14 +334,53 @@ export class SettingsController {
       }
 
       // Combine body data and files into a single form data object
-      const formData: Record<string, string | Express.Multer.File> = {};
+      const formData: Record<
+        string,
+        string | number | boolean | Express.Multer.File
+      > = {};
 
-      // Add text data from body
+      // Add text data from body - preserve original types, only convert undefined to empty string
       if (hasBodyData) {
         Object.entries(body).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            formData[key] = value;
+          // Preserve original types: boolean → boolean, number → number, string → string
+          // Only convert undefined → empty string
+          let finalValue: string | number | boolean;
+
+          if (value === undefined || value === null) {
+            // Convert undefined/null to empty string as requested
+            finalValue = '';
+            this.logger.debug(
+              `Converting undefined/null value for key "${key}" to empty string`
+            );
+          } else if (typeof value === 'string') {
+            // Handle edge case where literal "undefined" string is passed
+            finalValue = value === 'undefined' ? '' : value;
+            if (value === 'undefined') {
+              this.logger.debug(
+                `Converting literal "undefined" string for key "${key}" to empty string`
+              );
+            }
+          } else if (typeof value === 'boolean') {
+            // Preserve boolean type for MongoDB Mixed field
+            finalValue = value;
+            this.logger.debug(
+              `Preserving boolean value for key "${key}": ${finalValue}`
+            );
+          } else if (typeof value === 'number') {
+            // Preserve number type for MongoDB Mixed field
+            finalValue = value;
+            this.logger.debug(
+              `Preserving number value for key "${key}": ${finalValue}`
+            );
+          } else {
+            // Convert other types to JSON strings for storage
+            finalValue = JSON.stringify(value);
+            this.logger.debug(
+              `Converting complex value for key "${key}" to JSON string: ${finalValue}`
+            );
           }
+
+          formData[key] = finalValue;
         });
       }
 
@@ -341,8 +414,13 @@ export class SettingsController {
     } catch (error) {
       this.logger.error(
         `Failed to create/update settings for group type: ${params.groupType}`,
-        (error as Error).stack
+        error
       );
+
+      // Log more details about the error
+      this.logger.error(`Error name: ${(error as Error).name}`);
+      this.logger.error(`Error message: ${(error as Error).message}`);
+      this.logger.error(`Error stack: ${(error as Error).stack}`);
 
       if (error instanceof SettingsValidationException) {
         return this.i18nResponse.translateError(

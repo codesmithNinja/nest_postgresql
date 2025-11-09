@@ -616,12 +616,56 @@ export class SettingsModule {}
 
 #### Settings Module Features
 
-- **Dynamic Configuration**: Manage application settings by group types
-- **File Upload Support**: Handle both text and file-based settings
-- **Caching System**: Redis-like in-memory caching for performance
+The Settings Module provides a **fully dynamic configuration system** that revolutionizes how application settings are managed:
+
+**🔧 Core Dynamic Capabilities:**
+- **✅ Unlimited Dynamic Fields**: Accept ANY JSON field names without validation restrictions or predefined schemas
+- **✅ Mixed Data Type Support**: Store actual booleans, numbers, and strings (not string representations)
+- **✅ Smart Type Handling**: `undefined` → empty string, preserves boolean/number types automatically
+- **✅ File Upload Integration**: Mixed form-data support with text fields + file uploads seamlessly
+- **✅ Unlimited Group Types**: Support for any custom groupType categories (site_setting, amount_setting, etc.)
+- **✅ Zero Validation Constraints**: No schema restrictions - accepts everything dynamically
+
+**📊 Data Type Examples:**
+```json
+{
+  "siteName": "My Company",           // → string
+  "enableFeature": true,              // → boolean (actual boolean, not "true")
+  "maxUsers": 1000,                   // → number (actual number, not "1000")
+  "customSetting": "any value",       // → string
+  "undefinedValue": undefined         // → "" (empty string)
+}
+```
+
+**🔄 Mixed Form-Data Support:**
+```
+POST /settings/site_setting/admin
+Content-Type: multipart/form-data
+
+siteName=My Company                   (text field)
+enableNotifications=true              (boolean field)
+maxUsers=500                         (number field)
+siteLogo=@logo.png                   (file upload)
+favicon=@icon.ico                    (file upload)
+```
+
+**🏗️ Technical Architecture:**
+- **MongoDB Mixed Schema**: Uses `Schema.Types.Mixed` for flexible data storage
+- **Dynamic DTO**: `Record<string, unknown>` bypasses all validation constraints
+- **Type Preservation**: Smart value conversion maintains original data types
+- **Node-cache Caching**: In-memory caching for optimal performance
 - **Public/Admin Access**: Separate endpoints for public and admin access
-- **Validation**: Strong typing and validation for settings data
-- **Internationalization**: Multi-language error messages
+- **Internationalization**: Multi-language error messages and responses
+
+**📂 Supported Group Types:**
+```
+site_setting       - Site configuration (colors, name, features)
+amount_setting     - Investment amounts and currency settings
+revenue_setting    - Revenue sharing and payout configuration
+email_setting      - SMTP and email configuration
+api_setting        - API keys and credentials
+custom_group_*     - Any custom group type you create
+```
 
 ### Feature Module Example: CurrenciesModule
 
@@ -847,8 +891,10 @@ export class LanguagesModule {}
 
 #### Settings Repository Pattern
 
+The Settings Repository supports dynamic data handling with mixed data types:
+
 ```typescript
-// Interface definition
+// Interface definition with mixed type support
 export interface ISettingsRepository extends IRepository<Settings> {
   findByGroupType(groupType: string): Promise<Settings[]>;
   findByGroupTypeAndKey(
@@ -865,7 +911,20 @@ export interface ISettingsRepository extends IRepository<Settings> {
   bulkUpsert(settings: CreateSettingsData[]): Promise<Settings[]>;
 }
 
-// Usage in service
+// Settings entity with mixed data type support
+export interface Settings {
+  id: string;
+  publicId: string;
+  groupType: string;
+  key: string;
+  value: string | number | boolean;  // Mixed data types
+  description?: string;
+  type: RecordType;  // STRING, NUMBER, BOOLEAN, FILE
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Usage in service with dynamic field handling
 export class SettingsService {
   constructor(
     @Inject(SETTINGS_REPOSITORY)
@@ -873,16 +932,56 @@ export class SettingsService {
     private fileManagementService: FileManagementService
   ) {}
 
-  async getSettingsByGroupType(groupType: string): Promise<Settings[]> {
-    return this.settingsRepository.findByGroupType(groupType);
+  async createOrUpdateSettings(
+    groupType: string,
+    formData: Record<string, string | number | boolean | Express.Multer.File>
+  ): Promise<Settings[]> {
+    const settingsToUpsert: CreateSettingsData[] = [];
+
+    // Process each dynamic field
+    for (const [key, value] of Object.entries(formData)) {
+      let finalValue: string | number | boolean;
+      let recordType: RecordType;
+
+      if (value instanceof Object && 'buffer' in value) {
+        // Handle file upload
+        const fileResult = await this.fileManagementService.uploadSettingsFile(value);
+        finalValue = fileResult.filePath;
+        recordType = RecordType.FILE;
+      } else {
+        // Handle primitive values with type preservation
+        if (typeof value === 'boolean') {
+          finalValue = value;
+          recordType = RecordType.BOOLEAN;
+        } else if (typeof value === 'number') {
+          finalValue = value;
+          recordType = RecordType.NUMBER;
+        } else {
+          finalValue = value === undefined ? '' : String(value);
+          recordType = RecordType.STRING;
+        }
+      }
+
+      settingsToUpsert.push({
+        groupType,
+        key,
+        value: finalValue,
+        type: recordType,
+        publicId: crypto.randomUUID(),
+      });
+    }
+
+    return this.settingsRepository.bulkUpsert(settingsToUpsert);
   }
 }
 ```
 
 #### File Upload Integration
 
+The Settings module handles mixed form-data with seamless file and text field integration:
+
 ```typescript
-// Controller handling multipart form data
+// Controller handling dynamic form data with files
 @Post(':groupType/admin')
 @UseGuards(AdminJwtUserGuard)
 @UseInterceptors(FilesInterceptor('files', 20, {
@@ -894,12 +993,49 @@ export class SettingsService {
 }))
 async createOrUpdateSettings(
   @Param() params: GroupTypeParamDto,
-  @Body() body: any,
+  @Body() body: Record<string, unknown>,
   @UploadedFiles() files?: Express.Multer.File[]
 ) {
-  const formData = this.combineFormData(body, files);
+  // Combine text data and files into a single dynamic object
+  const formData: Record<string, string | number | boolean | Express.Multer.File> = {};
+
+  // Process text fields with type preservation
+  Object.entries(body).forEach(([key, value]) => {
+    let finalValue: string | number | boolean;
+    if (value === undefined || value === null) {
+      finalValue = '';
+    } else if (typeof value === 'boolean') {
+      finalValue = value; // Preserve boolean type
+    } else if (typeof value === 'number') {
+      finalValue = value; // Preserve number type
+    } else if (typeof value === 'string') {
+      finalValue = value === 'undefined' ? '' : value;
+    } else {
+      finalValue = JSON.stringify(value);
+    }
+    formData[key] = finalValue;
+  });
+
+  // Add files using their field names as keys
+  files?.forEach((file) => {
+    if (file.fieldname) {
+      formData[file.fieldname] = file;
+    }
+  });
+
   return this.settingsService.createOrUpdateSettings(params.groupType, formData);
 }
+
+// Example: Mixed form-data handling
+// POST /settings/site_setting/admin
+// Content-Type: multipart/form-data
+//
+// Fields:
+// - siteName=My Website (string)
+// - enableFeatures=true (boolean)
+// - maxUsers=100 (number)
+// - siteLogo=@logo.png (file)
+// - favicon=@favicon.ico (file)
 ```
 
 ### Module Dependencies
