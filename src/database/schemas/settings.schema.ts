@@ -21,7 +21,7 @@ export class Settings {
   })
   recordType!: RecordType;
 
-  @Prop({ required: true, trim: true, lowercase: true })
+  @Prop({ required: true, trim: true })
   key!: string;
 
   @Prop({

@@ -303,7 +303,8 @@ export class SettingsPostgresRepository
     if (filter.id) where.id = filter.id;
     if (filter.groupType) where.groupType = filter.groupType;
     if (filter.recordType) {
-      where.recordType = filter.recordType as unknown as Prisma.EnumRecordTypeFilter;
+      where.recordType =
+        filter.recordType as unknown as Prisma.EnumRecordTypeFilter;
     }
     if (filter.key) where.key = filter.key;
 
