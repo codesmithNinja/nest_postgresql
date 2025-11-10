@@ -2178,6 +2178,417 @@
 								}
 							],
 							"description": "Manage dropdown endpoints for dynamic dropdown data management with multi-language support. Supports CRUD operations, bulk actions, and language-specific filtering."
+						},
+						{
+							"name": "🎯 Sliders Management",
+							"item": [
+								{
+									"name": "Get All Sliders",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/sliders?page=1&limit=10&includeInactive=true&languageId&title&uniqueCode",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1"
+												},
+												{
+													"key": "limit",
+													"value": "10"
+												},
+												{
+													"key": "includeInactive",
+													"value": "true"
+												},
+												{
+													"key": "languageId",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "title",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "uniqueCode",
+													"value": "",
+													"disabled": true
+												}
+											]
+										},
+										"description": "Admin endpoint to retrieve all sliders with pagination and filtering by language, title, and unique code."
+									},
+									"response": []
+								},
+								{
+									"name": "Get Slider by Public ID",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/sliders/:publicId",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders",
+												":publicId"
+											],
+											"variable": [
+												{
+													"key": "publicId",
+													"value": "550e8400-e29b-41d4-a716-446655440000"
+												}
+											]
+										},
+										"description": "Admin endpoint to retrieve a specific slider by its public ID."
+									},
+									"response": []
+								},
+								{
+									"name": "Create Slider",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "title",
+													"value": "Discover Amazing Investment Opportunities",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "Explore cutting-edge projects and innovative startups seeking funding to bring their ideas to life.",
+													"type": "text"
+												},
+												{
+													"key": "buttonTitle",
+													"value": "Invest Now",
+													"type": "text"
+												},
+												{
+													"key": "buttonLink",
+													"value": "/investments",
+													"type": "text"
+												},
+												{
+													"key": "languageId",
+													"value": "",
+													"disabled": true,
+													"type": "text"
+												},
+												{
+													"key": "customColor",
+													"value": "false",
+													"type": "text"
+												},
+												{
+													"key": "titleColor",
+													"value": "#000000",
+													"type": "text"
+												},
+												{
+													"key": "descriptionColor",
+													"value": "#666666",
+													"type": "text"
+												},
+												{
+													"key": "buttonTitleColor",
+													"value": "#FFFFFF",
+													"type": "text"
+												},
+												{
+													"key": "buttonLinkColor",
+													"value": "#007BFF",
+													"type": "text"
+												},
+												{
+													"key": "status",
+													"value": "true",
+													"type": "text"
+												},
+												{
+													"key": "sliderImage",
+													"description": "Slider image (PNG, JPG, JPEG, WEBP, SVG - max 5MB)",
+													"type": "file",
+													"src": []
+												}
+											]
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/sliders",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders"
+											]
+										},
+										"description": "Admin endpoint to create a new slider with image upload. Creates entries for all active languages automatically."
+									},
+									"response": []
+								},
+								{
+									"name": "Update Slider",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "title",
+													"value": "Updated Slider Title",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "description",
+													"value": "Updated description for this amazing slider",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "buttonTitle",
+													"value": "Learn More",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "buttonLink",
+													"value": "/learn-more",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "customColor",
+													"value": "true",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "titleColor",
+													"value": "#FF5733",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "descriptionColor",
+													"value": "#333333",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "buttonTitleColor",
+													"value": "#FFFFFF",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "buttonLinkColor",
+													"value": "#28A745",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "status",
+													"value": "false",
+													"type": "text",
+													"disabled": true
+												},
+												{
+													"key": "sliderImage",
+													"description": "New slider image (optional)",
+													"type": "file",
+													"src": [],
+													"disabled": true
+												}
+											]
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/sliders/:publicId",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders",
+												":publicId"
+											],
+											"variable": [
+												{
+													"key": "publicId",
+													"value": "550e8400-e29b-41d4-a716-446655440000"
+												}
+											]
+										},
+										"description": "Admin endpoint to update a slider. All fields are optional."
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Slider",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/sliders/:publicId",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders",
+												":publicId"
+											],
+											"variable": [
+												{
+													"key": "publicId",
+													"value": "550e8400-e29b-41d4-a716-446655440000"
+												}
+											]
+										},
+										"description": "Admin endpoint to delete a slider and all its language variants. Also deletes associated image files."
+									},
+									"response": []
+								},
+								{
+									"name": "Bulk Update Sliders",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n  ],\n  \"status\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/sliders/bulk-update",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders",
+												"bulk-update"
+											]
+										},
+										"description": "Admin endpoint to update multiple sliders status at once."
+									},
+									"response": []
+								},
+								{
+									"name": "Bulk Delete Sliders",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{ADMIN_JWT}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"publicIds\": [\n    \"550e8400-e29b-41d4-a716-446655440000\",\n    \"6ba7b810-9dad-11d1-80b4-00c04fd430c8\"\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{BASE_URL}}/sliders/bulk-delete",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders",
+												"bulk-delete"
+											]
+										},
+										"description": "Admin endpoint to delete multiple sliders. Deletes all language variants and associated image files."
+									},
+									"response": []
+								}
+							],
+							"description": "Sliders management endpoints for dynamic slider configuration with image uploads and bulk operations. Supports multi-language slider features with color customization and URL linking."
 						}
 					],
 					"description": "Protected admin endpoints that require admin authentication using JWT tokens."
@@ -2494,6 +2905,41 @@
 									"response": []
 								}
 							]
+						},
+						{
+							"name": "🎯 Sliders Management",
+							"item": [
+								{
+									"name": "Get Active Sliders",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{BASE_URL}}/sliders/front?lang=en",
+											"host": [
+												"{{BASE_URL}}"
+											],
+											"path": [
+												"sliders",
+												"front"
+											],
+											"query": [
+												{
+													"key": "lang",
+													"value": "en",
+													"description": "Language code filter (en, es, fr, ar)"
+												}
+											]
+										},
+										"description": "Public endpoint to retrieve all active sliders for frontend display. No authentication required. Supports multi-language filtering."
+									},
+									"response": []
+								}
+							],
+							"description": "Public sliders endpoints for frontend slider display with multi-language support."
 						}
 					],
 					"description": "Public admin endpoints that do not require authentication."

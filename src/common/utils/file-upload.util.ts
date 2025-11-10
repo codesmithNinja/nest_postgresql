@@ -24,9 +24,12 @@ export function getBucketName(bucketKey: string): string {
     COUNTRIES: process.env.COUNTRIES_BUCKET || 'countries',
     EXTRA_DOCUMENTS: process.env.EXTRA_DOCUMENTS_BUCKET || 'extras-documents',
     EXTRA_IMAGES: process.env.EXTRA_IMAGES_BUCKET || 'extras-images',
+    LANGUAGES: process.env.LANGUAGES_BUCKET || 'languages',
+    LEAD_INVESTOR: process.env.LEAD_INVESTOR_BUCKET || 'lead-investors',
+    SETTINGS: process.env.SETTINGS_BUCKET || 'settings',
+    SLIDERS: process.env.SLIDERS_BUCKET || 'sliders',
     TEAM_MEMBERS: process.env.TEAM_MEMBERS_BUCKET || 'team-members',
     USER: process.env.USER_BUCKET || 'users',
-    SETTINGS: process.env.SETTINGS_BUCKET || 'settings',
   };
 
   return bucketMap[bucketKey] || bucketKey.toLowerCase();
@@ -44,6 +47,7 @@ export interface FileUploadOptions {
   allowedMimeTypes?: string[];
   maxSizeInMB?: number;
   fieldName?: string;
+  customFileName?: string;
 }
 
 // Legacy interface for backward compatibility
@@ -89,8 +93,13 @@ export class FileUploadUtil {
   ): Promise<FileUploadResult> {
     this.validateFileNew(file, options);
 
-    const prefix = options.fieldName ? `${options.fieldName}-` : '';
-    const fileName = this.generateFileName(file.originalname, prefix);
+    let fileName: string;
+    if (options.customFileName) {
+      fileName = options.customFileName;
+    } else {
+      const prefix = options.fieldName ? `${options.fieldName}-` : '';
+      fileName = this.generateFileName(file.originalname, prefix);
+    }
     const filePath = `${options.bucketName}/${fileName}`;
 
     if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
@@ -388,5 +397,217 @@ export class FileUploadUtil {
     const random = Math.random().toString(36).substring(2, 15);
     const extension = originalName.split('.').pop();
     return `${prefix}${timestamp}_${random}.${extension}`;
+  }
+
+  /**
+   * Generate language-specific file name
+   * @param originalName - Original file name
+   * @param uniqueCode - Unique identifier for the content
+   * @param languageCode - Language code (e.g., 'en', 'es', 'fr')
+   * @param prefix - Optional prefix
+   * @returns Language-specific file name
+   */
+  static generateLanguageFileName(
+    originalName: string,
+    uniqueCode: number,
+    languageCode: string,
+    prefix: string = ''
+  ): string {
+    const extension = originalName.split('.').pop();
+    return `${prefix}-${uniqueCode}_${languageCode}.${extension}`;
+  }
+
+  /**
+   * Upload file and create language-specific copies
+   * @param file - The uploaded file
+   * @param options - Upload options
+   * @param uniqueCode - Unique identifier for the content
+   * @param languageCodes - Array of language codes to create copies for
+   * @returns Array of FileUploadResult with language-specific file paths
+   */
+  static async uploadFileForLanguages(
+    file: Express.Multer.File,
+    options: FileUploadOptions,
+    uniqueCode: number,
+    languageCodes: string[]
+  ): Promise<FileUploadResult[]> {
+    this.validateFileNew(file, options);
+
+    const results: FileUploadResult[] = [];
+    const prefix = options.fieldName ? `${options.fieldName}` : '';
+
+    for (const languageCode of languageCodes) {
+      const fileName = this.generateLanguageFileName(
+        file.originalname,
+        uniqueCode,
+        languageCode,
+        prefix
+      );
+      const filePath = `${options.bucketName}/${fileName}`;
+
+      if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
+        const result = await this.uploadToS3(file, filePath);
+        results.push({ ...result, filePath });
+      } else {
+        const result = this.uploadToLocal(file, filePath);
+        results.push({ ...result, filePath });
+      }
+    }
+
+    this.logger.log(
+      `File uploaded for ${languageCodes.length} languages: ${languageCodes.join(', ')}`
+    );
+
+    return results;
+  }
+
+  /**
+   * Copy existing file for multiple languages
+   * @param existingFilePath - Path to existing file
+   * @param originalFileName - Original file name for extension
+   * @param uniqueCode - Unique identifier for the content
+   * @param languageCodes - Array of language codes to create copies for
+   * @param bucketName - Target bucket name
+   * @returns Array of new file paths for each language
+   */
+  static async copyFileForLanguages(
+    existingFilePath: string,
+    originalFileName: string,
+    uniqueCode: number,
+    languageCodes: string[],
+    bucketName: string
+  ): Promise<string[]> {
+    const filePaths: string[] = [];
+    const extension = originalFileName.split('.').pop();
+
+    for (const languageCode of languageCodes) {
+      const fileName = `slider-${uniqueCode}_${languageCode}.${extension}`;
+      const newFilePath = `${bucketName}/${fileName}`;
+
+      if (process.env.ASSET_MANAGEMENT_TOOL === 'AWS') {
+        await this.copyFileOnS3(existingFilePath, newFilePath);
+      } else {
+        this.copyFileLocally(existingFilePath, newFilePath);
+      }
+
+      filePaths.push(newFilePath);
+    }
+
+    this.logger.log(
+      `File copied for ${languageCodes.length} languages: ${languageCodes.join(', ')}`
+    );
+
+    return filePaths;
+  }
+
+  /**
+   * Copy file on S3
+   * @param sourceFilePath - Source file path on S3
+   * @param destinationFilePath - Destination file path on S3
+   */
+  private static async copyFileOnS3(
+    sourceFilePath: string,
+    destinationFilePath: string
+  ): Promise<void> {
+    try {
+      const { CopyObjectCommand } = await import('@aws-sdk/client-s3');
+      const copyCommand = new CopyObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        CopySource: `${process.env.AWS_BUCKET_NAME}/${sourceFilePath}`,
+        Key: destinationFilePath,
+      });
+
+      await this.s3Client.send(copyCommand);
+      this.logger.log(
+        `File copied on S3: ${sourceFilePath} -> ${destinationFilePath}`
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to copy file on S3: ${errorMessage}`);
+      throw new BadRequestException('Failed to copy file on S3');
+    }
+  }
+
+  /**
+   * Copy file locally
+   * @param sourceFilePath - Source file path
+   * @param destinationFilePath - Destination file path
+   */
+  private static copyFileLocally(
+    sourceFilePath: string,
+    destinationFilePath: string
+  ): void {
+    try {
+      const uploadDir = path.join(process.cwd(), 'uploads');
+      const sourcePath = path.join(uploadDir, sourceFilePath);
+      const destinationPath = path.join(uploadDir, destinationFilePath);
+
+      // Create destination directory if it doesn't exist
+      const destinationDir = path.dirname(destinationPath);
+      if (!fs.existsSync(destinationDir)) {
+        fs.mkdirSync(destinationDir, { recursive: true });
+      }
+
+      // Copy the file
+      fs.copyFileSync(sourcePath, destinationPath);
+
+      this.logger.log(
+        `File copied locally: ${sourceFilePath} -> ${destinationFilePath}`
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to copy file locally: ${errorMessage}`);
+      throw new BadRequestException('Failed to copy file locally');
+    }
+  }
+
+  /**
+   * Delete language-specific files by unique code
+   * @param bucketName - Bucket name containing the files
+   * @param uniqueCode - Unique identifier for the content
+   * @param languageCodes - Array of language codes to delete files for
+   * @param fileExtension - File extension (e.g., 'jpg', 'png')
+   */
+  static async deleteLanguageFiles(
+    bucketName: string,
+    uniqueCode: number,
+    languageCodes: string[],
+    fileExtension: string
+  ): Promise<void> {
+    const deletePromises = languageCodes.map((languageCode) => {
+      const fileName = `slider-${uniqueCode}_${languageCode}.${fileExtension}`;
+      const filePath = `${bucketName}/${fileName}`;
+      return this.deleteFile(filePath);
+    });
+
+    await Promise.all(deletePromises);
+
+    this.logger.log(
+      `Deleted language-specific files for uniqueCode ${uniqueCode}: ${languageCodes.join(', ')}`
+    );
+  }
+
+  /**
+   * Extract language code from language-specific file path
+   * @param filePath - File path (e.g., "sliders/slider-123456_en.jpg")
+   * @returns Language code or null if not found
+   */
+  static extractLanguageFromFilePath(filePath: string): string | null {
+    const fileName = path.basename(filePath);
+    const match = fileName.match(/slider-\d+_([a-z]{2,3})\./);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Extract unique code from language-specific file path
+   * @param filePath - File path (e.g., "sliders/slider-123456_en.jpg")
+   * @returns Unique code or null if not found
+   */
+  static extractUniqueCodeFromFilePath(filePath: string): number | null {
+    const fileName = path.basename(filePath);
+    const match = fileName.match(/slider-(\d+)_[a-z]{2,3}\./);
+    return match ? parseInt(match[1], 10) : null;
   }
 }

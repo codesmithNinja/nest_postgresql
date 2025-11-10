@@ -5,6 +5,7 @@ import { CountriesModule } from './countries/countries.module';
 import { LanguagesModule } from './languages/languages.module';
 import { ManageDropdownModule } from './manage-dropdown/manage-dropdown.module';
 import { CurrenciesModule } from './currencies/currencies.module';
+import { SlidersModule } from './sliders/sliders.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CurrenciesModule } from './currencies/currencies.module';
     LanguagesModule,
     ManageDropdownModule,
     CurrenciesModule,
+    SlidersModule,
   ],
   exports: [
     AdminUsersModule,
@@ -22,6 +24,7 @@ import { CurrenciesModule } from './currencies/currencies.module';
     LanguagesModule,
     ManageDropdownModule,
     CurrenciesModule,
+    SlidersModule,
   ],
 })
 export class AdminModule {}

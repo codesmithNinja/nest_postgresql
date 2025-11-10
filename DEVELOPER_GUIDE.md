@@ -1069,6 +1069,131 @@ AppModule
 └── [Other Business Modules]
 ```
 
+### Feature Module Example: SlidersModule
+
+```typescript
+// src/modules/admin-modules/sliders/sliders.module.ts
+@Module({
+  imports: [
+    ConfigModule, // Access to environment variables
+    MongooseModule.forFeature([
+      { name: Slider.name, schema: SliderSchema },
+      { name: Language.name, schema: LanguageSchema },
+    ]), // MongoDB schema registration
+    AdminUsersModule, // For admin authentication
+    FileUploadModule, // For slider image upload utilities
+  ],
+  controllers: [SlidersController], // HTTP endpoints
+  providers: [
+    SlidersService, // Business logic
+    PrismaService, // PostgreSQL service
+    I18nResponseService, // Response internationalization
+    {
+      provide: SLIDERS_REPOSITORY, // Repository injection token
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        sliderMongodbRepository: SliderMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return sliderMongodbRepository;
+        }
+        return new SliderPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, SliderMongodbRepository],
+    },
+    {
+      provide: LANGUAGES_REPOSITORY, // Language repository for validation
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        languagesMongodbRepository: LanguagesMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return languagesMongodbRepository;
+        }
+        return new LanguagesPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+    },
+    SliderMongodbRepository, // MongoDB repository implementation
+    LanguagesMongodbRepository, // Languages repository for validation
+  ],
+  exports: [SlidersService, SLIDERS_REPOSITORY], // Available to other modules
+})
+export class SlidersModule {}
+```
+
+#### Sliders Module Features
+
+- **Multi-Language Slider Management**: Create sliders that replicate across all active languages
+- **Unique Code System**: Auto-generated 10-digit unique codes shared across language variants
+- **Image Upload Support**: File upload with AWS S3 and local storage support
+- **Color Customization**: Custom color options for title, description, and buttons with hex validation
+- **URL Validation**: Support for both absolute URLs and relative paths for button links
+- **Dual Database Support**: MongoDB and PostgreSQL repository implementations
+- **Public/Admin Endpoints**: Separate access levels for frontend and admin use
+- **Bulk Operations**: Bulk activate, deactivate, and delete with comprehensive validation
+- **Multi-Language Creation**: Automatically creates slider entries in all active languages
+- **File Management**: Automatic file cleanup on slider deletion
+- **Business Logic**: Comprehensive validation for colors, URLs, and required fields
+- **Internationalization**: Multi-language error messages and responses (EN, ES, FR, AR)
+
+#### Sliders Repository Pattern
+
+```typescript
+// Interface definition
+export interface ISliderRepository extends IRepository<Slider> {
+  findForPublic(languageId: string): Promise<SliderWithLanguage[]>;
+  findByLanguage(languageId: string, includeInactive?: boolean): Promise<SliderWithLanguage[]>;
+  findWithPaginationByLanguage(
+    page: number,
+    limit: number,
+    languageId: string,
+    includeInactive?: boolean
+  ): Promise<PaginatedResult<SliderWithLanguage>>;
+  findByPublicId(publicId: string): Promise<SliderWithLanguage | null>;
+  findByUniqueCode(uniqueCode: number): Promise<SliderWithLanguage[]>;
+  createMultiLanguage(createDto: CreateSliderDto, languageIds: string[]): Promise<Slider[]>;
+  updateById(id: string, updateDto: Partial<Slider>): Promise<Slider>;
+  deleteByUniqueCode(uniqueCode: number): Promise<number>;
+  bulkUpdateByPublicIds(publicIds: string[], updateDto: Partial<Slider>): Promise<{ count: number }>;
+  bulkDeleteByPublicIds(publicIds: string[]): Promise<{ count: number }>;
+  generateUniqueCode(): Promise<number>;
+  getDefaultLanguageId(): Promise<string>;
+  getAllActiveLanguageIds(): Promise<string[]>;
+}
+
+// Usage in service with multi-language support
+export class SlidersService {
+  constructor(
+    @Inject(SLIDERS_REPOSITORY)
+    private sliderRepository: ISliderRepository,
+    @Inject(LANGUAGES_REPOSITORY)
+    private languagesRepository: ILanguagesRepository,
+    private i18nResponse: I18nResponseService
+  ) {}
+
+  async createSlider(createDto: CreateSliderDto, file?: Express.Multer.File): Promise<SliderResponseDto> {
+    // Handle file upload
+    const filePath = await this.handleFileUpload(null, file, false);
+
+    // Auto-generate unique 10-digit code
+    const uniqueCode = await this.sliderRepository.generateUniqueCode();
+
+    // Get all active language IDs for multi-language replication
+    const allLanguageIds = await this.sliderRepository.getAllActiveLanguageIds();
+
+    // Create slider entries for all active languages
+    const createdSliders = await this.sliderRepository.createMultiLanguage(createData, allLanguageIds);
+
+    return this.transformToResponseDto(createdSliders[0]);
+  }
+}
+```
+
 ---
 
 ## Development Patterns

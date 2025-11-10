@@ -36,6 +36,7 @@ model Language {
   updatedAt DateTime      @updatedAt
   users           User[]
   manageDropdowns ManageDropdown[]
+  sliders         Slider[]
 
   @@index([name])
   @@index([folder])
@@ -471,5 +472,37 @@ model Currency {
   @@index([publicId])
   @@index([name, code])
   @@map("currencies")
+}
+
+// Slider Model
+model Slider {
+  id                 String   @id @default(cuid())
+  publicId           String   @unique @default(cuid()) // For public API access
+  uniqueCode         Int                                 // Required for grouping same slider across languages
+  sliderImage        String                             // Image file path
+  title              String                             // Slider title
+  description        String   @db.Text                  // Slider description
+  buttonTitle        String                             // Button text
+  buttonLink         String                             // Button URL/link
+  languageId         String                             // Foreign key to Language.id
+  language           Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  customColor        Boolean  @default(false)           // Whether to use custom colors
+  titleColor         String   @default("#000000")       // Title text color
+  descriptionColor   String   @default("#000000")       // Description text color
+  buttonTitleColor   String   @default("#FFFFFF")       // Button text color
+  buttonLinkColor    String   @default("#007BFF")       // Button background color
+  status             Boolean  @default(true)            // Active/inactive status
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([uniqueCode, languageId]) // Composite unique constraint
+  @@index([uniqueCode])
+  @@index([languageId])
+  @@index([status])
+  @@index([uniqueCode, languageId])
+  @@index([languageId, status])
+  @@index([publicId])
+  @@index([createdAt])
+  @@map("sliders")
 }
 

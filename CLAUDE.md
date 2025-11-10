@@ -32,7 +32,8 @@ src/
         ├── currencies/      # Currencies management
         ├── languages/       # Languages management
         ├── manage-dropdown/ # Master dropdown management
-        └── settings/        # Settings management
+        ├── settings/        # Settings management
+        └── sliders/         # Sliders management
 ```
 
 ## Code Conventions
@@ -192,6 +193,16 @@ src/
   POST   /                         # Admin: Create new admin user
   PATCH  /:id                      # Admin: Update admin user
   DELETE /:id                      # Admin: Delete admin user
+
+/sliders (admin-modules)
+  GET    /front                    # Public: Get active sliders for frontend
+  GET    /                         # Admin: Get all sliders with pagination
+  GET    /:publicId                # Admin: Get single slider
+  POST   /                         # Admin: Create new slider with image upload
+  PATCH  /:publicId                # Admin: Update slider with optional image upload
+  DELETE /:publicId                # Admin: Delete slider (all language variants)
+  PATCH  /bulk-update              # Admin: Bulk update slider status
+  PATCH  /bulk-delete              # Admin: Bulk delete sliders
 ```
 
 ## Email Templates
@@ -247,6 +258,7 @@ ADMIN_BUCKET=admins
 COUNTRIES_BUCKET=countries
 LANGUAGES_BUCKET=languages
 SETTINGS_BUCKET=settings
+SLIDERS_BUCKET=sliders
 ...
 ```
 

@@ -44,6 +44,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **💰 Currencies Management** - Multi-currency support with ISO codes, symbols, and usage tracking
 - **📋 Manage Dropdown** - Dynamic dropdown data management with multi-language support
 - **⚙️ Dynamic Settings Management** - Fully dynamic application configuration with mixed data type support (boolean, number, string) and file uploads
+- **🎯 Sliders Management** - Multi-language slider management with image upload, color customization, and unique code system
 - **👤 Admin Users** - Administrative user management and authentication
 
 #### Public API Endpoints (No Authentication Required)
@@ -52,6 +53,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 GET /languages/front                           # Get active languages for frontend
 GET /countries/front                           # Get active countries for frontend
 GET /currencies/front                          # Get active currencies for frontend
+GET /sliders/front                             # Get active sliders for frontend with language support
 GET /manage-dropdown/:dropdownType/front       # Get active dropdown options by type with language support
 GET /settings/:groupType/front                 # Get settings by group type for frontend
 ```
@@ -95,6 +97,16 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   DELETE /:publicId                      # Admin: Delete currency (only if useCount is 0)
   PATCH  /bulk-update                    # Admin: Bulk update currency status
   PATCH  /bulk-delete                    # Admin: Bulk delete currencies (only if useCount is 0)
+
+/sliders                               # Sliders management
+  GET    /front                          # Public: Get active sliders for frontend
+  GET    /                               # Admin: Get all sliders with pagination
+  GET    /:publicId                      # Admin: Get single slider
+  POST   /                               # Admin: Create new slider with image upload
+  PATCH  /:publicId                      # Admin: Update slider with optional image upload
+  DELETE /:publicId                      # Admin: Delete slider (all language variants)
+  PATCH  /bulk-update                    # Admin: Bulk update slider status
+  PATCH  /bulk-delete                    # Admin: Bulk delete sliders
 
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type
