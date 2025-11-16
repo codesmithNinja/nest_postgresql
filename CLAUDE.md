@@ -27,13 +27,14 @@ src/
     ├── auth/           # Authentication module
     ├── users/          # Users module
     └── admin-modules/  # Admin modules
-        ├── admin-users/     # Admin users management
-        ├── countries/       # Countries management
-        ├── currencies/      # Currencies management
-        ├── languages/       # Languages management
-        ├── manage-dropdown/ # Master dropdown management
-        ├── settings/        # Settings management
-        └── sliders/         # Sliders management
+        ├── admin-users/         # Admin users management
+        ├── countries/           # Countries management
+        ├── currencies/          # Currencies management
+        ├── languages/           # Languages management
+        ├── manage-dropdown/     # Master dropdown management
+        ├── revenue-subscriptions/ # Revenue subscription management
+        ├── settings/            # Settings management
+        └── sliders/             # Sliders management
 ```
 
 ## Code Conventions
@@ -115,12 +116,28 @@ src/
 - Financial: walletId, achCustomerId, plaidDwollaCustomerId
 - Metadata: createdAt, updatedAt
 
+### Revenue Subscription Entity Fields
+
+- **Core fields**: id, publicId, subscriptionType, amount, useCount, status
+- **Financial limits**: maxInvestmentAllowed, maxProjectAllowed, maxProjectGoalLimit
+- **Policy fields**: allowRefund, allowRefundDays, allowCancel, allowCancelDays
+- **Feature flags**: secondaryMarketAccess, earlyBirdAccess
+- **Metadata**: createdAt, updatedAt
+- **Multi-language support**: Separate RevenueSubscriptionLanguage entity for title/description
+
+### Revenue Subscription Language Entity Fields
+
+- **Core fields**: id, publicId, mainSubscriptionId, languageId
+- **Content**: title, description
+- **Metadata**: createdAt, updatedAt
+
 ### Enums
 
 - **ActiveStatus**: PENDING, ACTIVE, INACTIVE, DELETED
 - **NotificationStatus**: YES, NO
 - **DatabaseType**: postgres, mongodb
 - **RecordType**: STRING, NUMBER, BOOLEAN, FILE (for Settings module mixed data types)
+- **SubscriptionType**: INVESTOR, SPONSOR (for Revenue Subscription module)
 
 ## API Endpoints Structure
 
@@ -203,6 +220,16 @@ src/
   DELETE /:publicId                # Admin: Delete slider (all language variants)
   PATCH  /bulk-update              # Admin: Bulk update slider status
   PATCH  /bulk-delete              # Admin: Bulk delete sliders
+
+/revenue-subscriptions (admin-modules)
+  GET    /front                    # Public: Get active revenue subscriptions for frontend
+  GET    /                         # Admin: Get all revenue subscriptions with pagination
+  GET    /:publicId                # Admin: Get single revenue subscription
+  POST   /                         # Admin: Create new revenue subscription with language content
+  PATCH  /:publicId                # Admin: Update revenue subscription with optional language content
+  DELETE /:publicId                # Admin: Delete revenue subscription (only if useCount is 0)
+  PATCH  /bulk-update              # Admin: Bulk update revenue subscription status
+  PATCH  /bulk-delete              # Admin: Bulk delete revenue subscriptions (only if useCount is 0)
 ```
 
 ## Email Templates
@@ -328,6 +355,7 @@ Admin modules follow consistent patterns for similar functionality:
 - **⚡ Zero Validation Constraints**: No schema restrictions - accepts everything dynamically
 
 **API Endpoints:**
+
 - `GET /:groupType/front` - Public endpoint (no auth) - Get settings for frontend
 - `GET /:groupType/admin` - Admin endpoint (with auth) - Get settings with admin access
 - `POST /:groupType/admin` - Admin endpoint (with auth) - Create/update dynamic settings with mixed data types and files
@@ -336,6 +364,7 @@ Admin modules follow consistent patterns for similar functionality:
 - `DELETE /admin/cache/clear/:groupType?` - Admin endpoint - Clear cache (all or by group)
 
 **Dynamic Features:**
+
 - Uses `Record<string, unknown>` to bypass all validation constraints
 - MongoDB Schema.Types.Mixed for flexible data storage
 - Smart type handling: undefined → empty string, preserves boolean/number types
@@ -343,6 +372,7 @@ Admin modules follow consistent patterns for similar functionality:
 - Cache management with Node-cache for optimal performance
 
 **Example Usage:**
+
 ```json
 POST /settings/site_setting/admin
 {
@@ -383,6 +413,7 @@ POST /settings/site_setting/admin
 All admin modules support consistent bulk operations:
 
 **Bulk Update Pattern**:
+
 ```typescript
 // Request payload format (standardized across all modules)
 {
@@ -415,12 +446,14 @@ export class BulkUpdate[Entity]Dto {
 ```
 
 **Endpoints Supporting Bulk Operations**:
+
 - `PATCH /countries/bulk-update` - Updates country status by publicIds
 - `PATCH /languages/bulk-update` - Updates language status by publicIds
 - `PATCH /currencies/bulk-update` - Updates currency status by publicIds
 - `PATCH /manage-dropdown/:dropdownType/bulk-update` - Updates dropdown status by publicIds
 
 **Bulk Delete Pattern**:
+
 - Similar payload structure using `publicIds` array
 - Additional validation based on entity constraints (useCount, isDefault, etc.)
 - Soft delete or hard delete based on entity requirements

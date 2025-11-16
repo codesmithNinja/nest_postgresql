@@ -37,6 +37,7 @@ After running `npm run mongodb:seed`, you'll have:
 ## Created Data
 
 ### Languages (3 total)
+
 - English (default, code: 'en')
 - Spanish (code: 'es')
 - French (code: 'fr')
@@ -44,12 +45,14 @@ After running `npm run mongodb:seed`, you'll have:
 ### Master Dropdown Options (7 total)
 
 **Industry Categories:**
+
 - Technology (default)
 - Healthcare
 - Finance
 - Real Estate
 
 **Investment Types:**
+
 - Equity (default)
 - Debt
 - Convertible Note
@@ -69,14 +72,17 @@ npm run start:dev
 ## Troubleshooting
 
 ### If you get "DATABASE_TYPE=mongodb but trying to use Prisma":
+
 - Make sure your `.env` has `DATABASE_TYPE=mongodb`
 - Use `npm run mongodb:seed` instead of `npm run prisma:seed`
 
 ### If MongoDB connection fails:
+
 - Ensure MongoDB is running: `mongod` or check your MongoDB service
 - Verify MongoDB URI in `.env`: `MONGODB_URI=mongodb://localhost:27017/equity_crowfunding_nest`
 
 ### If server port conflicts:
+
 - Change the port in `.env`: `PORT=3001`
 - Or kill existing processes on port 3000
 

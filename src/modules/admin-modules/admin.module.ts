@@ -6,6 +6,7 @@ import { LanguagesModule } from './languages/languages.module';
 import { ManageDropdownModule } from './manage-dropdown/manage-dropdown.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { SlidersModule } from './sliders/sliders.module';
+import { RevenueSubscriptionsModule } from './revenue-subscriptions/revenue-subscriptions.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SlidersModule } from './sliders/sliders.module';
     ManageDropdownModule,
     CurrenciesModule,
     SlidersModule,
+    RevenueSubscriptionsModule,
   ],
   exports: [
     AdminUsersModule,
@@ -25,6 +27,7 @@ import { SlidersModule } from './sliders/sliders.module';
     ManageDropdownModule,
     CurrenciesModule,
     SlidersModule,
+    RevenueSubscriptionsModule,
   ],
 })
 export class AdminModule {}

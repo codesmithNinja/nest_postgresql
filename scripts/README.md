@@ -5,27 +5,34 @@ This directory contains backup and restore scripts for the Equity Crowdfunding N
 ## Scripts Overview
 
 ### 1. `backup.sh`
+
 Comprehensive backup script that creates backups of:
+
 - PostgreSQL database (`equity_crowdfunding_nest`)
 - MongoDB database (`equity_crowfunding_nest`)
 - Uploads directory
 - Optional S3 cloud storage upload
 
 ### 2. `restore.sh`
+
 Restore script that can restore from backup files:
+
 - PostgreSQL database restoration
 - MongoDB database restoration
 - Uploads directory restoration
 
 ### 3. `setup-backup-cron.sh`
+
 Utility script to setup automated backups via cron jobs.
 
 ### 4. `backup-config.env`
+
 Configuration file with environment variables for backup settings.
 
 ## Usage
 
 ### Basic Backup
+
 ```bash
 # Run manual backup
 ./backup.sh
@@ -35,6 +42,7 @@ source backup-config.env && ./backup.sh
 ```
 
 ### Restore Operations
+
 ```bash
 # List available backups
 ./restore.sh --list
@@ -53,6 +61,7 @@ source backup-config.env && ./backup.sh
 ```
 
 ### Setup Automated Backups
+
 ```bash
 # Setup daily backup at 2 AM (default)
 ./setup-backup-cron.sh
@@ -73,20 +82,21 @@ source backup-config.env && ./backup.sh
 
 The scripts use the following environment variables (with defaults):
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BACKUP_DIR` | `/backups` | Directory to store backups |
-| `POSTGRES_DB` | `equity_crowfunding_nest` | PostgreSQL database name |
-| `MONGO_DB` | `equity_crowfunding_nest` | MongoDB database name |
-| `POSTGRES_CONTAINER` | `postgres` | PostgreSQL Docker container name |
-| `MONGODB_CONTAINER` | `mongodb` | MongoDB Docker container name |
-| `POSTGRES_USER` | `postgres` | PostgreSQL username |
-| `BACKUP_RETENTION_DAYS` | `7` | Days to keep local backups |
-| `AWS_S3_BUCKET` | (optional) | S3 bucket for cloud backups |
+| Variable                | Default                   | Description                      |
+| ----------------------- | ------------------------- | -------------------------------- |
+| `BACKUP_DIR`            | `/backups`                | Directory to store backups       |
+| `POSTGRES_DB`           | `equity_crowfunding_nest` | PostgreSQL database name         |
+| `MONGO_DB`              | `equity_crowfunding_nest` | MongoDB database name            |
+| `POSTGRES_CONTAINER`    | `postgres`                | PostgreSQL Docker container name |
+| `MONGODB_CONTAINER`     | `mongodb`                 | MongoDB Docker container name    |
+| `POSTGRES_USER`         | `postgres`                | PostgreSQL username              |
+| `BACKUP_RETENTION_DAYS` | `7`                       | Days to keep local backups       |
+| `AWS_S3_BUCKET`         | (optional)                | S3 bucket for cloud backups      |
 
 ### S3 Cloud Backup Configuration
 
 To enable S3 uploads, set these environment variables:
+
 ```bash
 export AWS_S3_BUCKET=your-backup-bucket
 export AWS_ACCESS_KEY_ID=your-access-key
@@ -97,6 +107,7 @@ export AWS_DEFAULT_REGION=us-east-1
 ## Features
 
 ### Backup Script Features
+
 - ✅ Comprehensive logging with timestamps
 - ✅ Error handling and validation
 - ✅ Docker container health checks
@@ -107,6 +118,7 @@ export AWS_DEFAULT_REGION=us-east-1
 - ✅ Configurable retention policy
 
 ### Restore Script Features
+
 - ✅ Interactive confirmation prompts
 - ✅ Force mode for automated restores
 - ✅ Backup file listing and validation
@@ -115,6 +127,7 @@ export AWS_DEFAULT_REGION=us-east-1
 - ✅ Support for partial restores (individual components)
 
 ### Automation Features
+
 - ✅ Cron job setup and management
 - ✅ Configurable backup schedules
 - ✅ User-specific cron job installation
@@ -149,6 +162,7 @@ scripts/
 ### Common Issues
 
 1. **Permission Denied**
+
    ```bash
    chmod +x scripts/*.sh
    ```
@@ -168,10 +182,12 @@ scripts/
 ### Logs
 
 Backup and restore operations are logged to:
+
 - `/var/log/backup.log`
 - `/var/log/restore.log`
 
 Monitor logs for detailed error information:
+
 ```bash
 tail -f /var/log/backup.log
 tail -f /var/log/restore.log

@@ -45,6 +45,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **📋 Manage Dropdown** - Dynamic dropdown data management with multi-language support
 - **⚙️ Dynamic Settings Management** - Fully dynamic application configuration with mixed data type support (boolean, number, string) and file uploads
 - **🎯 Sliders Management** - Multi-language slider management with image upload, color customization, and unique code system
+- **💰 Revenue Subscriptions Management** - Subscription plan management for INVESTOR and SPONSOR types with financial limits, refund/cancel policies, and multi-language content support
 - **👤 Admin Users** - Administrative user management and authentication
 
 #### Public API Endpoints (No Authentication Required)
@@ -54,6 +55,7 @@ GET /languages/front                           # Get active languages for fronte
 GET /countries/front                           # Get active countries for frontend
 GET /currencies/front                          # Get active currencies for frontend
 GET /sliders/front                             # Get active sliders for frontend with language support
+GET /revenue-subscriptions/front               # Get active revenue subscriptions for frontend with language support
 GET /manage-dropdown/:dropdownType/front       # Get active dropdown options by type with language support
 GET /settings/:groupType/front                 # Get settings by group type for frontend
 ```
@@ -108,6 +110,16 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   PATCH  /bulk-update                    # Admin: Bulk update slider status
   PATCH  /bulk-delete                    # Admin: Bulk delete sliders
 
+/revenue-subscriptions                 # Revenue subscriptions management
+  GET    /front                          # Public: Get active revenue subscriptions for frontend
+  GET    /                               # Admin: Get all revenue subscriptions with pagination
+  GET    /:publicId                      # Admin: Get single revenue subscription
+  POST   /                               # Admin: Create new subscription with language content
+  PATCH  /:publicId                      # Admin: Update subscription with partial data
+  DELETE /:publicId                      # Admin: Delete subscription (cannot delete if useCount > 0)
+  PATCH  /bulk-update                    # Admin: Bulk update subscription status
+  PATCH  /bulk-delete                    # Admin: Bulk delete subscriptions (cannot delete if useCount > 0)
+
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type
   GET    /:dropdownType/admin            # Admin: Get dropdown options with pagination
@@ -132,6 +144,7 @@ GET /settings/:groupType/front                 # Get settings by group type for 
 All admin modules support consistent bulk operations with standardized payload format:
 
 **Bulk Update Payload Example:**
+
 ```json
 {
   "publicIds": [
@@ -143,6 +156,7 @@ All admin modules support consistent bulk operations with standardized payload f
 ```
 
 **Key Features:**
+
 - ✅ All modules use `publicIds` property (never `ids`)
 - ✅ Bulk update only affects `status` field (active/inactive)
 - ✅ Bulk delete validates business constraints (useCount, isDefault, etc.)
@@ -156,6 +170,7 @@ All admin modules support consistent bulk operations with standardized payload f
 The settings module provides a **fully dynamic configuration system** that accepts any field names and data types without predefined schemas:
 
 #### **Key Features:**
+
 - **✅ Mixed Data Type Support** - Stores actual booleans, numbers, and strings (not string representations)
 - **✅ Unlimited Dynamic Fields** - Accept any JSON field names without validation restrictions
 - **✅ File Upload Support** - Mixed form-data with text fields + file uploads
@@ -163,6 +178,7 @@ The settings module provides a **fully dynamic configuration system** that accep
 - **✅ Dynamic Group Types** - Unlimited custom groupType categories
 
 #### **Supported Group Types:**
+
 ```
 site_setting       - Site configuration (colors, name, features)
 amount_setting     - Investment amounts and currency settings
@@ -173,17 +189,19 @@ custom_group_*     - Any custom group type you create
 ```
 
 #### **Data Type Examples:**
+
 ```json
 {
-  "siteName": "My Company",           // → string
-  "enableFeature": true,              // → boolean (actual boolean, not "true")
-  "maxUsers": 1000,                   // → number (actual number, not "1000")
-  "customSetting": "any value",       // → string
-  "undefinedValue": undefined         // → "" (empty string)
+  "siteName": "My Company", // → string
+  "enableFeature": true, // → boolean (actual boolean, not "true")
+  "maxUsers": 1000, // → number (actual number, not "1000")
+  "customSetting": "any value", // → string
+  "undefinedValue": undefined // → "" (empty string)
 }
 ```
 
 #### **Mixed Form-Data Support:**
+
 ```
 POST /settings/site_setting/admin
 Content-Type: multipart/form-data
@@ -196,6 +214,7 @@ favicon=@icon.ico                    (file upload)
 ```
 
 **No Schema Restrictions** - The API dynamically accepts any field structure, making it perfect for:
+
 - Feature flags and toggles
 - Configuration parameters
 - Theme and branding settings

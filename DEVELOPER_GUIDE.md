@@ -619,6 +619,7 @@ export class SettingsModule {}
 The Settings Module provides a **fully dynamic configuration system** that revolutionizes how application settings are managed:
 
 **🔧 Core Dynamic Capabilities:**
+
 - **✅ Unlimited Dynamic Fields**: Accept ANY JSON field names without validation restrictions or predefined schemas
 - **✅ Mixed Data Type Support**: Store actual booleans, numbers, and strings (not string representations)
 - **✅ Smart Type Handling**: `undefined` → empty string, preserves boolean/number types automatically
@@ -627,17 +628,19 @@ The Settings Module provides a **fully dynamic configuration system** that revol
 - **✅ Zero Validation Constraints**: No schema restrictions - accepts everything dynamically
 
 **📊 Data Type Examples:**
+
 ```json
 {
-  "siteName": "My Company",           // → string
-  "enableFeature": true,              // → boolean (actual boolean, not "true")
-  "maxUsers": 1000,                   // → number (actual number, not "1000")
-  "customSetting": "any value",       // → string
-  "undefinedValue": undefined         // → "" (empty string)
+  "siteName": "My Company", // → string
+  "enableFeature": true, // → boolean (actual boolean, not "true")
+  "maxUsers": 1000, // → number (actual number, not "1000")
+  "customSetting": "any value", // → string
+  "undefinedValue": undefined // → "" (empty string)
 }
 ```
 
 **🔄 Mixed Form-Data Support:**
+
 ```
 POST /settings/site_setting/admin
 Content-Type: multipart/form-data
@@ -650,6 +653,7 @@ favicon=@icon.ico                    (file upload)
 ```
 
 **🏗️ Technical Architecture:**
+
 - **MongoDB Mixed Schema**: Uses `Schema.Types.Mixed` for flexible data storage
 - **Dynamic DTO**: `Record<string, unknown>` bypasses all validation constraints
 - **Type Preservation**: Smart value conversion maintains original data types
@@ -658,6 +662,7 @@ favicon=@icon.ico                    (file upload)
 - **Internationalization**: Multi-language error messages and responses
 
 **📂 Supported Group Types:**
+
 ```
 site_setting       - Site configuration (colors, name, features)
 amount_setting     - Investment amounts and currency settings
@@ -737,7 +742,10 @@ export interface ICurrencyRepository extends IRepository<Currency> {
   findByPublicId(publicId: string): Promise<Currency | null>;
   findByCode(code: string): Promise<Currency | null>;
   findByName(name: string): Promise<Currency | null>;
-  updateByPublicId(publicId: string, updateDto: Partial<Currency>): Promise<Currency>;
+  updateByPublicId(
+    publicId: string,
+    updateDto: Partial<Currency>
+  ): Promise<Currency>;
   deleteByPublicId(publicId: string): Promise<boolean>;
   incrementUseCount(publicId: string): Promise<void>;
   decrementUseCount(publicId: string): Promise<void>;
@@ -917,9 +925,9 @@ export interface Settings {
   publicId: string;
   groupType: string;
   key: string;
-  value: string | number | boolean;  // Mixed data types
+  value: string | number | boolean; // Mixed data types
   description?: string;
-  type: RecordType;  // STRING, NUMBER, BOOLEAN, FILE
+  type: RecordType; // STRING, NUMBER, BOOLEAN, FILE
   createdAt: Date;
   updatedAt: Date;
 }
@@ -945,7 +953,8 @@ export class SettingsService {
 
       if (value instanceof Object && 'buffer' in value) {
         // Handle file upload
-        const fileResult = await this.fileManagementService.uploadSettingsFile(value);
+        const fileResult =
+          await this.fileManagementService.uploadSettingsFile(value);
         finalValue = fileResult.filePath;
         recordType = RecordType.FILE;
       } else {
@@ -1147,7 +1156,10 @@ export class SlidersModule {}
 // Interface definition
 export interface ISliderRepository extends IRepository<Slider> {
   findForPublic(languageId: string): Promise<SliderWithLanguage[]>;
-  findByLanguage(languageId: string, includeInactive?: boolean): Promise<SliderWithLanguage[]>;
+  findByLanguage(
+    languageId: string,
+    includeInactive?: boolean
+  ): Promise<SliderWithLanguage[]>;
   findWithPaginationByLanguage(
     page: number,
     limit: number,
@@ -1156,10 +1168,16 @@ export interface ISliderRepository extends IRepository<Slider> {
   ): Promise<PaginatedResult<SliderWithLanguage>>;
   findByPublicId(publicId: string): Promise<SliderWithLanguage | null>;
   findByUniqueCode(uniqueCode: number): Promise<SliderWithLanguage[]>;
-  createMultiLanguage(createDto: CreateSliderDto, languageIds: string[]): Promise<Slider[]>;
+  createMultiLanguage(
+    createDto: CreateSliderDto,
+    languageIds: string[]
+  ): Promise<Slider[]>;
   updateById(id: string, updateDto: Partial<Slider>): Promise<Slider>;
   deleteByUniqueCode(uniqueCode: number): Promise<number>;
-  bulkUpdateByPublicIds(publicIds: string[], updateDto: Partial<Slider>): Promise<{ count: number }>;
+  bulkUpdateByPublicIds(
+    publicIds: string[],
+    updateDto: Partial<Slider>
+  ): Promise<{ count: number }>;
   bulkDeleteByPublicIds(publicIds: string[]): Promise<{ count: number }>;
   generateUniqueCode(): Promise<number>;
   getDefaultLanguageId(): Promise<string>;
@@ -1176,7 +1194,10 @@ export class SlidersService {
     private i18nResponse: I18nResponseService
   ) {}
 
-  async createSlider(createDto: CreateSliderDto, file?: Express.Multer.File): Promise<SliderResponseDto> {
+  async createSlider(
+    createDto: CreateSliderDto,
+    file?: Express.Multer.File
+  ): Promise<SliderResponseDto> {
     // Handle file upload
     const filePath = await this.handleFileUpload(null, file, false);
 
@@ -1184,10 +1205,14 @@ export class SlidersService {
     const uniqueCode = await this.sliderRepository.generateUniqueCode();
 
     // Get all active language IDs for multi-language replication
-    const allLanguageIds = await this.sliderRepository.getAllActiveLanguageIds();
+    const allLanguageIds =
+      await this.sliderRepository.getAllActiveLanguageIds();
 
     // Create slider entries for all active languages
-    const createdSliders = await this.sliderRepository.createMultiLanguage(createData, allLanguageIds);
+    const createdSliders = await this.sliderRepository.createMultiLanguage(
+      createData,
+      allLanguageIds
+    );
 
     return this.transformToResponseDto(createdSliders[0]);
   }
@@ -1704,11 +1729,42 @@ PATCH  /admins/:id                               # Update admin user
 DELETE /admins/:id                               # Delete admin user
 ```
 
+#### Revenue Subscriptions Management Endpoints
+
+```
+# Public endpoints (no authentication required)
+GET    /revenue-subscriptions/front             # Get active revenue subscriptions
+
+# Admin endpoints (require admin authentication)
+GET    /revenue-subscriptions                   # Get all revenue subscriptions with pagination
+GET    /revenue-subscriptions/:publicId         # Get single revenue subscription
+POST   /revenue-subscriptions                   # Create new revenue subscription with language content
+PATCH  /revenue-subscriptions/:publicId         # Update revenue subscription with optional language content
+DELETE /revenue-subscriptions/:publicId         # Delete revenue subscription (only if useCount is 0)
+PATCH  /revenue-subscriptions/bulk-update       # Bulk update revenue subscription status
+PATCH  /revenue-subscriptions/bulk-delete       # Bulk delete revenue subscriptions (only if useCount is 0)
+```
+
+**Revenue Subscription Types**:
+
+- **INVESTOR**: Subscription plans for investors with financial limits and market access
+- **SPONSOR**: Subscription plans for sponsors with project capacity and goal limits
+
+**Key Features**:
+
+- **Dual Subscription Types**: INVESTOR and SPONSOR with conditional field validation
+- **Financial Controls**: Amount limits, investment caps, project allowances
+- **Policy Management**: Refund/cancellation policies with day limits
+- **Feature Flags**: Secondary market access, early bird access
+- **Multi-language Support**: Title and description in multiple languages
+- **Use Count Tracking**: Safe deletion only when useCount is 0
+
 #### Bulk Operations Pattern
 
 All admin modules follow a consistent bulk operations pattern with standardized payload format:
 
 **Standardized Bulk Update Payload**:
+
 ```json
 {
   "publicIds": [
@@ -1720,10 +1776,12 @@ All admin modules follow a consistent bulk operations pattern with standardized 
 ```
 
 **Supported Bulk Operations**:
+
 - **Bulk Update**: Updates status of multiple entities
 - **Bulk Delete**: Deletes multiple entities (with business rule validation)
 
 **Business Rules**:
+
 - ✅ All modules use `publicIds` property (never `ids`)
 - ✅ Bulk update only affects `status` field
 - ✅ Bulk delete validates business constraints (useCount, isDefault, etc.)

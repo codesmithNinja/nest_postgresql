@@ -41,6 +41,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Language created successfully",
@@ -67,6 +68,7 @@ GET /languages/active
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Active languages retrieved successfully",
@@ -136,11 +138,13 @@ GET /manage-dropdown/{optionType}?lang=en&country=US
 ```
 
 **Example:**
+
 ```http
 GET /manage-dropdown/industry?lang=en
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Dropdown options retrieved successfully",
@@ -181,6 +185,7 @@ Authorization: Bearer <admin_jwt_token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Dropdown options retrieved successfully",
@@ -211,11 +216,13 @@ Content-Type: application/json
 ```
 
 **Note:** When `languageId` is not provided, the system will:
+
 1. Auto-detect the current language from request headers
 2. Create entries for ALL active languages in the system
 3. Use the detected language as the primary reference
 
 **Response:**
+
 ```json
 {
   "message": "Dropdown option created successfully for 3 language(s)",
@@ -311,6 +318,7 @@ Supported dropdown types include but are not limited to:
 ## Error Responses
 
 ### Validation Error (400)
+
 ```json
 {
   "statusCode": 400,
@@ -320,6 +328,7 @@ Supported dropdown types include but are not limited to:
 ```
 
 ### Not Found (404)
+
 ```json
 {
   "statusCode": 404,
@@ -329,6 +338,7 @@ Supported dropdown types include but are not limited to:
 ```
 
 ### Conflict (409)
+
 ```json
 {
   "statusCode": 409,
@@ -338,6 +348,7 @@ Supported dropdown types include but are not limited to:
 ```
 
 ### Unauthorized (401)
+
 ```json
 {
   "statusCode": 401,
@@ -354,8 +365,8 @@ Supported dropdown types include but are not limited to:
 // Get dropdown options with auto language detection
 const response = await fetch('/manage-dropdown/industry', {
   headers: {
-    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
-  }
+    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+  },
 });
 const dropdowns = await response.json();
 
@@ -364,17 +375,19 @@ const createResponse = await fetch('/manage-dropdown/industry', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + adminToken,
-    'X-Language': 'es'
+    Authorization: 'Bearer ' + adminToken,
+    'X-Language': 'es',
   },
   body: JSON.stringify({
     name: 'Tecnología',
-    isDefault: 'NO'
-  })
+    isDefault: 'NO',
+  }),
 });
 
 // Get country-specific dropdowns
-const countryDropdowns = await fetch('/manage-dropdown/services?country=US&lang=en');
+const countryDropdowns = await fetch(
+  '/manage-dropdown/services?country=US&lang=en'
+);
 ```
 
 ### curl Examples
@@ -411,11 +424,13 @@ The system includes intelligent caching:
 The API works with both PostgreSQL (via Prisma) and MongoDB (via Mongoose) depending on the `DATABASE_TYPE` environment variable.
 
 ### PostgreSQL Setup
+
 ```bash
 npm run prisma:migrate
 ```
 
 ### MongoDB Setup
+
 ```bash
 node scripts/mongodb-setup.js
 ```

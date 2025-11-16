@@ -104,7 +104,10 @@ export const swaggerConfig = new DocumentBuilder()
   .addTag('Extras Images', 'Campaign image content management')
   .addTag('Extras Documents', 'Campaign document management')
   .addTag('Languages', 'Multi-language system management')
-  .addTag('Master Dropdown Management', 'Dynamic dropdown options with multi-language support')
+  .addTag(
+    'Master Dropdown Management',
+    'Dynamic dropdown options with multi-language support'
+  )
   .addServer('http://localhost:3000', 'Development server')
   .addServer('https://api.yourdomain.com', 'Production server')
   .build();

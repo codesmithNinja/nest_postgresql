@@ -56,7 +56,10 @@
       "Bash(mongosh:*)",
       "Bash(python:*)",
       "Bash(powershell:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(restart.tmp)",
+      "Bash(lsof:*)",
+      "Bash(xargs -I {} kill -9 {})"
     ],
     "deny": [],
     "ask": []

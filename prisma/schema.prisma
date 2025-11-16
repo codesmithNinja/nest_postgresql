@@ -34,9 +34,10 @@ model Language {
   isDefault DefaultStatus @default(YES)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  users           User[]
-  manageDropdowns ManageDropdown[]
-  sliders         Slider[]
+  users                       User[]
+  manageDropdowns             ManageDropdown[]
+  sliders                     Slider[]
+  revenueSubscriptionLanguages RevenueSubscriptionLanguage[]
 
   @@index([name])
   @@index([folder])
@@ -165,6 +166,11 @@ enum RecordType {
 enum DefaultStatus {
   YES
   NO
+}
+
+enum SubscriptionType {
+  INVESTOR
+  SPONSOR
 }
 
 // Equity Campaign Model
@@ -504,5 +510,59 @@ model Slider {
   @@index([publicId])
   @@index([createdAt])
   @@map("sliders")
+}
+
+// Revenue Subscription Model
+model RevenueSubscription {
+  id                      String           @id @default(cuid())
+  publicId                String           @unique @default(cuid())
+  subscriptionType        SubscriptionType
+  amount                  Decimal          @db.Decimal(10,2)
+  maxInvestmentAllowed    Decimal?         @db.Decimal(15,2) // Required only for INVESTOR
+  maxProjectAllowed       Int?                               // Required only for SPONSOR
+  maxProjectGoalLimit     Decimal?         @db.Decimal(15,2) // Required only for SPONSOR
+  allowRefund             Boolean          @default(true)
+  allowRefundDays         Int?                               // Required only when allowRefund is true
+  allowCancel             Boolean          @default(true)
+  allowCancelDays         Int?                               // Required only when allowCancel is true
+  secondaryMarketAccess   Boolean?                           // Required only for INVESTOR
+  earlyBirdAccess         Boolean          @default(true)
+  useCount                Int              @default(0)
+  status                  Boolean          @default(true)
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+
+  // Relations
+  languageContents        RevenueSubscriptionLanguage[]
+
+  @@index([publicId])
+  @@index([subscriptionType])
+  @@index([status])
+  @@index([useCount])
+  @@index([subscriptionType, status])
+  @@index([createdAt])
+  @@map("revenue_subscriptions")
+}
+
+// Revenue Subscription Language Model
+model RevenueSubscriptionLanguage {
+  id                 String              @id @default(cuid())
+  publicId           String              @unique @default(cuid())
+  mainSubscriptionId String
+  mainSubscription   RevenueSubscription @relation(fields: [mainSubscriptionId], references: [id], onDelete: Cascade)
+  title              String
+  description        String              @db.Text
+  languageId         String
+  language           Language            @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@unique([mainSubscriptionId, languageId]) // One content per subscription per language
+  @@index([mainSubscriptionId])
+  @@index([languageId])
+  @@index([mainSubscriptionId, languageId])
+  @@index([publicId])
+  @@index([createdAt])
+  @@map("revenue_subscription_languages")
 }
 

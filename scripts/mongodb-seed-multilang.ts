@@ -6,7 +6,9 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 // Configuration
-const MONGODB_URI: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/equity_crowfunding_nest';
+const MONGODB_URI: string =
+  process.env.MONGODB_URI ||
+  'mongodb://localhost:27017/equity_crowfunding_nest';
 const DB_NAME: string = 'equity_crowfunding_nest';
 
 // Type definitions
@@ -61,8 +63,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Technology',
       es: 'Tecnología',
       fr: 'Technologie',
-      ar: 'التكنولوجيا'
-    }
+      ar: 'التكنولوجيا',
+    },
   },
   {
     uniqueCode: 1002,
@@ -71,8 +73,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Healthcare',
       es: 'Salud',
       fr: 'Santé',
-      ar: 'الرعاية الصحية'
-    }
+      ar: 'الرعاية الصحية',
+    },
   },
   {
     uniqueCode: 1003,
@@ -81,8 +83,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Finance',
       es: 'Finanzas',
       fr: 'Finance',
-      ar: 'التمويل'
-    }
+      ar: 'التمويل',
+    },
   },
   {
     uniqueCode: 1004,
@@ -91,8 +93,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Real Estate',
       es: 'Bienes Raíces',
       fr: 'Immobilier',
-      ar: 'العقارات'
-    }
+      ar: 'العقارات',
+    },
   },
   {
     uniqueCode: 1005,
@@ -101,8 +103,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Education',
       es: 'Educación',
       fr: 'Éducation',
-      ar: 'التعليم'
-    }
+      ar: 'التعليم',
+    },
   },
   {
     uniqueCode: 1006,
@@ -111,8 +113,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Retail',
       es: 'Venta al por menor',
       fr: 'Commerce de détail',
-      ar: 'التجزئة'
-    }
+      ar: 'التجزئة',
+    },
   },
   // Investment Types
   {
@@ -122,8 +124,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Equity',
       es: 'Patrimonio',
       fr: 'Équité',
-      ar: 'حقوق الملكية'
-    }
+      ar: 'حقوق الملكية',
+    },
   },
   {
     uniqueCode: 2002,
@@ -132,8 +134,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Debt',
       es: 'Deuda',
       fr: 'Dette',
-      ar: 'الدين'
-    }
+      ar: 'الدين',
+    },
   },
   {
     uniqueCode: 2003,
@@ -142,8 +144,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Convertible Note',
       es: 'Nota Convertible',
       fr: 'Note Convertible',
-      ar: 'سند قابل للتحويل'
-    }
+      ar: 'سند قابل للتحويل',
+    },
   },
   {
     uniqueCode: 2004,
@@ -152,8 +154,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'SAFE',
       es: 'SAFE',
       fr: 'SAFE',
-      ar: 'SAFE'
-    }
+      ar: 'SAFE',
+    },
   },
   // Campaign Stages
   {
@@ -163,8 +165,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Pre-Seed',
       es: 'Pre-Semilla',
       fr: 'Pré-Amorçage',
-      ar: 'ما قبل البذرة'
-    }
+      ar: 'ما قبل البذرة',
+    },
   },
   {
     uniqueCode: 3002,
@@ -173,8 +175,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Seed',
       es: 'Semilla',
       fr: 'Amorçage',
-      ar: 'البذرة'
-    }
+      ar: 'البذرة',
+    },
   },
   {
     uniqueCode: 3003,
@@ -183,8 +185,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Series A',
       es: 'Serie A',
       fr: 'Série A',
-      ar: 'السلسلة أ'
-    }
+      ar: 'السلسلة أ',
+    },
   },
   {
     uniqueCode: 3004,
@@ -193,8 +195,8 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Series B',
       es: 'Serie B',
       fr: 'Série B',
-      ar: 'السلسلة ب'
-    }
+      ar: 'السلسلة ب',
+    },
   },
   {
     uniqueCode: 3005,
@@ -203,9 +205,9 @@ const dropdownTemplates: DropdownTemplate[] = [
       en: 'Growth',
       es: 'Crecimiento',
       fr: 'Croissance',
-      ar: 'النمو'
-    }
-  }
+      ar: 'النمو',
+    },
+  },
 ];
 
 async function seedDatabase(): Promise<void> {
@@ -221,7 +223,7 @@ async function seedDatabase(): Promise<void> {
     console.log('🧹 Clearing existing data...');
     await Promise.all([
       db.collection('languages').deleteMany({}),
-      db.collection('manage_dropdowns').deleteMany({})
+      db.collection('manage_dropdowns').deleteMany({}),
     ]);
 
     // Create Languages with primary keys (_id)
@@ -239,7 +241,7 @@ async function seedDatabase(): Promise<void> {
         isDefault: 'YES',
         status: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         _id: new ObjectId(),
@@ -253,7 +255,7 @@ async function seedDatabase(): Promise<void> {
         isDefault: 'NO',
         status: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         _id: new ObjectId(),
@@ -267,7 +269,7 @@ async function seedDatabase(): Promise<void> {
         isDefault: 'NO',
         status: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         _id: new ObjectId(),
@@ -281,16 +283,18 @@ async function seedDatabase(): Promise<void> {
         isDefault: 'NO',
         status: true,
         createdAt: new Date(),
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     ];
 
-    const languageResult: InsertManyResult<Language> = await db.collection<Language>('languages').insertMany(languages);
+    const languageResult: InsertManyResult<Language> = await db
+      .collection<Language>('languages')
+      .insertMany(languages);
     console.log(`✅ Created ${languageResult.insertedCount} languages`);
 
     // Create language lookup map using _id (primary key)
     const languageMap = new Map<string, ObjectId>();
-    languages.forEach(lang => {
+    languages.forEach((lang) => {
       languageMap.set(lang.folder, lang._id); // Map folder code to _id (primary key)
     });
 
@@ -298,10 +302,11 @@ async function seedDatabase(): Promise<void> {
     console.log('📋 Creating multi-language dropdown data...');
     const dropdownOptions: DropdownOption[] = [];
 
-    dropdownTemplates.forEach(template => {
+    dropdownTemplates.forEach((template) => {
       // Create dropdown option for each language using the language's primary key (_id)
-      languages.forEach(language => {
-        const translatedName = template.translations[language.folder] || template.translations.en;
+      languages.forEach((language) => {
+        const translatedName =
+          template.translations[language.folder] || template.translations.en;
 
         dropdownOptions.push({
           _id: new ObjectId(),
@@ -313,26 +318,41 @@ async function seedDatabase(): Promise<void> {
           status: true,
           useCount: 0,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
       });
     });
 
-    const dropdownResult: InsertManyResult<DropdownOption> = await db.collection<DropdownOption>('manage_dropdowns').insertMany(dropdownOptions);
-    console.log(`✅ Created ${dropdownResult.insertedCount} dropdown options across all languages`);
+    const dropdownResult: InsertManyResult<DropdownOption> = await db
+      .collection<DropdownOption>('manage_dropdowns')
+      .insertMany(dropdownOptions);
+    console.log(
+      `✅ Created ${dropdownResult.insertedCount} dropdown options across all languages`
+    );
 
     // Create indexes for better performance
     console.log('🔍 Creating indexes...');
 
-    const createIndexSafely = async (collection: string, indexSpec: Record<string, unknown>, options: Record<string, unknown> = {}): Promise<void> => {
+    const createIndexSafely = async (
+      collection: string,
+      indexSpec: Record<string, unknown>,
+      options: Record<string, unknown> = {}
+    ): Promise<void> => {
       try {
         await db.collection(collection).createIndex(indexSpec as any, options);
-        console.log(`   ✅ Created index on ${collection}: ${JSON.stringify(indexSpec)}`);
+        console.log(
+          `   ✅ Created index on ${collection}: ${JSON.stringify(indexSpec)}`
+        );
       } catch (error: any) {
-        if (error.code === 86) { // IndexKeySpecsConflict
-          console.log(`   ⚠️  Index already exists on ${collection}: ${JSON.stringify(indexSpec)}`);
+        if (error.code === 86) {
+          // IndexKeySpecsConflict
+          console.log(
+            `   ⚠️  Index already exists on ${collection}: ${JSON.stringify(indexSpec)}`
+          );
         } else {
-          console.log(`   ❌ Failed to create index on ${collection}: ${error.message}`);
+          console.log(
+            `   ❌ Failed to create index on ${collection}: ${error.message}`
+          );
         }
       }
     };
@@ -345,12 +365,23 @@ async function seedDatabase(): Promise<void> {
     await createIndexSafely('languages', { status: 1 });
 
     // Dropdown indexes
-    await createIndexSafely('manage_dropdowns', { publicId: 1 }, { unique: true });
+    await createIndexSafely(
+      'manage_dropdowns',
+      { publicId: 1 },
+      { unique: true }
+    );
     await createIndexSafely('manage_dropdowns', { dropdownType: 1 });
     await createIndexSafely('manage_dropdowns', { languageId: 1 }); // ✅ Index on foreign key (_id)
     await createIndexSafely('manage_dropdowns', { status: 1 });
-    await createIndexSafely('manage_dropdowns', { uniqueCode: 1, languageId: 1 }, { unique: true });
-    await createIndexSafely('manage_dropdowns', { dropdownType: 1, languageId: 1 });
+    await createIndexSafely(
+      'manage_dropdowns',
+      { uniqueCode: 1, languageId: 1 },
+      { unique: true }
+    );
+    await createIndexSafely('manage_dropdowns', {
+      dropdownType: 1,
+      languageId: 1,
+    });
     await createIndexSafely('manage_dropdowns', { dropdownType: 1, status: 1 });
 
     console.log('✅ Index creation process completed');
@@ -359,30 +390,43 @@ async function seedDatabase(): Promise<void> {
     console.log('\n🎉 Multi-Language Database seeding completed successfully!');
     console.log('📊 Summary:');
     console.log(`   🌍 Languages: ${languageResult.insertedCount} created`);
-    console.log(`   📋 Dropdown Options: ${dropdownResult.insertedCount} created`);
-    console.log(`   🔄 Templates: ${dropdownTemplates.length} unique options × ${languages.length} languages`);
+    console.log(
+      `   📋 Dropdown Options: ${dropdownResult.insertedCount} created`
+    );
+    console.log(
+      `   🔄 Templates: ${dropdownTemplates.length} unique options × ${languages.length} languages`
+    );
     console.log('   🔍 All indexes created for optimal performance');
 
     console.log('\n🌐 Language Coverage:');
-    languages.forEach(lang => {
-      const count = dropdownOptions.filter(opt => opt.languageId.toString() === lang._id.toString()).length;
+    languages.forEach((lang) => {
+      const count = dropdownOptions.filter(
+        (opt) => opt.languageId.toString() === lang._id.toString()
+      ).length;
       console.log(`   • ${lang.name} (${lang.folder}): ${count} options`);
     });
 
     console.log('\n📋 Available Dropdown Types:');
-    const typeGroups = dropdownTemplates.reduce((acc, template) => {
-      if (!acc[template.dropdownType]) acc[template.dropdownType] = [];
-      acc[template.dropdownType].push(template.translations.en);
-      return acc;
-    }, {} as Record<string, string[]>);
+    const typeGroups = dropdownTemplates.reduce(
+      (acc, template) => {
+        if (!acc[template.dropdownType]) acc[template.dropdownType] = [];
+        acc[template.dropdownType].push(template.translations.en);
+        return acc;
+      },
+      {} as Record<string, string[]>
+    );
 
     Object.entries(typeGroups).forEach(([type, options]) => {
       console.log(`   • ${type}: ${options.join(', ')}`);
     });
 
     console.log('\n✅ Foreign Key Verification:');
-    console.log('   • All languageId fields use primary keys (_id) for proper foreign key relationships');
-    console.log('   • Compatible with both PostgreSQL and MongoDB repository implementations');
+    console.log(
+      '   • All languageId fields use primary keys (_id) for proper foreign key relationships'
+    );
+    console.log(
+      '   • Compatible with both PostgreSQL and MongoDB repository implementations'
+    );
     console.log('   • Supports multi-language queries and filtering');
 
     console.log('\n🚀 You can now:');
@@ -390,7 +434,6 @@ async function seedDatabase(): Promise<void> {
     console.log('   2. Test dropdown APIs with different language parameters');
     console.log('   3. Query dropdowns by type and language');
     console.log('   4. Verify foreign key relationships work correctly');
-
   } catch (error) {
     console.error('❌ Error seeding database:', error);
     process.exit(1);

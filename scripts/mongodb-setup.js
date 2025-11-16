@@ -9,118 +9,132 @@ db.createCollection('languages', {
   validator: {
     $jsonSchema: {
       bsonType: 'object',
-      required: ['publicId', 'name', 'code', 'direction', 'isDefault', 'status'],
+      required: [
+        'publicId',
+        'name',
+        'code',
+        'direction',
+        'isDefault',
+        'status',
+      ],
       properties: {
         publicId: {
           bsonType: 'string',
-          description: 'Public ID for API access'
+          description: 'Public ID for API access',
         },
         name: {
           bsonType: 'string',
           minLength: 2,
           maxLength: 50,
-          description: 'Language name'
+          description: 'Language name',
         },
         code: {
           bsonType: 'string',
           minLength: 2,
           maxLength: 5,
-          description: 'Language ISO code'
+          description: 'Language ISO code',
         },
         direction: {
           bsonType: 'string',
           enum: ['ltr', 'rtl'],
-          description: 'Text direction'
+          description: 'Text direction',
         },
         flagImage: {
           bsonType: 'string',
-          description: 'Flag image URL'
+          description: 'Flag image URL',
         },
         isDefault: {
           bsonType: 'string',
           enum: ['YES', 'NO'],
-          description: 'Is default language'
+          description: 'Is default language',
         },
         status: {
           bsonType: 'bool',
-          description: 'Language status'
-        }
-      }
-    }
-  }
+          description: 'Language status',
+        },
+      },
+    },
+  },
 });
 
 db.createCollection('manage_dropdowns', {
   validator: {
     $jsonSchema: {
       bsonType: 'object',
-      required: ['publicId', 'name', 'dropdownType', 'languageId', 'status', 'useCount'],
+      required: [
+        'publicId',
+        'name',
+        'dropdownType',
+        'languageId',
+        'status',
+        'useCount',
+      ],
       properties: {
         publicId: {
           bsonType: 'string',
-          description: 'Public ID for API access'
+          description: 'Public ID for API access',
         },
         name: {
           bsonType: 'string',
           minLength: 1,
           maxLength: 100,
-          description: 'Dropdown option name'
+          description: 'Dropdown option name',
         },
         uniqueCode: {
           bsonType: 'int',
-          description: 'Unique code for the option'
+          description: 'Unique code for the option',
         },
         dropdownType: {
           bsonType: 'string',
           minLength: 2,
           maxLength: 50,
-          description: 'Dropdown type'
+          description: 'Dropdown type',
         },
         countryShortCode: {
           bsonType: 'string',
           minLength: 2,
           maxLength: 3,
-          description: 'Country short code'
+          description: 'Country short code',
         },
         isDefault: {
           bsonType: 'string',
           enum: ['YES', 'NO'],
-          description: 'Is default option'
+          description: 'Is default option',
         },
         languageId: {
           bsonType: 'objectId',
-          description: 'Reference to Language document'
+          description: 'Reference to Language document',
         },
         status: {
           bsonType: 'bool',
-          description: 'Dropdown option status'
+          description: 'Dropdown option status',
         },
         useCount: {
           bsonType: 'int',
           minimum: 0,
-          description: 'Usage counter'
-        }
-      }
-    }
-  }
+          description: 'Usage counter',
+        },
+      },
+    },
+  },
 });
 
 // Create indexes for languages
-db.languages.createIndex({ 'publicId': 1 }, { unique: true });
-db.languages.createIndex({ 'name': 1 }, { unique: true });
-db.languages.createIndex({ 'code': 1 }, { unique: true });
-db.languages.createIndex({ 'isDefault': 1 });
-db.languages.createIndex({ 'status': 1 });
-db.languages.createIndex({ 'status': 1, 'isDefault': 1 });
+db.languages.createIndex({ publicId: 1 }, { unique: true });
+db.languages.createIndex({ name: 1 }, { unique: true });
+db.languages.createIndex({ code: 1 }, { unique: true });
+db.languages.createIndex({ isDefault: 1 });
+db.languages.createIndex({ status: 1 });
+db.languages.createIndex({ status: 1, isDefault: 1 });
 
 // Create indexes for manage_dropdowns
-db.manage_dropdowns.createIndex({ 'publicId': 1 }, { unique: true });
-db.manage_dropdowns.createIndex({ 'dropdownType': 1 });
-db.manage_dropdowns.createIndex({ 'languageId': 1 });
-db.manage_dropdowns.createIndex({ 'status': 1 });
-db.manage_dropdowns.createIndex({ 'dropdownType': 1, 'languageId': 1 });
-db.manage_dropdowns.createIndex({ 'dropdownType': 1, 'status': 1 });
-db.manage_dropdowns.createIndex({ 'countryShortCode': 1 });
+db.manage_dropdowns.createIndex({ publicId: 1 }, { unique: true });
+db.manage_dropdowns.createIndex({ dropdownType: 1 });
+db.manage_dropdowns.createIndex({ languageId: 1 });
+db.manage_dropdowns.createIndex({ status: 1 });
+db.manage_dropdowns.createIndex({ dropdownType: 1, languageId: 1 });
+db.manage_dropdowns.createIndex({ dropdownType: 1, status: 1 });
+db.manage_dropdowns.createIndex({ countryShortCode: 1 });
 
 // Insert default English language if not exists
 const englishLanguageId = new ObjectId();
@@ -133,7 +147,7 @@ db.languages.insertOne({
   isDefault: 'YES',
   status: true,
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 });
 
 // Insert sample dropdown data
@@ -149,7 +163,7 @@ const dropdownData = [
     status: true,
     useCount: 0,
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   },
   {
     _id: new ObjectId(),
@@ -162,7 +176,7 @@ const dropdownData = [
     status: true,
     useCount: 0,
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   },
   {
     _id: new ObjectId(),
@@ -175,17 +189,21 @@ const dropdownData = [
     status: true,
     useCount: 0,
     createdAt: new Date(),
-    updatedAt: new Date()
-  }
+    updatedAt: new Date(),
+  },
 ];
 
 db.manage_dropdowns.insertMany(dropdownData);
 
 // Print success message
-print('Master Dropdown Management collections and sample data created successfully!');
+print(
+  'Master Dropdown Management collections and sample data created successfully!'
+);
 print('Collections created: languages, manage_dropdowns');
 print('Indexes created and sample data inserted.');
-print('Default English language created with sample industry dropdown options.');
+print(
+  'Default English language created with sample industry dropdown options.'
+);
 
 // Print collection stats
 print('\nCollection stats:');
