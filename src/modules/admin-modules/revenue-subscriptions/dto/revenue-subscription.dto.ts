@@ -696,20 +696,13 @@ export class RevenueSubscriptionResponseDto {
   @ApiPropertyOptional({
     description: 'Language details',
     properties: {
-      id: { type: 'string' },
+      publicId: { type: 'string' },
       name: { type: 'string' },
-      code: { type: 'string' },
-      direction: { type: 'string' },
-      flagImage: { type: 'string' },
     },
   })
   language?: {
-    id: string;
+    publicId: string;
     name: string;
-    code: string;
-    folder: string;
-    direction: string;
-    flagImage?: string;
   };
 
   @ApiProperty({ description: 'Use count', example: 15 })

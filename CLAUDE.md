@@ -32,6 +32,7 @@ src/
         ├── currencies/          # Currencies management
         ├── languages/           # Languages management
         ├── manage-dropdown/     # Master dropdown management
+        ├── meta-settings/       # Meta settings (SEO/OG) management
         ├── revenue-subscriptions/ # Revenue subscription management
         ├── settings/            # Settings management
         └── sliders/             # Sliders management
@@ -230,6 +231,13 @@ src/
   DELETE /:publicId                # Admin: Delete revenue subscription (only if useCount is 0)
   PATCH  /bulk-update              # Admin: Bulk update revenue subscription status
   PATCH  /bulk-delete              # Admin: Bulk delete revenue subscriptions (only if useCount is 0)
+
+/meta-settings (admin-modules)
+  GET    /:languageCode/front      # Public: Get meta settings for frontend by language code (no auth)
+  GET    /:languageCode/admin      # Admin: Get meta settings for admin by language code
+  GET    /:publicId                # Admin: Get single meta setting by public ID
+  POST   /                         # Admin: Create meta settings for all active languages with OG image upload
+  PATCH  /:publicId                # Admin: Update meta setting with optional OG image upload
 ```
 
 ## Email Templates
@@ -284,6 +292,7 @@ EMAIL_PORT=...
 ADMIN_BUCKET=admins
 COUNTRIES_BUCKET=countries
 LANGUAGES_BUCKET=languages
+META_BUCKET=meta-settings
 SETTINGS_BUCKET=settings
 SLIDERS_BUCKET=sliders
 ...

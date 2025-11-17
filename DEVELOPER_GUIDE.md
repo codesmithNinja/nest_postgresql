@@ -1219,6 +1219,129 @@ export class SlidersService {
 }
 ```
 
+### Feature Module Example: MetaSettingsModule
+
+```typescript
+// src/modules/admin-modules/meta-settings/meta-settings.module.ts
+@Module({
+  imports: [
+    ConfigModule, // Access to environment variables
+    MongooseModule.forFeature([
+      { name: MetaSetting.name, schema: MetaSettingSchema },
+      { name: Language.name, schema: LanguageSchema },
+    ]), // MongoDB schema registration
+    AdminUsersModule, // For admin authentication
+    FileUploadModule, // For OG image upload utilities
+  ],
+  controllers: [MetaSettingsController], // HTTP endpoints
+  providers: [
+    MetaSettingsService, // Business logic
+    PrismaService, // PostgreSQL service
+    I18nResponseService, // Response internationalization
+    {
+      provide: META_SETTING_REPOSITORY, // Repository injection token
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        metaSettingMongodbRepository: MetaSettingMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return metaSettingMongodbRepository;
+        }
+        return new MetaSettingPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, MetaSettingMongodbRepository],
+    },
+    {
+      provide: LANGUAGES_REPOSITORY, // Language repository for validation
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        languagesMongodbRepository: LanguagesMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return languagesMongodbRepository;
+        }
+        return new LanguagesPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+    },
+    MetaSettingMongodbRepository, // MongoDB repository implementation
+    LanguagesMongodbRepository, // Languages repository for validation
+  ],
+  exports: [MetaSettingsService, META_SETTING_REPOSITORY], // Available to other modules
+})
+export class MetaSettingsModule {}
+```
+
+#### Meta Settings Module Features
+
+- **SEO & Social Media Optimization**: Manage meta titles, descriptions, keywords, and OpenGraph data
+- **Multi-Language Support**: Create meta settings that work across all active languages
+- **OG Image Management**: Upload and manage OpenGraph images with language-specific variants
+- **AI Generated Image Tracking**: Flag whether OG images are AI-generated or manually created
+- **Dual Database Support**: MongoDB and PostgreSQL repository implementations
+- **Public/Admin Endpoints**: Language-specific frontend access and admin management
+- **File Upload Integration**: Support for OG image upload with S3 and local storage
+- **Comprehensive Validation**: SEO-optimized field length validation (meta title 1-300, description 1-500)
+- **Business Logic**: Auto-creation across all languages, language-specific file naming
+- **Internationalization**: Multi-language error messages and responses (EN, ES, FR, AR)
+
+#### Meta Settings Repository Pattern
+
+```typescript
+// Interface definition
+export interface IMetaSettingRepository extends IRepository<MetaSetting> {
+  findByLanguageId(languageId: string): Promise<MetaSetting | null>;
+  findByLanguageIdWithLanguage(languageId: string): Promise<MetaSettingWithLanguage | null>;
+  findByPublicIdWithLanguage(publicId: string): Promise<MetaSettingWithLanguage | null>;
+  existsByLanguageId(languageId: string): Promise<boolean>;
+  getAllActiveLanguageIds(): Promise<string[]>;
+  getDefaultLanguageId(): Promise<string>;
+  getLanguageByCode(code: string): Promise<{ id: string } | null>;
+  updateByPublicId(publicId: string, data: Partial<MetaSetting>): Promise<void>;
+}
+```
+
+#### Meta Settings Service Logic
+
+```typescript
+// Multi-language meta setting creation
+async createMetaSettings(
+  createDto: CreateMetaSettingDto,
+  file?: Express.Multer.File
+): Promise<MetaSettingResponseDto> {
+  // Get all active languages for universal creation
+  const allLanguages = await this.metaSettingRepository.getAllActiveLanguageIds();
+
+  // Handle OG image upload for all languages
+  if (file) {
+    const uploadResult = await FileUploadUtil.uploadFileForLanguages(
+      file,
+      { bucketName: getBucketName('META'), allowedMimeTypes: ['image/jpeg', 'image/png'], maxSizeInMB: 5 },
+      uniqueCode,
+      languageCodes
+    );
+  }
+
+  // Create meta settings for each active language
+  const createdMetaSettings = [];
+  for (const languageId of allLanguages) {
+    const created = await this.metaSettingRepository.insert({
+      languageId,
+      siteName: createDto.siteName,
+      metaTitle: createDto.metaTitle,
+      // ... other fields
+    });
+    createdMetaSettings.push(created);
+  }
+
+  return this.transformToResponseDto(defaultMetaSetting);
+}
+```
+
 ---
 
 ## Development Patterns

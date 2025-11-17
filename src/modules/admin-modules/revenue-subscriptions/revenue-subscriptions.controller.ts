@@ -53,10 +53,11 @@ export class RevenueSubscriptionsController {
       'Public endpoint to retrieve all active revenue subscriptions with language-specific content',
   })
   @ApiQuery({
-    name: 'lang',
+    name: 'languageId',
     required: false,
-    description: 'Language code (en, es, fr, ar)',
-    example: 'en',
+    description:
+      'Language ID for filtering (optional - defaults to default language). Can be language publicId or _id.',
+    example: 'clm1234567890',
   })
   @ApiResponse({
     status: 200,
@@ -73,11 +74,10 @@ export class RevenueSubscriptionsController {
     description: 'Internal Server Error',
     type: ErrorResponseDto,
   })
-  async getActiveRevenueSubscriptions(@Query('lang') lang: string = 'en') {
+  async getActiveRevenueSubscriptions(
+    @Query('languageId') languageId?: string
+  ) {
     try {
-      // Get default language if not provided
-      const languageId = this.getLanguageId(lang);
-
       const subscriptions =
         await this.revenueSubscriptionsService.getActiveRevenueSubscriptions(
           languageId
@@ -135,10 +135,11 @@ export class RevenueSubscriptionsController {
     type: Boolean,
   })
   @ApiQuery({
-    name: 'lang',
+    name: 'languageId',
     required: false,
-    description: 'Language code (en, es, fr, ar)',
-    example: 'en',
+    description:
+      'Language ID for filtering (optional - defaults to default language). Can be language publicId or _id.',
+    example: 'clm1234567890',
   })
   @ApiResponse({
     status: 200,
@@ -162,11 +163,9 @@ export class RevenueSubscriptionsController {
   })
   async getAllRevenueSubscriptions(
     @Query() queryDto: RevenueSubscriptionQueryDto,
-    @Query('lang') lang: string = 'en'
+    @Query('languageId') languageId?: string
   ) {
     try {
-      const languageId = this.getLanguageId(lang);
-
       const result =
         await this.revenueSubscriptionsService.getAllRevenueSubscriptions(
           queryDto,
@@ -200,10 +199,11 @@ export class RevenueSubscriptionsController {
     example: '627a5038-e5be-4135-9569-404d50c836c1',
   })
   @ApiQuery({
-    name: 'lang',
+    name: 'languageId',
     required: false,
-    description: 'Language code (en, es, fr, ar)',
-    example: 'en',
+    description:
+      'Language ID for filtering (optional - defaults to default language). Can be language publicId or _id.',
+    example: 'clm1234567890',
   })
   @ApiResponse({
     status: 200,
@@ -232,11 +232,9 @@ export class RevenueSubscriptionsController {
   })
   async getRevenueSubscriptionById(
     @Param('publicId') publicId: string,
-    @Query('lang') lang: string = 'en'
+    @Query('languageId') languageId?: string
   ) {
     try {
-      const languageId = this.getLanguageId(lang);
-
       const subscription =
         await this.revenueSubscriptionsService.getRevenueSubscriptionById(
           publicId,
@@ -387,10 +385,11 @@ export class RevenueSubscriptionsController {
     example: '627a5038-e5be-4135-9569-404d50c836c1',
   })
   @ApiQuery({
-    name: 'lang',
+    name: 'languageId',
     required: false,
-    description: 'Language code for response (en, es, fr, ar)',
-    example: 'en',
+    description:
+      'Language ID for filtering (optional - defaults to default language). Can be language publicId or _id.',
+    example: 'clm1234567890',
   })
   @ApiBody({
     type: UpdateRevenueSubscriptionDto,
@@ -424,11 +423,9 @@ export class RevenueSubscriptionsController {
   async updateRevenueSubscription(
     @Param('publicId') publicId: string,
     @Body() updateDto: UpdateRevenueSubscriptionDto,
-    @Query('lang') lang: string = 'en'
+    @Query('languageId') languageId?: string
   ) {
     try {
-      const languageId = this.getLanguageId(lang);
-
       const subscription =
         await this.revenueSubscriptionsService.updateRevenueSubscription(
           publicId,
@@ -697,12 +694,5 @@ export class RevenueSubscriptionsController {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
-  }
-
-  // Helper method to get language ID from language code
-  private getLanguageId(lang: string): string {
-    // Pass the language code directly to the service for proper resolution
-    // The service will handle converting language codes to actual language IDs
-    return lang;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
 import { IRevenueSubscriptionRepository } from '../../../database/repositories/revenue-subscription/revenue-subscription.repository.interface';
 import { IRevenueSubscriptionLanguageRepository } from '../../../database/repositories/revenue-subscription/revenue-subscription.repository.interface';
@@ -43,7 +43,7 @@ export class RevenueSubscriptionsService {
 
   // Public endpoint - Get active revenue subscriptions for frontend
   async getActiveRevenueSubscriptions(
-    languageId: string
+    languageId?: string
   ): Promise<RevenueSubscriptionWithLanguage[]> {
     try {
       // Resolve the language ID from code/publicId to ObjectId
@@ -65,7 +65,7 @@ export class RevenueSubscriptionsService {
   // Admin endpoint - Get all revenue subscriptions with pagination
   async getAllRevenueSubscriptions(
     queryDto: RevenueSubscriptionQueryDto,
-    languageId: string
+    languageId?: string
   ): Promise<{
     data: RevenueSubscriptionWithLanguage[];
     total: number;
@@ -110,7 +110,7 @@ export class RevenueSubscriptionsService {
   // Admin endpoint - Get single revenue subscription
   async getRevenueSubscriptionById(
     publicId: string,
-    languageId: string
+    languageId?: string
   ): Promise<RevenueSubscriptionWithLanguage> {
     // Use common response builder function
     return await this.buildRevenueSubscriptionResponse(publicId, languageId);
@@ -583,52 +583,40 @@ export class RevenueSubscriptionsService {
   }
 
   /**
-   * Resolves languageId parameter to the actual language primary key (id/_id)
-   * Handles four scenarios:
-   * 1. No languageId provided -> returns default language primary key
-   * 2. Language code (en, es, fr, ar) -> converts to primary key using ISO2
-   * 3. Language publicId provided -> converts to primary key
-   * 4. Language primary key provided -> validates and returns if valid
-   * @param languageId - Optional language identifier (code, publicId, or primary key)
+   * Resolve language ID to primary key
+   * Priority order:
+   * 1. No languageId provided -> default language
+   * 2. Language publicId provided -> converts to primary key
+   * 3. Language primary key provided -> validates and returns if valid
+   * @param languageId - Optional language identifier (publicId or primary key)
    * @returns Promise<string> The language primary key (id/_id)
-   * @throws RevenueSubscriptionValidationException if languageId is invalid
+   * @throws BadRequestException if languageId is invalid
    */
   private async resolveLanguageId(languageId?: string): Promise<string> {
     if (!languageId) {
       // No languageId provided, use default language
       const defaultLanguage = await this.languageRepository.findDefault();
       if (!defaultLanguage) {
-        throw new RevenueSubscriptionValidationException(
-          'No default language found'
-        );
+        throw new BadRequestException('No default language found');
       }
       return defaultLanguage.id;
     }
 
-    // First, try to find by ISO2 code (en, es, fr, ar)
-    if (languageId.length === 2) {
-      const languageByIso2 =
-        await this.languageRepository.findByIso2(languageId);
-      if (languageByIso2 && languageByIso2.status) {
-        return languageByIso2.id;
-      }
-    }
-
-    // Second, try to find by publicId (UUID format)
+    // First, try to find by publicId (most common case)
     const languageByPublicId =
       await this.languageRepository.findByPublicId(languageId);
     if (languageByPublicId && languageByPublicId.status) {
       return languageByPublicId.id;
     }
 
-    // Third, try to find by primary key (backward compatibility)
+    // If not found by publicId, try to find by primary key (backward compatibility)
     const languageById = await this.languageRepository.findById(languageId);
     if (languageById && languageById.status) {
       return languageById.id;
     }
 
-    // If none work, throw an error
-    throw new RevenueSubscriptionValidationException(
+    // If neither works, throw an error
+    throw new BadRequestException(
       `Invalid languageId: ${languageId}. Language not found or inactive.`
     );
   }

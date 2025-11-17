@@ -38,6 +38,7 @@ model Language {
   manageDropdowns             ManageDropdown[]
   sliders                     Slider[]
   revenueSubscriptionLanguages RevenueSubscriptionLanguage[]
+  metaSettings                MetaSetting[]
 
   @@index([name])
   @@index([folder])
@@ -164,6 +165,11 @@ enum RecordType {
 }
 
 enum DefaultStatus {
+  YES
+  NO
+}
+
+enum AIGeneratedStatus {
   YES
   NO
 }
@@ -564,5 +570,30 @@ model RevenueSubscriptionLanguage {
   @@index([publicId])
   @@index([createdAt])
   @@map("revenue_subscription_languages")
+}
+
+// Meta Setting Model
+model MetaSetting {
+  id                   String            @id @default(cuid())
+  publicId             String            @unique @default(cuid())
+  languageId           String            @unique // One meta setting per language
+  siteName             String
+  metaTitle            String
+  metaDescription      String            @db.Text
+  metaKeyword          String            @db.Text
+  ogTitle              String
+  ogDescription        String            @db.Text
+  ogImage              String
+  isAIGeneratedImage   AIGeneratedStatus @default(NO)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  // Relations
+  language             Language          @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@index([languageId])
+  @@index([publicId])
+  @@index([createdAt])
+  @@map("meta_settings")
 }
 

@@ -7,6 +7,7 @@ import { ManageDropdownModule } from './manage-dropdown/manage-dropdown.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { SlidersModule } from './sliders/sliders.module';
 import { RevenueSubscriptionsModule } from './revenue-subscriptions/revenue-subscriptions.module';
+import { MetaSettingsModule } from './meta-settings/meta-settings.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RevenueSubscriptionsModule } from './revenue-subscriptions/revenue-subs
     CurrenciesModule,
     SlidersModule,
     RevenueSubscriptionsModule,
+    MetaSettingsModule,
   ],
   exports: [
     AdminUsersModule,
@@ -28,6 +30,7 @@ import { RevenueSubscriptionsModule } from './revenue-subscriptions/revenue-subs
     CurrenciesModule,
     SlidersModule,
     RevenueSubscriptionsModule,
+    MetaSettingsModule,
   ],
 })
 export class AdminModule {}

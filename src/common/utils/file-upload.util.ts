@@ -26,6 +26,7 @@ export function getBucketName(bucketKey: string): string {
     EXTRA_IMAGES: process.env.EXTRA_IMAGES_BUCKET || 'extras-images',
     LANGUAGES: process.env.LANGUAGES_BUCKET || 'languages',
     LEAD_INVESTOR: process.env.LEAD_INVESTOR_BUCKET || 'lead-investors',
+    META: process.env.META_BUCKET || 'meta-settings',
     SETTINGS: process.env.SETTINGS_BUCKET || 'settings',
     SLIDERS: process.env.SLIDERS_BUCKET || 'sliders',
     TEAM_MEMBERS: process.env.TEAM_MEMBERS_BUCKET || 'team-members',

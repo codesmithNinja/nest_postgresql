@@ -3070,6 +3070,178 @@
               "description": "Revenue subscription management endpoints for subscription plan configuration with multi-language support, financial limits, and bulk operations. Supports INVESTOR and SPONSOR subscription types with conditional field validation."
             },
             {
+              "name": "🔍 Meta Settings Management",
+              "item": [
+                {
+                  "name": "Get Meta Settings for Admin by Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/en/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", "en", "admin"]
+                    },
+                    "description": "Get meta settings for admin dashboard by language code with SEO/OG data."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Meta Setting by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/{{META_SETTING_PUBLIC_ID}}",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", "{{META_SETTING_PUBLIC_ID}}"]
+                    },
+                    "description": "Get specific meta setting by public ID with language information."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Meta Settings for All Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "siteName",
+                          "value": "EquityCrowd - Investment Platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaTitle",
+                          "value": "EquityCrowd - Discover Investment Opportunities | Crowdfunding Platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaDescription",
+                          "value": "Join thousands of investors and entrepreneurs on EquityCrowd. Discover innovative startups, invest in promising ventures, or raise capital for your business.",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaKeyword",
+                          "value": "equity crowdfunding, startup investment, venture capital, fundraising, investment platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogTitle",
+                          "value": "EquityCrowd - The Future of Startup Investment",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogDescription",
+                          "value": "Discover the next unicorn startup or raise capital for your innovative business. EquityCrowd connects visionary entrepreneurs with smart investors.",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isAIGeneratedImage",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogImage",
+                          "type": "file",
+                          "src": []
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings"]
+                    },
+                    "description": "Create meta settings for all active languages with OpenGraph image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Meta Setting",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "siteName",
+                          "value": "EquityCrowd Updated - Investment Platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaTitle",
+                          "value": "Updated EquityCrowd - Discover Investment Opportunities",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaDescription",
+                          "value": "Updated description for EquityCrowd investment platform with enhanced features.",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogImage",
+                          "type": "file",
+                          "src": []
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/{{META_SETTING_PUBLIC_ID}}",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", "{{META_SETTING_PUBLIC_ID}}"]
+                    },
+                    "description": "Update meta setting with optional OpenGraph image upload."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Meta settings management endpoints for SEO and social media optimization. Supports meta titles, descriptions, keywords, OpenGraph data, and OG image uploads across all languages."
+            },
+            {
               "name": "🎯 Sliders Management",
               "item": [
                 {
@@ -3446,97 +3618,6 @@
                 }
               ],
               "description": "Sliders management endpoints for dynamic slider configuration with image uploads and bulk operations. Supports multi-language slider features with color customization and URL linking."
-            },
-            {
-              "name": "🗄️ Cache Management",
-              "item": [
-                {
-                  "name": "Get Cache Statistics",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/settings/admin/cache/stats",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["settings", "admin", "cache", "stats"]
-                    },
-                    "description": "Get cache statistics for settings."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Clear Cache by Group",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/settings/admin/cache/clear/:groupType",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "settings",
-                        "admin",
-                        "cache",
-                        "clear",
-                        ":groupType"
-                      ],
-                      "variable": [
-                        {
-                          "key": "groupType",
-                          "value": "recaptcha-setting",
-                          "description": "recaptcha-setting\ngoogle-map-setting\nnewsletter-setting\nproject-setting\ndate-and-time-setting\namount-setting\nemail-setting\nmaintenance-mode-setting\nrevenue-setting"
-                        }
-                      ]
-                    },
-                    "description": "Clear cache for a specific group type."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Clear All Cache",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/settings/admin/cache/clear",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["settings", "admin", "cache", "clear"]
-                    },
-                    "description": "Clear all settings cache."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Cache management endpoints for settings optimization and performance."
             }
           ],
           "description": "Protected admin endpoints that require admin authentication using JWT tokens."
@@ -3880,6 +3961,29 @@
                 }
               ],
               "description": "Settings management endpoints for dynamic application configuration."
+            },
+            {
+              "name": "🔍 Meta Settings Management",
+              "item": [
+                {
+                  "name": "Get Meta Settings for Frontend",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/en/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", "en", "front"]
+                    },
+                    "description": "Public endpoint to get meta settings for frontend by language code (en, es, fr, ar). Returns SEO meta data including titles, descriptions, keywords, and OpenGraph data."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Public Meta Settings endpoints for SEO and social media optimization without authentication."
             },
             {
               "name": "🌐 Languages Management",

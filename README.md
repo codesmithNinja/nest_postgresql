@@ -46,6 +46,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **⚙️ Dynamic Settings Management** - Fully dynamic application configuration with mixed data type support (boolean, number, string) and file uploads
 - **🎯 Sliders Management** - Multi-language slider management with image upload, color customization, and unique code system
 - **💰 Revenue Subscriptions Management** - Subscription plan management for INVESTOR and SPONSOR types with financial limits, refund/cancel policies, and multi-language content support
+- **🔍 Meta Settings Management** - SEO and social media optimization with meta titles, descriptions, keywords, OpenGraph data, OG image uploads, and AI-generated image tracking across all languages
 - **👤 Admin Users** - Administrative user management and authentication
 
 #### Public API Endpoints (No Authentication Required)
@@ -57,6 +58,7 @@ GET /currencies/front                          # Get active currencies for front
 GET /sliders/front                             # Get active sliders for frontend with language support
 GET /revenue-subscriptions/front               # Get active revenue subscriptions for frontend with language support
 GET /manage-dropdown/:dropdownType/front       # Get active dropdown options by type with language support
+GET /meta-settings/:languageCode/front         # Get meta settings for frontend by language code with SEO/OG data
 GET /settings/:groupType/front                 # Get settings by group type for frontend
 ```
 
@@ -119,6 +121,13 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   DELETE /:publicId                      # Admin: Delete subscription (cannot delete if useCount > 0)
   PATCH  /bulk-update                    # Admin: Bulk update subscription status
   PATCH  /bulk-delete                    # Admin: Bulk delete subscriptions (cannot delete if useCount > 0)
+
+/meta-settings                         # SEO and social media meta settings management
+  GET    /:languageCode/front            # Public: Get meta settings for frontend by language code
+  GET    /:languageCode/admin            # Admin: Get meta settings by language code
+  GET    /:publicId                      # Admin: Get single meta setting by public ID
+  POST   /                               # Admin: Create meta settings for all active languages with OG image upload
+  PATCH  /:publicId                      # Admin: Update meta setting with optional OG image upload
 
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type
