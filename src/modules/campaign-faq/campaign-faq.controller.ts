@@ -18,7 +18,7 @@ import {
 } from './dto/campaign-faq.dto';
 
 @ApiTags('Campaign FAQs')
-@Controller('campaignFaq')
+@Controller('campaign-faq')
 @UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class CampaignFaqController {

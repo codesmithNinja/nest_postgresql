@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
   HttpStatus,
   ValidationPipe,
   UsePipes,
@@ -24,6 +25,7 @@ import {
 import { AdminJwtUserGuard } from '../admin-users/guards/admin-jwt-auth.guard';
 import { Public } from '../../../common/decorators/public.decorator';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
+import { I18nResponseInterceptor } from '../../../common/interceptors/i18n-response.interceptor';
 import { RevenueSubscriptionsService } from './revenue-subscriptions.service';
 import {
   CreateRevenueSubscriptionDto,
@@ -38,6 +40,7 @@ import {
 
 @ApiTags('Revenue Subscriptions')
 @Controller('revenue-subscriptions')
+@UseInterceptors(I18nResponseInterceptor)
 @UsePipes(new ValidationPipe({ transform: true }))
 export class RevenueSubscriptionsController {
   constructor(

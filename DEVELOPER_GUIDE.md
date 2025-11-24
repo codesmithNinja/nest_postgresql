@@ -77,10 +77,20 @@ src/
 │   ├── adminModules/  # Admin functionality
 │   │   ├── currencies/# Currencies management
 │   │   ├── countries/ # Countries management
+│   │   ├── email-templates/ # Email templates management
 │   │   ├── languages/ # Languages management
 │   │   ├── manage-dropdown/ # Master dropdown management
+│   │   ├── meta-settings/ # Meta settings management
+│   │   ├── revenue-subscriptions/ # Revenue subscriptions management
 │   │   ├── settings/  # Settings management
-│   │   └── [other-admin-modules]/
+│   │   └── sliders/   # Sliders management
+│   ├── campaignModules/ # Campaign management functionality
+│   │   ├── team-member/ # Team members for campaigns
+│   │   ├── lead-investor/ # Lead investors for campaigns
+│   │   ├── campaign-faq/ # FAQ management for campaigns
+│   │   ├── extras-image/ # Extra images for campaigns
+│   │   ├── extras-video/ # Extra videos for campaigns
+│   │   └── extras-document/ # Extra documents for campaigns
 │   └── [other-modules]/ # Business logic modules
 ├── app.module.ts       # Root application module
 └── main.ts            # Application entry point
@@ -1342,6 +1352,180 @@ async createMetaSettings(
 }
 ```
 
+### Feature Module Example: EmailTemplatesModule
+
+```typescript
+// src/modules/admin-modules/email-templates/email-templates.module.ts
+@Module({
+  imports: [
+    ConfigModule, // Access to environment variables
+    MongooseModule.forFeature([
+      { name: EmailTemplate.name, schema: EmailTemplateSchema },
+      { name: Language.name, schema: LanguageSchema },
+    ]), // MongoDB schema registration
+    AdminUsersModule, // For admin authentication
+  ],
+  controllers: [EmailTemplatesController], // HTTP endpoints
+  providers: [
+    EmailTemplatesService, // Business logic
+    PrismaService, // PostgreSQL service
+    I18nResponseService, // Response internationalization
+    {
+      provide: EMAIL_TEMPLATE_REPOSITORY, // Repository injection token
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        emailTemplateMongodbRepository: EmailTemplateMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return emailTemplateMongodbRepository;
+        }
+        return new EmailTemplatePostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, EmailTemplateMongodbRepository],
+    },
+    {
+      provide: LANGUAGES_REPOSITORY, // Language repository for validation
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        languagesMongodbRepository: LanguagesMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return languagesMongodbRepository;
+        }
+        return new LanguagesPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+    },
+    EmailTemplateMongodbRepository, // MongoDB repository implementation
+    LanguagesMongodbRepository, // Languages repository for validation
+  ],
+  exports: [EmailTemplatesService, EMAIL_TEMPLATE_REPOSITORY], // Available to other modules
+})
+export class EmailTemplatesModule {}
+```
+
+#### Email Templates Module Features
+
+- **Task-Based Organization**: Email templates organized by immutable task identifiers (account_activation, password_reset, etc.)
+- **Multi-Language Support**: One email template per active language with automatic language resolution
+- **HTML Email Content**: Full HTML support with template variable substitution for rich email formatting
+- **Sender Configuration**: Configurable sender details (email, reply-to, sender name) per template
+- **Immutable Task Field**: Task identifier cannot be modified after creation to ensure template consistency
+- **Dual Database Support**: MongoDB and PostgreSQL repository implementations with type-safe transformations
+- **Public/Admin Endpoints**: Language-specific frontend access and comprehensive admin management
+- **Bulk Operations**: Efficient bulk status updates for multiple templates simultaneously
+- **Performance Caching**: NodeCache integration with 5-minute TTL for optimal performance
+- **Comprehensive Validation**: Email format, content length, task format validation with multilingual error messages
+- **Status Management**: Active/inactive status control with business logic validation
+- **Internationalization**: Multi-language error messages and responses (EN, ES, FR, AR)
+
+#### Email Templates Repository Pattern
+
+```typescript
+// Interface definition
+export interface IEmailTemplateRepository extends IRepository<EmailTemplate> {
+  findByLanguageId(languageId: string): Promise<EmailTemplate | null>;
+  findByTaskAndLanguageId(task: string, languageId: string): Promise<EmailTemplate | null>;
+  findByLanguageIdWithLanguage(languageId: string): Promise<EmailTemplateWithLanguage | null>;
+  findByPublicIdWithLanguage(publicId: string): Promise<EmailTemplateWithLanguage | null>;
+  existsByTaskAndLanguageId(task: string, languageId: string): Promise<boolean>;
+  findActiveTemplatesByLanguage(languageCode: string): Promise<EmailTemplate[]>;
+  bulkUpdateStatus(publicIds: string[], status: boolean): Promise<void>;
+  getAllActiveLanguageIds(): Promise<string[]>;
+}
+
+// PostgreSQL Implementation
+export class EmailTemplatePostgresRepository implements IEmailTemplateRepository {
+  constructor(private prisma: PrismaService) {}
+
+  async findByTaskAndLanguageId(task: string, languageId: string): Promise<EmailTemplate | null> {
+    const emailTemplate = await this.prisma.emailTemplate.findFirst({
+      where: { task, languageId },
+      include: { language: true },
+    });
+    return emailTemplate ? this.toEntity(emailTemplate) : null;
+  }
+
+  // ... other methods with Prisma-specific implementation
+}
+
+// MongoDB Implementation
+export class EmailTemplateMongodbRepository implements IEmailTemplateRepository {
+  constructor(@InjectModel(EmailTemplate.name) private emailTemplateModel: Model<EmailTemplateDocument>) {}
+
+  async findByTaskAndLanguageId(task: string, languageId: string): Promise<EmailTemplate | null> {
+    const emailTemplate = await this.emailTemplateModel
+      .findOne({ task, languageId })
+      .populate('language')
+      .exec();
+    return emailTemplate ? this.toEntity(emailTemplate) : null;
+  }
+
+  // ... other methods with Mongoose-specific implementation and type transformations
+}
+```
+
+#### Email Templates Service Business Logic
+
+```typescript
+// Key service methods showcasing business logic
+export class EmailTemplatesService {
+  async createEmailTemplate(createDto: CreateEmailTemplateDto): Promise<EmailTemplateResponseDto> {
+    // Validate email template data
+    this.validateEmailTemplateData(createDto);
+
+    // Validate task format (immutable field)
+    this.validateTaskField(createDto.task);
+
+    // Resolve language (supports both publicId and primary key)
+    const language = await this.resolveLanguage(createDto.languageId);
+
+    // Check for existing template with same task and language
+    const existingTemplate = await this.emailTemplateRepository.findByTaskAndLanguageId(
+      createDto.task,
+      language.id
+    );
+
+    if (existingTemplate) {
+      throw new EmailTemplateAlreadyExistsForLanguageException();
+    }
+
+    // Create template with validated data
+    const emailTemplate = await this.emailTemplateRepository.create({
+      ...createDto,
+      languageId: language.id,
+      publicId: generateUUID(),
+    });
+
+    // Clear cache for affected language
+    this.clearLanguageCache(language.id);
+
+    return this.transformToResponseDto(emailTemplate);
+  }
+
+  private validateTaskField(task: string): void {
+    const taskRegex = /^[a-zA-Z0-9_]{3,100}$/;
+    if (!taskRegex.test(task)) {
+      throw new InvalidEmailTemplateTaskFormatException();
+    }
+  }
+
+  private validateEmailTemplateData(data: CreateEmailTemplateDto | UpdateEmailTemplateDto): void {
+    if (!this.isValidEmail(data.senderEmail)) {
+      throw new InvalidSenderEmailException();
+    }
+    if (!this.isValidEmail(data.replyEmail)) {
+      throw new InvalidReplyEmailException();
+    }
+    // ... additional validation logic
+  }
+}
+```
+
 ---
 
 ## Development Patterns
@@ -2052,6 +2236,60 @@ DELETE /settings/:groupType/admin         # Delete all settings by group type
 GET    /settings/admin/cache/stats        # Get cache statistics
 DELETE /settings/admin/cache/clear/:groupType?  # Clear cache (all or by group)
 ```
+
+#### Campaign Management Endpoints
+
+```
+# Team Members (require user authentication and campaign ownership)
+GET    /team-member/:equityId             # Get all team members for campaign
+POST   /team-member/:equityId             # Create team member with photo upload (multipart/form-data)
+PATCH  /team-member/:equityId/:id         # Update team member with optional photo upload
+DELETE /team-member/:equityId/:id         # Delete team member
+
+# Lead Investors (require user authentication and campaign ownership)
+GET    /lead-investor/:equityId           # Get all lead investors for campaign
+POST   /lead-investor/:equityId           # Create lead investor with photo upload (multipart/form-data)
+PATCH  /lead-investor/:equityId/:id       # Update lead investor with optional photo upload
+DELETE /lead-investor/:equityId/:id       # Delete lead investor
+
+# Campaign FAQ (require user authentication and campaign ownership)
+GET    /campaign-faq/:equityId            # Get all FAQ entries for campaign
+POST   /campaign-faq/:equityId            # Create new FAQ entry
+PATCH  /campaign-faq/:equityId/:id        # Update FAQ entry
+DELETE /campaign-faq/:equityId/:id        # Delete FAQ entry
+
+# Extras Images (require user authentication and campaign ownership)
+GET    /extras-image/:equityId            # Get all extra images for campaign
+POST   /extras-image/:equityId            # Create extra image entry
+PATCH  /extras-image/:equityId/:id        # Update extra image entry
+DELETE /extras-image/:equityId/:id        # Delete extra image entry
+POST   /extras-image/upload/image         # Upload image file (multipart/form-data)
+
+# Extras Videos (require user authentication and campaign ownership)
+GET    /extras-video/:equityId            # Get all extra videos for campaign
+POST   /extras-video/:equityId            # Create extra video entry
+PATCH  /extras-video/:equityId/:id        # Update extra video entry
+DELETE /extras-video/:equityId/:id        # Delete extra video entry
+POST   /extras-video/upload/video         # Upload video file (multipart/form-data)
+
+# Extras Documents (require user authentication and campaign ownership)
+GET    /extras-document/:equityId         # Get all extra documents for campaign
+POST   /extras-document/:equityId         # Create extra document entry
+PATCH  /extras-document/:equityId/:id     # Update extra document entry
+DELETE /extras-document/:equityId/:id     # Delete extra document entry
+POST   /extras-document/upload/document   # Upload document file (multipart/form-data)
+```
+
+**Campaign Module Features:**
+
+- **Campaign Ownership Validation**: All endpoints validate that the authenticated user owns the campaign (equityId)
+- **File Upload Support**: Team members and lead investors support photo uploads, extras modules support respective file types
+- **Photo Management**: Automatic file cleanup when deleting team members or lead investors
+- **Content Management**: Support for additional content (images, videos, documents) to enhance campaign presentations
+- **JWT Authentication**: All endpoints require valid user authentication
+- **Multi-format Support**: Images (JPEG, PNG, WebP), videos (MP4, AVI, MOV), documents (PDF, DOC, DOCX)
+- **File Validation**: Automatic MIME type and file size validation for uploads
+- **Campaign Integration**: All modules are tightly integrated with the equity campaign system
 
 #### Settings API Examples
 

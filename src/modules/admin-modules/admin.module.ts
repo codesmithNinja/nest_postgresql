@@ -8,6 +8,7 @@ import { CurrenciesModule } from './currencies/currencies.module';
 import { SlidersModule } from './sliders/sliders.module';
 import { RevenueSubscriptionsModule } from './revenue-subscriptions/revenue-subscriptions.module';
 import { MetaSettingsModule } from './meta-settings/meta-settings.module';
+import { EmailTemplatesModule } from './email-templates/email-templates.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MetaSettingsModule } from './meta-settings/meta-settings.module';
     SlidersModule,
     RevenueSubscriptionsModule,
     MetaSettingsModule,
+    EmailTemplatesModule,
   ],
   exports: [
     AdminUsersModule,
@@ -31,6 +33,7 @@ import { MetaSettingsModule } from './meta-settings/meta-settings.module';
     SlidersModule,
     RevenueSubscriptionsModule,
     MetaSettingsModule,
+    EmailTemplatesModule,
   ],
 })
 export class AdminModule {}

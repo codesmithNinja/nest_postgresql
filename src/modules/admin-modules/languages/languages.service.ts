@@ -78,8 +78,6 @@ export class LanguagesService {
   }
 
   async getFrontLanguages() {
-    this.logger.log('Retrieving active languages for frontend');
-
     const languages = await this.languagesRepository.findMany(
       { status: true },
       {
@@ -94,11 +92,6 @@ export class LanguagesService {
   }
 
   async createLanguage(createLanguageDto: CreateLanguageDto) {
-    this.logger.log(`Creating language: ${createLanguageDto.name}`);
-    this.logger.log(
-      `Status value received: ${createLanguageDto.status} (type: ${typeof createLanguageDto.status})`
-    );
-
     // Validate business logic FIRST (before file upload)
     await this.validateLanguageCreation(createLanguageDto);
 
@@ -117,7 +110,6 @@ export class LanguagesService {
 
     const language = await this.languagesRepository.insert(languageData);
 
-    this.logger.log(`Language created successfully with ID: ${language.id}`);
     return this.i18nResponse.created(
       'languages.created',
       this.transformToResponseDto(language)
@@ -153,7 +145,6 @@ export class LanguagesService {
       updateData
     );
 
-    this.logger.log(`Language updated successfully: ${language.id}`);
     return this.i18nResponse.success(
       'languages.updated',
       this.transformToResponseDto(updatedLanguage)
@@ -175,7 +166,6 @@ export class LanguagesService {
     if (language.flagImage) {
       try {
         await FileUploadUtil.deleteFile(language.flagImage);
-        this.logger.log(`Language flag deleted: ${language.flagImage}`);
       } catch (error) {
         this.logger.warn(
           `Failed to delete language flag: ${language.flagImage}`,
@@ -185,14 +175,9 @@ export class LanguagesService {
     }
 
     await this.languagesRepository.deleteById(language.id);
-    this.logger.log(`Language deleted successfully: ${language.id}`);
   }
 
   async bulkUpdateLanguages(bulkUpdateDto: BulkUpdateLanguageDto) {
-    this.logger.log(
-      `Bulk updating ${bulkUpdateDto.publicIds.length} languages`
-    );
-
     const updateData: Partial<Language> = {
       status: bulkUpdateDto.status,
     };
@@ -202,7 +187,6 @@ export class LanguagesService {
       updateData
     );
 
-    this.logger.log(`Bulk update completed: ${result.count} languages updated`);
     return this.i18nResponse.success('languages.bulk_updated', {
       count: result.count,
       message: `${result.count} languages updated successfully`,
@@ -210,10 +194,6 @@ export class LanguagesService {
   }
 
   async bulkDeleteLanguages(bulkDeleteDto: BulkDeleteLanguageDto) {
-    this.logger.log(
-      `Bulk deleting ${bulkDeleteDto.publicIds.length} languages`
-    );
-
     // Get all languages to be deleted
     const languagesToDelete = await Promise.all(
       bulkDeleteDto.publicIds.map((id) =>
@@ -239,7 +219,6 @@ export class LanguagesService {
       .map(async (language) => {
         try {
           await FileUploadUtil.deleteFile(language.flagImage);
-          this.logger.log(`Language flag deleted: ${language.flagImage}`);
         } catch (error) {
           this.logger.warn(
             `Failed to delete language flag: ${language.flagImage}`,
@@ -257,9 +236,6 @@ export class LanguagesService {
     const result =
       await this.languagesRepository.bulkDeleteByPublicIds(eligiblePublicIds);
 
-    this.logger.log(
-      `Bulk deletion completed: ${result.count} languages deleted`
-    );
     return this.i18nResponse.success('languages.bulk_deleted', {
       count: result.count,
       message: `${result.count} languages deleted successfully`,
@@ -269,8 +245,6 @@ export class LanguagesService {
   private async validateLanguageCreation(
     createLanguageDto: CreateLanguageDto
   ): Promise<void> {
-    this.logger.log(`Validating language creation: ${createLanguageDto.name}`);
-
     // Check for duplicate name
     const existingNameLanguage = await this.languagesRepository.getDetail({
       name: createLanguageDto.name,
@@ -319,8 +293,6 @@ export class LanguagesService {
     existingLanguage: Language,
     updateLanguageDto: UpdateLanguageDto
   ): Promise<void> {
-    this.logger.log(`Validating language update: ${existingLanguage.name}`);
-
     // Check for duplicate name (if changing)
     if (
       updateLanguageDto.name &&
@@ -403,7 +375,6 @@ export class LanguagesService {
     if (isUpdate && language?.flagImage) {
       try {
         await FileUploadUtil.deleteFile(language.flagImage);
-        this.logger.log(`Old language flag deleted: ${language.flagImage}`);
       } catch (error) {
         this.logger.warn(
           `Failed to delete old language flag: ${language.flagImage}`,

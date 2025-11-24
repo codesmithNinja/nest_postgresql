@@ -78,8 +78,6 @@ export class CountriesService {
   }
 
   async getFrontCountries() {
-    this.logger.log('Retrieving active countries for frontend');
-
     const countries = await this.countriesRepository.findMany(
       { status: true },
       {
@@ -94,11 +92,6 @@ export class CountriesService {
   }
 
   async createCountry(createCountryDto: CreateCountryDto) {
-    this.logger.log(`Creating country: ${createCountryDto.name}`);
-    this.logger.log(
-      `Status value received: ${createCountryDto.status} (type: ${typeof createCountryDto.status})`
-    );
-
     // Validate business logic FIRST (before file upload)
     await this.validateCountryCreation(createCountryDto);
 
@@ -118,7 +111,6 @@ export class CountriesService {
 
     const country = await this.countriesRepository.insert(countryData);
 
-    this.logger.log(`Country created successfully with ID: ${country.id}`);
     return this.i18nResponse.created(
       'countries.created',
       this.transformToResponseDto(country)
@@ -154,7 +146,6 @@ export class CountriesService {
       updateData
     );
 
-    this.logger.log(`Country updated successfully: ${country.id}`);
     return this.i18nResponse.success(
       'countries.updated',
       this.transformToResponseDto(updatedCountry)
@@ -181,7 +172,6 @@ export class CountriesService {
     if (country.flag) {
       try {
         await FileUploadUtil.deleteFile(country.flag);
-        this.logger.log(`Country flag deleted: ${country.flag}`);
       } catch (error) {
         this.logger.warn(
           `Failed to delete country flag: ${country.flag}`,
@@ -191,14 +181,9 @@ export class CountriesService {
     }
 
     await this.countriesRepository.deleteById(country.id);
-    this.logger.log(`Country deleted successfully: ${country.id}`);
   }
 
   async bulkUpdateCountries(bulkUpdateDto: BulkUpdateCountryDto) {
-    this.logger.log(
-      `Bulk updating ${bulkUpdateDto.publicIds.length} countries`
-    );
-
     const updateData: Partial<Country> = {
       status: bulkUpdateDto.status,
     };
@@ -208,7 +193,6 @@ export class CountriesService {
       updateData
     );
 
-    this.logger.log(`Bulk update completed: ${result.count} countries updated`);
     return this.i18nResponse.success('countries.bulk_updated', {
       count: result.count,
       message: `${result.count} countries updated successfully`,
@@ -216,10 +200,6 @@ export class CountriesService {
   }
 
   async bulkDeleteCountries(bulkDeleteDto: BulkDeleteCountryDto) {
-    this.logger.log(
-      `Bulk deleting ${bulkDeleteDto.publicIds.length} countries`
-    );
-
     // Get all countries to be deleted
     const countriesToDelete = await Promise.all(
       bulkDeleteDto.publicIds.map((id) =>
@@ -251,7 +231,6 @@ export class CountriesService {
       .map(async (country) => {
         try {
           await FileUploadUtil.deleteFile(country.flag);
-          this.logger.log(`Country flag deleted: ${country.flag}`);
         } catch (error) {
           this.logger.warn(
             `Failed to delete country flag: ${country.flag}`,
@@ -269,9 +248,6 @@ export class CountriesService {
     const result =
       await this.countriesRepository.bulkDeleteByPublicIds(eligiblePublicIds);
 
-    this.logger.log(
-      `Bulk deletion completed: ${result.count} countries deleted`
-    );
     return this.i18nResponse.success('countries.bulk_deleted', {
       count: result.count,
       message: `${result.count} countries deleted successfully`,
@@ -281,8 +257,6 @@ export class CountriesService {
   private async validateCountryCreation(
     createCountryDto: CreateCountryDto
   ): Promise<void> {
-    this.logger.log(`Validating country creation: ${createCountryDto.name}`);
-
     // Check for duplicate name
     const existingNameCountry = await this.countriesRepository.getDetail({
       name: createCountryDto.name,
@@ -323,8 +297,6 @@ export class CountriesService {
     existingCountry: Country,
     updateCountryDto: UpdateCountryDto
   ): Promise<void> {
-    this.logger.log(`Validating country update: ${existingCountry.name}`);
-
     // Check for duplicate name (if changing)
     if (
       updateCountryDto.name &&
@@ -389,7 +361,6 @@ export class CountriesService {
     if (isUpdate && country?.flag) {
       try {
         await FileUploadUtil.deleteFile(country.flag);
-        this.logger.log(`Old country flag deleted: ${country.flag}`);
       } catch (error) {
         this.logger.warn(
           `Failed to delete old country flag: ${country.flag}`,

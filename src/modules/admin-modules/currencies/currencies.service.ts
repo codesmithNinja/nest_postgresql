@@ -46,7 +46,6 @@ export class CurrenciesService {
       // Try to get from cache first
       const cached = this.cache.get<Currency[]>(cacheKey);
       if (cached) {
-        this.logger.debug('Retrieved currencies from cache');
         return cached;
       }
 
@@ -56,7 +55,6 @@ export class CurrenciesService {
       // Cache the result
       this.cache.set(cacheKey, currencies, this.cacheTTL);
 
-      this.logger.log(`Retrieved ${currencies.length} public currencies`);
       return currencies;
     } catch (error) {
       this.logger.error(
@@ -95,7 +93,6 @@ export class CurrenciesService {
       }>(cacheKey);
 
       if (cached) {
-        this.logger.debug('Retrieved admin currencies from cache');
         return cached;
       }
 
@@ -109,9 +106,6 @@ export class CurrenciesService {
       // Cache the result
       this.cache.set(cacheKey, result, this.cacheTTL);
 
-      this.logger.log(
-        `Retrieved ${result.data.length} admin currencies (page ${page})`
-      );
       return result;
     } catch (error) {
       this.logger.error(
@@ -135,7 +129,6 @@ export class CurrenciesService {
       // Try to get from cache first
       const cached = this.cache.get<Currency>(cacheKey);
       if (cached) {
-        this.logger.debug(`Retrieved currency ${publicId} from cache`);
         return cached;
       }
 
@@ -148,9 +141,6 @@ export class CurrenciesService {
       // Cache the result
       this.cache.set(cacheKey, currency, this.cacheTTL);
 
-      this.logger.log(
-        `Retrieved currency: ${currency.name} (${currency.code})`
-      );
       return currency;
     } catch (error) {
       if (error instanceof CurrencyNotFoundException) {
@@ -197,7 +187,6 @@ export class CurrenciesService {
       // Clear relevant caches
       this.clearCurrencyCaches();
 
-      this.logger.log(`Created currency: ${currency.name} (${currency.code})`);
       return currency;
     } catch (error) {
       if (error instanceof CurrencyAlreadyExistsException) {
@@ -262,9 +251,6 @@ export class CurrenciesService {
       this.clearCurrencyCaches();
       this.cache.del(`${this.cachePrefix}:single:${publicId}`);
 
-      this.logger.log(
-        `Updated currency: ${updatedCurrency.name} (${updatedCurrency.code})`
-      );
       return updatedCurrency;
     } catch (error) {
       if (
@@ -313,7 +299,6 @@ export class CurrenciesService {
       this.clearCurrencyCaches();
       this.cache.del(`${this.cachePrefix}:single:${publicId}`);
 
-      this.logger.log(`Deleted currency: ${currency.name} (${currency.code})`);
       return true;
     } catch (error) {
       if (
@@ -341,10 +326,6 @@ export class CurrenciesService {
     bulkUpdateDto: BulkUpdateCurrencyDto
   ): Promise<{ count: number; message: string }> {
     try {
-      this.logger.log(
-        `Bulk updating ${bulkUpdateDto.publicIds.length} currencies`
-      );
-
       const updateData: Partial<Currency> = {
         status: bulkUpdateDto.status,
       };
@@ -362,9 +343,6 @@ export class CurrenciesService {
         this.cache.del(`${this.cachePrefix}:single:${publicId}`);
       }
 
-      this.logger.log(
-        `Bulk update completed: ${result.count} currencies updated`
-      );
       return {
         count: result.count,
         message: `${result.count} currencies updated successfully`,
@@ -388,10 +366,6 @@ export class CurrenciesService {
     bulkDeleteDto: BulkDeleteCurrencyDto
   ): Promise<{ count: number; message: string }> {
     try {
-      this.logger.log(
-        `Bulk deleting ${bulkDeleteDto.publicIds.length} currencies`
-      );
-
       // Get all currencies to be deleted
       const currenciesToDelete = await Promise.all(
         bulkDeleteDto.publicIds.map((id) =>
@@ -426,9 +400,6 @@ export class CurrenciesService {
         this.cache.del(`${this.cachePrefix}:single:${publicId}`);
       }
 
-      this.logger.log(
-        `Bulk deletion completed: ${result.count} currencies deleted`
-      );
       return {
         count: result.count,
         message: `${result.count} currencies deleted successfully`,
@@ -452,7 +423,6 @@ export class CurrenciesService {
     try {
       await this.currencyRepository.incrementUseCount(publicId);
       this.cache.del(`${this.cachePrefix}:single:${publicId}`);
-      this.logger.debug(`Incremented use count for currency ${publicId}`);
     } catch (error) {
       this.logger.error(
         `Error incrementing use count for currency ${publicId}`,
@@ -468,7 +438,6 @@ export class CurrenciesService {
     try {
       await this.currencyRepository.decrementUseCount(publicId);
       this.cache.del(`${this.cachePrefix}:single:${publicId}`);
-      this.logger.debug(`Decremented use count for currency ${publicId}`);
     } catch (error) {
       this.logger.error(
         `Error decrementing use count for currency ${publicId}`,
@@ -489,9 +458,6 @@ export class CurrenciesService {
 
       if (currencyKeys.length > 0) {
         currencyKeys.forEach((key) => this.cache.del(key));
-        this.logger.debug(
-          `Cleared ${currencyKeys.length} currency cache entries`
-        );
       }
     } catch (error) {
       this.logger.warn(

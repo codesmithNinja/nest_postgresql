@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "52feb5ad-774d-4ac4-8b70-458827d6d6ed",
+    "_postman_id": "61b229e7-a8c7-4e31-a587-317a14511560",
     "name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
     "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -968,6 +968,1478 @@
                 }
               ],
               "description": "Currencies management endpoints for multi-currency support with ISO codes, symbols, and use count tracking."
+            },
+            {
+              "name": "📧 Email Templates Management",
+              "item": [
+                {
+                  "name": "Get Email Templates",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates?task=&senderEmail=&senderName=&subject=&languageId=&status=&search=&sortBy=createdAt&sortOrder=desc&page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates"],
+                      "query": [
+                        {
+                          "key": "task",
+                          "value": "",
+                          "description": "Filter by email template task",
+                          "disabled": true
+                        },
+                        {
+                          "key": "senderEmail",
+                          "value": "",
+                          "description": "Filter by sender email",
+                          "disabled": true
+                        },
+                        {
+                          "key": "senderName",
+                          "value": "",
+                          "description": "Filter by sender name",
+                          "disabled": true
+                        },
+                        {
+                          "key": "subject",
+                          "value": "",
+                          "description": "Filter by email subject",
+                          "disabled": true
+                        },
+                        {
+                          "key": "languageId",
+                          "value": "",
+                          "description": "Filter by language ID (publicId or ObjectId)",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "Filter by active status (true/false)",
+                          "disabled": true
+                        },
+                        {
+                          "key": "search",
+                          "value": "",
+                          "description": "Search term for task, subject, or sender name",
+                          "disabled": true
+                        },
+                        {
+                          "key": "sortBy",
+                          "value": "createdAt",
+                          "description": "Sort field (createdAt, updatedAt, task, subject, senderName)"
+                        },
+                        {
+                          "key": "sortOrder",
+                          "value": "desc",
+                          "description": "Sort order (asc, desc)"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number for pagination"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10",
+                          "description": "Number of items per page"
+                        }
+                      ]
+                    },
+                    "description": "Get email templates for admin dashboard by language code with pagination support. Supports languages: en, es, fr, ar."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Email Template by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "email-templates",
+                        "{{EMAIL_TEMPLATE_PUBLIC_ID}}"
+                      ]
+                    },
+                    "description": "Get specific email template by public ID with language information and complete template data."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Email Template",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"languageId\": \"{{LANGUAGE_ID}}\",\n  \"task\": \"account_activation\",\n  \"senderEmail\": \"noreply@example.com\",\n  \"replyEmail\": \"support@example.com\",\n  \"senderName\": \"Example Platform\",\n  \"subject\": \"Please activate your account\",\n  \"message\": \"<html><body><h1>Welcome!</h1><p>Please click the link below to activate your account:</p><a href='{{activation_link}}'>Activate Account</a></body></html>\",\n  \"status\": true\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates"]
+                    },
+                    "description": "Create new email template with task, sender details, and HTML message content. Task field is immutable after creation."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Email Template",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"senderEmail\": \"updated@example.com\",\n  \"replyEmail\": \"support@example.com\",\n  \"senderName\": \"Updated Platform Name\",\n  \"subject\": \"Updated: Please activate your account\",\n  \"message\": \"<html><body><h1>Welcome to Updated Platform!</h1><p>Please click the link below to activate your account:</p><a href='{{activation_link}}'>Activate Account</a><p>Best regards,<br>Updated Platform Team</p></body></html>\",\n  \"status\": true\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "email-templates",
+                        "{{EMAIL_TEMPLATE_PUBLIC_ID}}"
+                      ]
+                    },
+                    "description": "Update email template. Note: Task field cannot be modified after creation (immutable)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Email Template",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "email-templates",
+                        "{{EMAIL_TEMPLATE_PUBLIC_ID}}"
+                      ]
+                    },
+                    "description": "Delete email template by public ID. This action is irreversible."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Email Templates Status",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"{{EMAIL_TEMPLATE_PUBLIC_ID_1}}\",\n    \"{{EMAIL_TEMPLATE_PUBLIC_ID_2}}\"\n  ],\n  \"status\": false\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates", "bulk-update"]
+                    },
+                    "description": "Bulk update email templates status (active/inactive) for multiple templates at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Email Templates for All Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"task\": \"welcome_email\",\n  \"senderEmail\": \"noreply@example.com\",\n  \"replyEmail\": \"support@example.com\",\n  \"senderName\": \"Example Team\",\n  \"subject\": \"Welcome to Our Platform\",\n  \"message\": \"<h1>Welcome!</h1><p>Thank you for joining us.</p>\",\n  \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/all-languages",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates", "all-languages"]
+                    },
+                    "description": "Create email template for all active languages with the same content."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Email Template Cache Statistics",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/admin/cache/stats",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates", "admin", "cache", "stats"]
+                    },
+                    "description": "Get cache statistics for email templates module."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Clear All Email Template Cache",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/admin/cache/clear",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates", "admin", "cache", "clear"]
+                    },
+                    "description": "Clear all email template cache entries."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Clear Email Template Cache by Pattern",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/admin/cache/clear/:pattern",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates", "admin", "cache", "clear", ":pattern"],
+                      "variable": [
+                        {
+                          "key": "pattern",
+                          "value": "lang_en",
+                          "description": "Cache pattern to clear (e.g., lang_en, task_welcome)"
+                        }
+                      ]
+                    },
+                    "description": "Clear email template cache entries matching a specific pattern."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Email templates management endpoints for creating, updating, and managing email templates with multi-language support. Includes task-based template organization with immutable task field, bulk operations, and HTML content management."
+            },
+            {
+              "name": "🌐 Languages Management",
+              "item": [
+                {
+                  "name": "Get All Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "name",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "folder",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "disabled": true
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all languages with pagination and filtering."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Language by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve a specific language by its public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "English",
+                          "type": "text"
+                        },
+                        {
+                          "key": "folder",
+                          "value": "en",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "EN",
+                          "type": "text"
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "ENG",
+                          "type": "text"
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "type": "text"
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "description": "YES / NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flagImage",
+                          "description": "Language flag image (PNG, JPG, JPEG, SVG)",
+                          "type": "file",
+                          "src": []
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages"]
+                    },
+                    "description": "Admin endpoint to create a new language with flag image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "name",
+                          "value": "English (US)",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "folder",
+                          "value": "en-us",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso2",
+                          "value": "EN",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "iso3",
+                          "value": "ENG",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "direction",
+                          "value": "ltr",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "true",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "isDefault",
+                          "value": "YES",
+                          "description": "YES / NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "flagImage",
+                          "description": "Updated language flag image (PNG, JPG, JPEG, SVG)",
+                          "type": "file",
+                          "src": [],
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "3f7f36d7-04bf-4726-9558-b82e3ebc1308"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update a language with optional flag image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete a language (only if isDefault is NO)."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"publicIds\": [\n        \"c30f0644-e3d6-463f-abf9-2796e5d1bd4f\",\n        \"153a0d8f-93a0-4e78-aed8-9f32a53c47f5\"\n    ],\n    \"status\": true\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "bulk-update"]
+                    },
+                    "description": "Admin endpoint to update multiple languages status at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "bulk-delete"]
+                    },
+                    "description": "Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Languages management endpoints for dynamic language configuration with flag uploads and bulk operations. Supports multi-language application features with ISO codes and text direction settings."
+            },
+            {
+              "name": "📋 Manage Dropdown",
+              "item": [
+                {
+                  "name": "Get All Dropdowns",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/admin?page=1&limit=10",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":dropdownType", "admin"],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "languageId",
+                          "value": "c30f0644-e3d6-463f-abf9-2796e5d1bd4f",
+                          "disabled": true
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "investor-type",
+                          "description": "investor-type\ncompany-industry\ncampaign-stage\naccount-type\ninvesting-source"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all dropdowns with pagination and filtering by type and language."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Dropdown by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve a specific dropdown by its public ID with language details."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Dropdown",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"TEST\",\n  \"languageId\": \"017905f4-5c07-4e6e-969b-7394eb71efa9\",\n  \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":dropdownType"],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "campaign-stage"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to create a new dropdown item with language association."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Dropdown",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"TEST123\",\n  \"status\": false\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":dropdownType", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "campaign-stage"
+                        },
+                        {
+                          "key": "publicId",
+                          "value": "36b29fd4-b71f-407d-a4ba-48b20769d7b0"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update a specific dropdown by its public ID."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Dropdown",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/:uniqueCode",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "manage-dropdown",
+                        ":dropdownType",
+                        ":uniqueCode"
+                      ],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "campaign-stage"
+                        },
+                        {
+                          "key": "uniqueCode",
+                          "value": "2372035123"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete a dropdown by its unique code (all language variants). Only allowed if useCount is 0."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Dropdowns",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"publicIds\": [\n        \"2755f283-40b2-42a9-a038-aea7edac172a\",\n        \"4ba38f94-c7b8-4172-b395-958b4e591313\"\n    ],\n    \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "manage-dropdown",
+                        ":dropdownType",
+                        "bulk-update"
+                      ],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "industry"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update the status of multiple dropdown options. Set status to true to activate or false to deactivate."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Dropdowns",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"]\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "manage-dropdown",
+                        ":dropdownType",
+                        "bulk-delete"
+                      ],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "industry"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete multiple dropdown options. Only allowed if all dropdown options have useCount = 0."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Manage dropdown endpoints for dynamic dropdown data management with multi-language support. Supports CRUD operations, bulk actions, and language-specific filtering."
+            },
+            {
+              "name": "🔍 Meta Settings Management",
+              "item": [
+                {
+                  "name": "Get Meta Settings for Admin by Language",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings"],
+                      "query": [
+                        {
+                          "key": "languageId",
+                          "value": "99c374c7-57ab-4f04-9de8-6f00b010f234",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Get meta settings for admin dashboard by language code with SEO/OG data."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Meta Setting by Public ID",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "987bbef2-9606-41d3-a4d7-07c9a6cfb109"
+                        }
+                      ]
+                    },
+                    "description": "Get specific meta setting by public ID with language information."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Meta Settings for All Languages",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "siteName",
+                          "value": "EquityCrowd - Investment Platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaTitle",
+                          "value": "EquityCrowd - Discover Investment Opportunities | Crowdfunding Platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaDescription",
+                          "value": "Join thousands of investors and entrepreneurs on EquityCrowd. Discover innovative startups, invest in promising ventures, or raise capital for your business.",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaKeyword",
+                          "value": "equity crowdfunding, startup investment, venture capital, fundraising, investment platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogTitle",
+                          "value": "EquityCrowd - The Future of Startup Investment",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogDescription",
+                          "value": "Discover the next unicorn startup or raise capital for your innovative business. EquityCrowd connects visionary entrepreneurs with smart investors.",
+                          "type": "text"
+                        },
+                        {
+                          "key": "isAIGeneratedImage",
+                          "value": "NO",
+                          "type": "text"
+                        },
+                        {
+                          "key": "ogImage",
+                          "type": "file",
+                          "src": "/C:/Users/DELL/Desktop/favIcon.png"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings"]
+                    },
+                    "description": "Create meta settings for all active languages with OpenGraph image upload."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Meta Setting",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "siteName",
+                          "value": "EquityCrowd Updated - Investment Platform",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaTitle",
+                          "value": "Updated EquityCrowd - Discover Investment Opportunities",
+                          "type": "text"
+                        },
+                        {
+                          "key": "metaDescription",
+                          "value": "Updated description for EquityCrowd investment platform with enhanced features.",
+                          "type": "text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "ogImage",
+                          "type": "file",
+                          "src": [],
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "987bbef2-9606-41d3-a4d7-07c9a6cfb109"
+                        }
+                      ]
+                    },
+                    "description": "Update meta setting with optional OpenGraph image upload."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Meta settings management endpoints for SEO and social media optimization. Supports meta titles, descriptions, keywords, OpenGraph data, and OG image uploads across all languages."
+            },
+            {
+              "name": "💰 Revenue Subscriptions Management",
+              "item": [
+                {
+                  "name": "Get All Revenue Subscriptions",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions?languageId=99c374c7-57ab-4f04-9de8-6f00b010f234&page=1&limit=10&includeInactive=true&subscriptionType=INVESTOR",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions"],
+                      "query": [
+                        {
+                          "key": "languageId",
+                          "value": "99c374c7-57ab-4f04-9de8-6f00b010f234"
+                        },
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number for pagination"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10",
+                          "description": "Number of items per page (max 100)"
+                        },
+                        {
+                          "key": "includeInactive",
+                          "value": "true",
+                          "description": "Include inactive revenue subscriptions"
+                        },
+                        {
+                          "key": "subscriptionType",
+                          "value": "INVESTOR",
+                          "description": "Filter by subscription type (INVESTOR, SPONSOR)"
+                        },
+                        {
+                          "key": "search",
+                          "value": "",
+                          "description": "Search by name or description",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all revenue subscriptions with pagination, filtering, and search capabilities."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Revenue Subscription",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"subscriptionType\": \"INVESTOR\",\n  \"amount\": 99.99,\n  \"maxInvestmentAllowed\": 50000,\n  \"maxProjectAllowed\": 10,\n  \"maxProjectGoalLimit\": 1000000,\n  \"allowRefund\": true,\n  \"allowRefundDays\": 30,\n  \"allowCancel\": true,\n  \"allowCancelDays\": 7,\n  \"secondaryMarketAccess\": true,\n  \"earlyBirdAccess\": true,\n  \"languageId\": \"{{ENGLISH_LANG_ID}}\",\n  \"title\": \"Premium Investor Plan\",\n  \"description\": \"Comprehensive investment plan with advanced features and flexible terms.\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions"]
+                    },
+                    "description": "Admin endpoint to create new revenue subscription with multi-language content support."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Single Revenue Subscription",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "{{REVENUE_SUBSCRIPTION_ID}}",
+                          "description": "Revenue Subscription public ID"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve single revenue subscription by public ID with language content."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Revenue Subscription",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"amount\": 149.99,\n  \"maxInvestmentAllowed\": 75000,\n  \"allowRefundDays\": 45,\n  \"secondaryMarketAccess\": false,\n  \"languageId\": \"{{ENGLISH_LANG_ID}}\",\n  \"title\": \"Premium Investor Plan - Updated\",\n  \"description\": \"Enhanced investment plan with improved terms and higher limits.\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "{{REVENUE_SUBSCRIPTION_ID}}",
+                          "description": "Revenue Subscription public ID"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to update revenue subscription by public ID with partial data and language content."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Revenue Subscription",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions/:publicId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "{{REVENUE_SUBSCRIPTION_ID}}",
+                          "description": "Revenue Subscription public ID"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to delete revenue subscription. Deletes all language variants. Cannot delete if useCount > 0."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Update Revenue Subscriptions",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"{{REVENUE_SUBSCRIPTION_ID_1}}\",\n    \"{{REVENUE_SUBSCRIPTION_ID_2}}\"\n  ],\n  \"status\": false\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions/bulk-update",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions", "bulk-update"]
+                    },
+                    "description": "Admin endpoint to update status of multiple revenue subscriptions at once."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Bulk Delete Revenue Subscriptions",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"publicIds\": [\n    \"{{REVENUE_SUBSCRIPTION_ID_1}}\",\n    \"{{REVENUE_SUBSCRIPTION_ID_2}}\"\n  ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions/bulk-delete",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions", "bulk-delete"]
+                    },
+                    "description": "Admin endpoint to delete multiple revenue subscriptions. Cannot delete if any subscription has useCount > 0."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Revenue subscription management endpoints for subscription plan configuration with multi-language support, financial limits, and bulk operations. Supports INVESTOR and SPONSOR subscription types with conditional field validation."
             },
             {
               "name": "🔧 Settings Management",
@@ -2173,1075 +3645,6 @@
               "description": "Settings management endpoints for dynamic application configuration with cache management."
             },
             {
-              "name": "🌐 Languages Management",
-              "item": [
-                {
-                  "name": "Get All Languages",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages?page=1&limit=10",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages"],
-                      "query": [
-                        {
-                          "key": "page",
-                          "value": "1"
-                        },
-                        {
-                          "key": "limit",
-                          "value": "10"
-                        },
-                        {
-                          "key": "name",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "folder",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso2",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "direction",
-                          "value": "ltr",
-                          "disabled": true
-                        },
-                        {
-                          "key": "isDefault",
-                          "value": "YES",
-                          "disabled": true
-                        },
-                        {
-                          "key": "status",
-                          "value": "true",
-                          "disabled": true
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve all languages with pagination and filtering."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get Language by Public ID",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "550e8400-e29b-41d4-a716-446655440000"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve a specific language by its public ID."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Language",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "name",
-                          "value": "English",
-                          "type": "text"
-                        },
-                        {
-                          "key": "folder",
-                          "value": "en",
-                          "type": "text"
-                        },
-                        {
-                          "key": "iso2",
-                          "value": "EN",
-                          "type": "text"
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "ENG",
-                          "type": "text"
-                        },
-                        {
-                          "key": "direction",
-                          "value": "ltr",
-                          "type": "text"
-                        },
-                        {
-                          "key": "status",
-                          "value": "true",
-                          "type": "text"
-                        },
-                        {
-                          "key": "isDefault",
-                          "value": "YES",
-                          "description": "YES / NO",
-                          "type": "text"
-                        },
-                        {
-                          "key": "flagImage",
-                          "description": "Language flag image (PNG, JPG, JPEG, SVG)",
-                          "type": "file",
-                          "src": []
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages"]
-                    },
-                    "description": "Admin endpoint to create a new language with flag image upload."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Language",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "name",
-                          "value": "English (US)",
-                          "type": "text",
-                          "disabled": true
-                        },
-                        {
-                          "key": "folder",
-                          "value": "en-us",
-                          "type": "text",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso2",
-                          "value": "EN",
-                          "type": "text",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "ENG",
-                          "type": "text",
-                          "disabled": true
-                        },
-                        {
-                          "key": "direction",
-                          "value": "ltr",
-                          "type": "text",
-                          "disabled": true
-                        },
-                        {
-                          "key": "status",
-                          "value": "true",
-                          "type": "text",
-                          "disabled": true
-                        },
-                        {
-                          "key": "isDefault",
-                          "value": "YES",
-                          "description": "YES / NO",
-                          "type": "text"
-                        },
-                        {
-                          "key": "flagImage",
-                          "description": "Updated language flag image (PNG, JPG, JPEG, SVG)",
-                          "type": "file",
-                          "src": [],
-                          "disabled": true
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "3f7f36d7-04bf-4726-9558-b82e3ebc1308"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to update a language with optional flag image upload."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Delete Language",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "550e8400-e29b-41d4-a716-446655440000"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to delete a language (only if isDefault is NO)."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Update Languages",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"publicIds\": [\n        \"c30f0644-e3d6-463f-abf9-2796e5d1bd4f\",\n        \"153a0d8f-93a0-4e78-aed8-9f32a53c47f5\"\n    ],\n    \"status\": true\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", "bulk-update"]
-                    },
-                    "description": "Admin endpoint to update multiple languages status at once."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Delete Languages",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", "bulk-delete"]
-                    },
-                    "description": "Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Languages management endpoints for dynamic language configuration with flag uploads and bulk operations. Supports multi-language application features with ISO codes and text direction settings."
-            },
-            {
-              "name": "📋 Manage Dropdown",
-              "item": [
-                {
-                  "name": "Get All Dropdowns",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/admin?page=1&limit=10",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["manage-dropdown", ":dropdownType", "admin"],
-                      "query": [
-                        {
-                          "key": "page",
-                          "value": "1"
-                        },
-                        {
-                          "key": "limit",
-                          "value": "10"
-                        },
-                        {
-                          "key": "languageId",
-                          "value": "68ee3f3824ecabe3ca09ed24",
-                          "disabled": true
-                        }
-                      ],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "investor-type",
-                          "description": "investor-type\ncompany-industry\ncampaign-stage\naccount-type\ninvesting-source"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve all dropdowns with pagination and filtering by type and language."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get Dropdown by Public ID",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["manage-dropdown", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "550e8400-e29b-41d4-a716-446655440000"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve a specific dropdown by its public ID with language details."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Dropdown",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "POST",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"TEST\",\n  \"languageId\": \"017905f4-5c07-4e6e-969b-7394eb71efa9\",\n  \"status\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["manage-dropdown", ":dropdownType"],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "campaign-stage"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to create a new dropdown item with language association."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Dropdown",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"name\": \"TEST123\",\n  \"status\": false\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["manage-dropdown", ":dropdownType", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "campaign-stage"
-                        },
-                        {
-                          "key": "publicId",
-                          "value": "36b29fd4-b71f-407d-a4ba-48b20769d7b0"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to update a specific dropdown by its public ID."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Delete Dropdown",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/:uniqueCode",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "manage-dropdown",
-                        ":dropdownType",
-                        ":uniqueCode"
-                      ],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "campaign-stage"
-                        },
-                        {
-                          "key": "uniqueCode",
-                          "value": "2372035123"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to delete a dropdown by its unique code (all language variants). Only allowed if useCount is 0."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Update Dropdowns",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"publicIds\": [\n        \"2755f283-40b2-42a9-a038-aea7edac172a\",\n        \"4ba38f94-c7b8-4172-b395-958b4e591313\"\n    ],\n    \"status\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "manage-dropdown",
-                        ":dropdownType",
-                        "bulk-update"
-                      ],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "industry"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to update the status of multiple dropdown options. Set status to true to activate or false to deactivate."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Delete Dropdowns",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [
-                      {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                      }
-                    ],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"publicIds\": [\"627a5038-e5be-4135-9569-404d50c836c1\", \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"]\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "manage-dropdown",
-                        ":dropdownType",
-                        "bulk-delete"
-                      ],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "industry"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to delete multiple dropdown options. Only allowed if all dropdown options have useCount = 0."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Manage dropdown endpoints for dynamic dropdown data management with multi-language support. Supports CRUD operations, bulk actions, and language-specific filtering."
-            },
-            {
-              "name": "💰 Revenue Subscriptions Management",
-              "item": [
-                {
-                  "name": "Get All Revenue Subscriptions",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions?page=1&limit=10&includeInactive=true&subscriptionType=&search=",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions"],
-                      "query": [
-                        {
-                          "key": "page",
-                          "value": "1",
-                          "description": "Page number for pagination"
-                        },
-                        {
-                          "key": "limit",
-                          "value": "10",
-                          "description": "Number of items per page (max 100)"
-                        },
-                        {
-                          "key": "includeInactive",
-                          "value": "true",
-                          "description": "Include inactive revenue subscriptions"
-                        },
-                        {
-                          "key": "subscriptionType",
-                          "value": "",
-                          "description": "Filter by subscription type (INVESTOR, SPONSOR)"
-                        },
-                        {
-                          "key": "search",
-                          "value": "",
-                          "description": "Search by name or description"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve all revenue subscriptions with pagination, filtering, and search capabilities."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Revenue Subscription",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"subscriptionType\": \"INVESTOR\",\n  \"amount\": 99.99,\n  \"maxInvestmentAllowed\": 50000,\n  \"maxProjectAllowed\": 10,\n  \"maxProjectGoalLimit\": 1000000,\n  \"allowRefund\": true,\n  \"allowRefundDays\": 30,\n  \"allowCancel\": true,\n  \"allowCancelDays\": 7,\n  \"secondaryMarketAccess\": true,\n  \"earlyBirdAccess\": true,\n  \"languageId\": \"{{ENGLISH_LANG_ID}}\",\n  \"title\": \"Premium Investor Plan\",\n  \"description\": \"Comprehensive investment plan with advanced features and flexible terms.\"\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions"]
-                    },
-                    "description": "Admin endpoint to create new revenue subscription with multi-language content support."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get Single Revenue Subscription",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "{{REVENUE_SUBSCRIPTION_ID}}",
-                          "description": "Revenue Subscription public ID"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve single revenue subscription by public ID with language content."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Revenue Subscription",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"amount\": 149.99,\n  \"maxInvestmentAllowed\": 75000,\n  \"allowRefundDays\": 45,\n  \"secondaryMarketAccess\": false,\n  \"languageId\": \"{{ENGLISH_LANG_ID}}\",\n  \"title\": \"Premium Investor Plan - Updated\",\n  \"description\": \"Enhanced investment plan with improved terms and higher limits.\"\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "{{REVENUE_SUBSCRIPTION_ID}}",
-                          "description": "Revenue Subscription public ID"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to update revenue subscription by public ID with partial data and language content."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Delete Revenue Subscription",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/:publicId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", ":publicId"],
-                      "variable": [
-                        {
-                          "key": "publicId",
-                          "value": "{{REVENUE_SUBSCRIPTION_ID}}",
-                          "description": "Revenue Subscription public ID"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to delete revenue subscription. Deletes all language variants. Cannot delete if useCount > 0."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Update Revenue Subscriptions",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"publicIds\": [\n    \"{{REVENUE_SUBSCRIPTION_ID_1}}\",\n    \"{{REVENUE_SUBSCRIPTION_ID_2}}\"\n  ],\n  \"status\": false\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", "bulk-update"]
-                    },
-                    "description": "Admin endpoint to update status of multiple revenue subscriptions at once."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Bulk Delete Revenue Subscriptions",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"publicIds\": [\n    \"{{REVENUE_SUBSCRIPTION_ID_1}}\",\n    \"{{REVENUE_SUBSCRIPTION_ID_2}}\"\n  ]\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", "bulk-delete"]
-                    },
-                    "description": "Admin endpoint to delete multiple revenue subscriptions. Cannot delete if any subscription has useCount > 0."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Revenue subscription management endpoints for subscription plan configuration with multi-language support, financial limits, and bulk operations. Supports INVESTOR and SPONSOR subscription types with conditional field validation."
-            },
-            {
-              "name": "🔍 Meta Settings Management",
-              "item": [
-                {
-                  "name": "Get Meta Settings for Admin by Language",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/meta-settings/en/admin",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["meta-settings", "en", "admin"]
-                    },
-                    "description": "Get meta settings for admin dashboard by language code with SEO/OG data."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get Meta Setting by Public ID",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/meta-settings/{{META_SETTING_PUBLIC_ID}}",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["meta-settings", "{{META_SETTING_PUBLIC_ID}}"]
-                    },
-                    "description": "Get specific meta setting by public ID with language information."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Meta Settings for All Languages",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "siteName",
-                          "value": "EquityCrowd - Investment Platform",
-                          "type": "text"
-                        },
-                        {
-                          "key": "metaTitle",
-                          "value": "EquityCrowd - Discover Investment Opportunities | Crowdfunding Platform",
-                          "type": "text"
-                        },
-                        {
-                          "key": "metaDescription",
-                          "value": "Join thousands of investors and entrepreneurs on EquityCrowd. Discover innovative startups, invest in promising ventures, or raise capital for your business.",
-                          "type": "text"
-                        },
-                        {
-                          "key": "metaKeyword",
-                          "value": "equity crowdfunding, startup investment, venture capital, fundraising, investment platform",
-                          "type": "text"
-                        },
-                        {
-                          "key": "ogTitle",
-                          "value": "EquityCrowd - The Future of Startup Investment",
-                          "type": "text"
-                        },
-                        {
-                          "key": "ogDescription",
-                          "value": "Discover the next unicorn startup or raise capital for your innovative business. EquityCrowd connects visionary entrepreneurs with smart investors.",
-                          "type": "text"
-                        },
-                        {
-                          "key": "isAIGeneratedImage",
-                          "value": "NO",
-                          "type": "text"
-                        },
-                        {
-                          "key": "ogImage",
-                          "type": "file",
-                          "src": []
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/meta-settings",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["meta-settings"]
-                    },
-                    "description": "Create meta settings for all active languages with OpenGraph image upload."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Meta Setting",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "formdata",
-                      "formdata": [
-                        {
-                          "key": "siteName",
-                          "value": "EquityCrowd Updated - Investment Platform",
-                          "type": "text"
-                        },
-                        {
-                          "key": "metaTitle",
-                          "value": "Updated EquityCrowd - Discover Investment Opportunities",
-                          "type": "text"
-                        },
-                        {
-                          "key": "metaDescription",
-                          "value": "Updated description for EquityCrowd investment platform with enhanced features.",
-                          "type": "text"
-                        },
-                        {
-                          "key": "ogImage",
-                          "type": "file",
-                          "src": []
-                        }
-                      ]
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/meta-settings/{{META_SETTING_PUBLIC_ID}}",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["meta-settings", "{{META_SETTING_PUBLIC_ID}}"]
-                    },
-                    "description": "Update meta setting with optional OpenGraph image upload."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Meta settings management endpoints for SEO and social media optimization. Supports meta titles, descriptions, keywords, OpenGraph data, and OG image uploads across all languages."
-            },
-            {
               "name": "🎯 Sliders Management",
               "item": [
                 {
@@ -3773,6 +4176,183 @@
               ]
             },
             {
+              "name": "📧 Email Templates Management",
+              "item": [
+                {
+                  "name": "Get Email Templates",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/email-templates/front?lang=en",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["email-templates", "front"],
+                      "query": [
+                        {
+                          "key": "lang",
+                          "value": "en",
+                          "description": "Language code (en, es, fr, ar)"
+                        }
+                      ]
+                    },
+                    "description": "Public endpoint to get active email templates for frontend by language code (en, es, fr, ar). Returns publicly accessible template data for use in frontend applications."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Public Email Templates endpoints for frontend access without authentication."
+            },
+            {
+              "name": "🌐 Languages Management",
+              "item": [
+                {
+                  "name": "Get Languages",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/languages/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["languages", "front"]
+                    },
+                    "description": "Public endpoint to retrieve all active languages for frontend usage."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Dropdown Types for Public",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/industry/front?lang=en",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", "industry", "front"],
+                      "query": [
+                        {
+                          "key": "lang",
+                          "value": "en",
+                          "description": "Language code filter (optional)"
+                        }
+                      ]
+                    },
+                    "description": "Public endpoint to retrieve dropdown options by type with language support for frontend usage. No authentication required."
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "📋 Manage Dropdown",
+              "item": [
+                {
+                  "name": "Get All Dropdowns",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["manage-dropdown", ":dropdownType", "front"],
+                      "query": [
+                        {
+                          "key": "languageCode",
+                          "value": "",
+                          "disabled": true
+                        }
+                      ],
+                      "variable": [
+                        {
+                          "key": "dropdownType",
+                          "value": "account-type"
+                        }
+                      ]
+                    },
+                    "description": "Admin endpoint to retrieve all dropdowns with pagination and filtering by type and language."
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "🔍 Meta Settings Management",
+              "item": [
+                {
+                  "name": "Get Meta Settings for Frontend",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/meta-settings/front?languageId=3f7f36d7-04bf-4726-9558-b82e3ebc1308",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["meta-settings", "front"],
+                      "query": [
+                        {
+                          "key": "languageId",
+                          "value": "3f7f36d7-04bf-4726-9558-b82e3ebc1308"
+                        }
+                      ]
+                    },
+                    "description": "Public endpoint to get meta settings for frontend by language code (en, es, fr, ar). Returns SEO meta data including titles, descriptions, keywords, and OpenGraph data."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Public Meta Settings endpoints for SEO and social media optimization without authentication."
+            },
+            {
+              "name": "💰 Revenue Subscriptions Management",
+              "item": [
+                {
+                  "name": "Get Active Revenue Subscriptions",
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/revenue-subscriptions/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["revenue-subscriptions", "front"],
+                      "query": [
+                        {
+                          "key": "languageId",
+                          "value": "99c374c7-57ab-4f04-9de8-6f00b010f234",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "Public endpoint to retrieve all active revenue subscriptions for frontend display. No authentication required. Supports multi-language filtering with flattened response structure."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Public revenue subscription endpoints for frontend display with multi-language support."
+            },
+            {
               "name": "🔧 Settings Management",
               "item": [
                 {
@@ -3963,117 +4543,6 @@
               "description": "Settings management endpoints for dynamic application configuration."
             },
             {
-              "name": "🔍 Meta Settings Management",
-              "item": [
-                {
-                  "name": "Get Meta Settings for Frontend",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/meta-settings/en/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["meta-settings", "en", "front"]
-                    },
-                    "description": "Public endpoint to get meta settings for frontend by language code (en, es, fr, ar). Returns SEO meta data including titles, descriptions, keywords, and OpenGraph data."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Public Meta Settings endpoints for SEO and social media optimization without authentication."
-            },
-            {
-              "name": "🌐 Languages Management",
-              "item": [
-                {
-                  "name": "Get Languages",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", "front"]
-                    },
-                    "description": "Public endpoint to retrieve all active languages for frontend usage."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get Dropdown Types for Public",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/industry/front?lang=en",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["manage-dropdown", "industry", "front"],
-                      "query": [
-                        {
-                          "key": "lang",
-                          "value": "en",
-                          "description": "Language code filter (optional)"
-                        }
-                      ]
-                    },
-                    "description": "Public endpoint to retrieve dropdown options by type with language support for frontend usage. No authentication required."
-                  },
-                  "response": []
-                }
-              ]
-            },
-            {
-              "name": "📋 Manage Dropdown",
-              "item": [
-                {
-                  "name": "Get All Dropdowns",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["manage-dropdown", ":dropdownType", "front"],
-                      "query": [
-                        {
-                          "key": "languageCode",
-                          "value": "",
-                          "disabled": true
-                        }
-                      ],
-                      "variable": [
-                        {
-                          "key": "dropdownType",
-                          "value": "account-type"
-                        }
-                      ]
-                    },
-                    "description": "Admin endpoint to retrieve all dropdowns with pagination and filtering by type and language."
-                  },
-                  "response": []
-                }
-              ]
-            },
-            {
               "name": "🎯 Sliders Management",
               "item": [
                 {
@@ -4102,36 +4571,6 @@
                 }
               ],
               "description": "Public sliders endpoints for frontend slider display with multi-language support."
-            },
-            {
-              "name": "💰 Revenue Subscriptions Management",
-              "item": [
-                {
-                  "name": "Get Active Revenue Subscriptions",
-                  "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/front?lang=en",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", "front"],
-                      "query": [
-                        {
-                          "key": "lang",
-                          "value": "en",
-                          "description": "Language code filter (en, es, fr, ar)"
-                        }
-                      ]
-                    },
-                    "description": "Public endpoint to retrieve all active revenue subscriptions for frontend display. No authentication required. Supports multi-language filtering with flattened response structure."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Public revenue subscription endpoints for frontend display with multi-language support."
             }
           ],
           "description": "Public admin endpoints that do not require authentication."
@@ -4163,146 +4602,6 @@
         {
           "name": "Authorized",
           "item": [
-            {
-              "name": "👤 User Management",
-              "item": [
-                {
-                  "name": "Get User Profile",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/me",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "me"]
-                    },
-                    "description": "Get authenticated user's profile information including personal details and settings."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Profile",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/profile",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "profile"]
-                    },
-                    "description": "Update authenticated user's profile information. All fields are optional."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Change Password",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/change-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "change-password"]
-                    },
-                    "description": "Change user password. Requires current password verification."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Get User by Slug",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/slug/:userSlug",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "slug", ":userSlug"],
-                      "variable": [
-                        {
-                          "key": "userSlug",
-                          "value": "john-doe-1182"
-                        }
-                      ]
-                    },
-                    "description": "Get user profile by their unique slug identifier."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Deactivate Account",
-                  "request": {
-                    "auth": {
-                      "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/deactivate",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "deactivate"]
-                    },
-                    "description": "Deactivate user account. This sets the account status to inactive without permanent deletion."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "User profile management endpoints for authenticated users. Includes profile viewing, updating, password changes, and account management."
-            },
             {
               "name": "🏢 Campaign",
               "item": [
@@ -4510,6 +4809,422 @@
               ]
             },
             {
+              "name": "❓ Campaign FAQs",
+              "item": [
+                {
+                  "name": "Get Campaign FAQs",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/campaign-faq/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["campaign-faq", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Get all FAQs for a specific campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Campaign FAQ",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"question\": \"What is the minimum investment amount?\",\n  \"answer\": \"The minimum investment amount is $1,000. This allows smaller investors to participate in our equity crowdfunding campaign while keeping administrative costs manageable.\",\n  \"category\": \"Investment Terms\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/campaign-faq/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["campaign-faq", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Add a new FAQ to a campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Campaign FAQ",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"question\": \"What is the minimum investment amount for early investors?\",\n  \"answer\": \"Updated answer with early bird discount information: The minimum investment amount is $1,000, but early investors (first 30 days) can invest with a minimum of $500.\",\n  \"displayOrder\": 1\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/campaign-faq/:equityId/:faqId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["campaign-faq", ":equityId", ":faqId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "faqId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Update FAQ information. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Campaign FAQ",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/campaign-faq/:equityId/:faqId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["campaign-faq", ":equityId", ":faqId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "faqId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Remove FAQ from campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Frequently Asked Questions management for campaigns. Helps address common investor queries and provide detailed campaign information."
+            },
+            {
+              "name": "📄 Extras Documents",
+              "item": [
+                {
+                  "name": "Get Extras Documents",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-document/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-document", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Get all extras documents for a specific campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Extras Document",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Financial Projections 2024-2027\",\n  \"description\": \"Detailed financial projections including revenue forecasts, expense breakdowns, and profitability timeline\",\n  \"documentUrl\": \"https://example.com/documents/financial-projections.pdf\",\n  \"fileType\": \"PDF\",\n  \"fileSize\": 2048000,\n  \"category\": \"Financial Documents\",\n  \"displayOrder\": 1,\n  \"isPublic\": true,\n  \"requiresAccess\": false\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-document/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-document", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Add a new extras document to a campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Extras Document",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Updated Financial Projections 2024-2027\",\n  \"description\": \"Revised financial projections with Q1 2024 actual results incorporated\",\n  \"isPublic\": false,\n  \"requiresAccess\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-document/:equityId/:extraDocumentId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "extras-document",
+                        ":equityId",
+                        ":extraDocumentId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraDocumentId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Update extras document information. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Extras Document",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-document/:equityId/:extraDocumentId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "extras-document",
+                        ":equityId",
+                        ":extraDocumentId"
+                      ],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraDocumentId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Remove extras document from campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Additional document management for campaigns. Supports financial reports, legal documents, business plans, and other important campaign materials."
+            },
+            {
+              "name": "🖼️ Extras Images",
+              "item": [
+                {
+                  "name": "Get Extras Images",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-image/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-image", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Get all extras images for a specific campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Extras Image",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Product Interface Screenshot\",\n  \"description\": \"Main dashboard showing key metrics and analytics features\",\n  \"imageUrl\": \"https://example.com/images/dashboard-screenshot.jpg\",\n  \"altText\": \"Product dashboard interface with analytics charts\",\n  \"category\": \"Product Screenshots\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-image/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-image", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
+                    },
+                    "description": "Add a new extras image to a campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Extras Image",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Updated Product Interface\",\n  \"description\": \"Updated dashboard with new v2.0 features and improved UX\",\n  \"displayOrder\": 1\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-image/:equityId/:extraImageId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-image", ":equityId", ":extraImageId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraImageId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Update extras image information. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Extras Image",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-image/:equityId/:extraImageId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-image", ":equityId", ":extraImageId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraImageId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Remove extras image from campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Additional image content management for campaigns. Supports product screenshots, company photos, infographics, and other visual marketing materials."
+            },
+            {
+              "name": "🎥 Extras Videos",
+              "item": [
+                {
+                  "name": "Get Extras Videos",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-video/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-video", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
+                    },
+                    "description": "Get all extras videos for a specific campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Extras Video",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Product Demo - Core Features\",\n  \"description\": \"Comprehensive demonstration of our platform's key features and user interface\",\n  \"videoUrl\": \"https://example.com/videos/product-demo.mp4\",\n  \"thumbnailUrl\": \"https://example.com/thumbnails/product-demo.jpg\",\n  \"duration\": 180,\n  \"category\": \"Product Demo\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-video/:equityId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-video", ":equityId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": "68c93bfd0aa85cc3e523c34b"
+                        }
+                      ]
+                    },
+                    "description": "Add a new extras video to a campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Extras Video",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Product Demo - Updated Features\",\n  \"description\": \"Updated demo showcasing new features released in v2.0\",\n  \"displayOrder\": 1\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-video/:equityId/:extraVideoId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-video", ":equityId", ":extraVideoId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraVideoId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Update extras video information. Requires campaign ownership."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Extras Video",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/extras-video/:equityId/:extraVideoId",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["extras-video", ":equityId", ":extraVideoId"],
+                      "variable": [
+                        {
+                          "key": "equityId",
+                          "value": ""
+                        },
+                        {
+                          "key": "extraVideoId",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    "description": "Remove extras video from campaign. Requires campaign ownership."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Additional video content management for campaigns. Supports promotional videos, product demos, team introductions, and other marketing materials."
+            },
+            {
               "name": "💰 Lead Investors",
               "item": [
                 {
@@ -4518,9 +5233,9 @@
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/:equityId",
+                      "raw": "{{BASE_URL}}/lead-investor/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", ":equityId"],
+                      "path": ["lead-investor", ":equityId"],
                       "variable": [
                         {
                           "key": "equityId",
@@ -4563,9 +5278,9 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/:equityId",
+                      "raw": "{{BASE_URL}}/lead-investor/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", ":equityId"],
+                      "path": ["lead-investor", ":equityId"],
                       "variable": [
                         {
                           "key": "equityId",
@@ -4608,9 +5323,9 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/:equityId/:publicId",
+                      "raw": "{{BASE_URL}}/lead-investor/:equityId/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", ":equityId", ":publicId"],
+                      "path": ["lead-investor", ":equityId", ":publicId"],
                       "variable": [
                         {
                           "key": "equityId",
@@ -4632,9 +5347,9 @@
                     "method": "DELETE",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/:equityId/:publicId",
+                      "raw": "{{BASE_URL}}/lead-investor/:equityId/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", ":equityId", ":publicId"],
+                      "path": ["lead-investor", ":equityId", ":publicId"],
                       "variable": [
                         {
                           "key": "equityId",
@@ -4667,9 +5382,9 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/leadInvestor/upload/photo",
+                      "raw": "{{BASE_URL}}/lead-investor/upload/photo",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["leadInvestor", "upload", "photo"]
+                      "path": ["lead-investor", "upload", "photo"]
                     },
                     "description": "Upload investor profile photo. Use returned URL in investor creation/update."
                   },
@@ -4687,9 +5402,9 @@
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/:equityId",
+                      "raw": "{{BASE_URL}}/team-member/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", ":equityId"],
+                      "path": ["team-member", ":equityId"],
                       "variable": [
                         {
                           "key": "equityId",
@@ -4711,9 +5426,9 @@
                       "raw": "{\n  \"name\": \"Michael Chen\",\n  \"title\": \"Chief Technology Officer\",\n  \"bio\": \"Former senior engineer at Google with 12 years of experience in scalable systems\",\n  \"linkedIn\": \"https://linkedin.com/in/michaelchen\",\n  \"email\": \"michael.chen@company.com\",\n  \"phone\": \"+1-555-0456\",\n  \"experience\": \"12 years\",\n  \"education\": \"MS Computer Science, Stanford University\",\n  \"previousCompanies\": \"Google, Microsoft, Amazon\",\n  \"photo\": \"https://example.com/michael-photo.jpg\",\n  \"isFounder\": false,\n  \"equityPercentage\": 5.0,\n  \"displayOrder\": 2\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/:equityId",
+                      "raw": "{{BASE_URL}}/team-member/:equityId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", ":equityId"],
+                      "path": ["team-member", ":equityId"],
                       "variable": [
                         {
                           "key": "equityId",
@@ -4735,16 +5450,16 @@
                       "raw": "{\n  \"title\": \"Chief Technology Officer & Co-Founder\",\n  \"bio\": \"Updated bio with recent achievements and new role\",\n  \"isFounder\": true,\n  \"equityPercentage\": 8.0,\n  \"displayOrder\": 1\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/:equityId/:teamMemberId",
+                      "raw": "{{BASE_URL}}/team-member/:equityId/:team-memberId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", ":equityId", ":teamMemberId"],
+                      "path": ["team-member", ":equityId", ":team-memberId"],
                       "variable": [
                         {
                           "key": "equityId",
                           "value": "68c93bfd0aa85cc3e523c34b"
                         },
                         {
-                          "key": "teamMemberId",
+                          "key": "team-memberId",
                           "value": ""
                         }
                       ]
@@ -4759,16 +5474,16 @@
                     "method": "DELETE",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/teamMember/:equityId/:teamMemberId",
+                      "raw": "{{BASE_URL}}/team-member/:equityId/:team-memberId",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["teamMember", ":equityId", ":teamMemberId"],
+                      "path": ["team-member", ":equityId", ":team-memberId"],
                       "variable": [
                         {
                           "key": "equityId",
                           "value": ""
                         },
                         {
-                          "key": "teamMemberId",
+                          "key": "team-memberId",
                           "value": ""
                         }
                       ]
@@ -4781,420 +5496,144 @@
               "description": "Management of campaign team members including founders, executives, and key personnel. Supports detailed profiles with roles, experience, and photo uploads."
             },
             {
-              "name": "❓ Campaign FAQs",
+              "name": "👤 User Management",
               "item": [
                 {
-                  "name": "Get Campaign FAQs",
+                  "name": "Get User Profile",
                   "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{FRONT_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/:equityId",
+                      "raw": "{{BASE_URL}}/users/me",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", ":equityId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        }
-                      ]
+                      "path": ["users", "me"]
                     },
-                    "description": "Get all FAQs for a specific campaign. Requires campaign ownership."
+                    "description": "Get authenticated user's profile information including personal details and settings."
                   },
                   "response": []
                 },
                 {
-                  "name": "Create Campaign FAQ",
+                  "name": "Update Profile",
                   "request": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"question\": \"What is the minimum investment amount?\",\n  \"answer\": \"The minimum investment amount is $1,000. This allows smaller investors to participate in our equity crowdfunding campaign while keeping administrative costs manageable.\",\n  \"category\": \"Investment Terms\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/:equityId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", ":equityId"],
-                      "variable": [
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
                         {
-                          "key": "equityId",
-                          "value": ""
+                          "key": "token",
+                          "value": "{{FRONT_JWT}}",
+                          "type": "string"
                         }
                       ]
                     },
-                    "description": "Add a new FAQ to a campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Campaign FAQ",
-                  "request": {
                     "method": "PATCH",
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"question\": \"What is the minimum investment amount for early investors?\",\n  \"answer\": \"Updated answer with early bird discount information: The minimum investment amount is $1,000, but early investors (first 30 days) can invest with a minimum of $500.\",\n  \"displayOrder\": 1\n}"
+                      "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/:equityId/:faqId",
+                      "raw": "{{BASE_URL}}/users/profile",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", ":equityId", ":faqId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "faqId",
-                          "value": ""
-                        }
-                      ]
+                      "path": ["users", "profile"]
                     },
-                    "description": "Update FAQ information. Requires campaign ownership."
+                    "description": "Update authenticated user's profile information. All fields are optional."
                   },
                   "response": []
                 },
                 {
-                  "name": "Delete Campaign FAQ",
+                  "name": "Change Password",
                   "request": {
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/campaignFaq/:equityId/:faqId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["campaignFaq", ":equityId", ":faqId"],
-                      "variable": [
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
                         {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "faqId",
-                          "value": ""
+                          "key": "token",
+                          "value": "{{FRONT_JWT}}",
+                          "type": "string"
                         }
                       ]
                     },
-                    "description": "Remove FAQ from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Frequently Asked Questions management for campaigns. Helps address common investor queries and provide detailed campaign information."
-            },
-            {
-              "name": "🎥 Extras Videos",
-              "item": [
-                {
-                  "name": "Get Extras Videos",
-                  "request": {
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/:equityId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", ":equityId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": "68c93bfd0aa85cc3e523c34b"
-                        }
-                      ]
-                    },
-                    "description": "Get all extras videos for a specific campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Extras Video",
-                  "request": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"title\": \"Product Demo - Core Features\",\n  \"description\": \"Comprehensive demonstration of our platform's key features and user interface\",\n  \"videoUrl\": \"https://example.com/videos/product-demo.mp4\",\n  \"thumbnailUrl\": \"https://example.com/thumbnails/product-demo.jpg\",\n  \"duration\": 180,\n  \"category\": \"Product Demo\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/:equityId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", ":equityId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": "68c93bfd0aa85cc3e523c34b"
-                        }
-                      ]
-                    },
-                    "description": "Add a new extras video to a campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Extras Video",
-                  "request": {
                     "method": "PATCH",
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"title\": \"Product Demo - Updated Features\",\n  \"description\": \"Updated demo showcasing new features released in v2.0\",\n  \"displayOrder\": 1\n}"
+                      "raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/:equityId/:extraVideoId",
+                      "raw": "{{BASE_URL}}/users/change-password",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", ":equityId", ":extraVideoId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "extraVideoId",
-                          "value": ""
-                        }
-                      ]
+                      "path": ["users", "change-password"]
                     },
-                    "description": "Update extras video information. Requires campaign ownership."
+                    "description": "Change user password. Requires current password verification."
                   },
                   "response": []
                 },
                 {
-                  "name": "Delete Extras Video",
+                  "name": "Get User by Slug",
                   "request": {
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasVideo/:equityId/:extraVideoId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasVideo", ":equityId", ":extraVideoId"],
-                      "variable": [
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
                         {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "extraVideoId",
-                          "value": ""
+                          "key": "token",
+                          "value": "{{FRONT_JWT}}",
+                          "type": "string"
                         }
                       ]
                     },
-                    "description": "Remove extras video from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Additional video content management for campaigns. Supports promotional videos, product demos, team introductions, and other marketing materials."
-            },
-            {
-              "name": "🖼️ Extras Images",
-              "item": [
-                {
-                  "name": "Get Extras Images",
-                  "request": {
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/:equityId",
+                      "raw": "{{BASE_URL}}/users/slug/:userSlug",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", ":equityId"],
+                      "path": ["users", "slug", ":userSlug"],
                       "variable": [
                         {
-                          "key": "equityId",
-                          "value": ""
+                          "key": "userSlug",
+                          "value": "john-doe-1182"
                         }
                       ]
                     },
-                    "description": "Get all extras images for a specific campaign. Requires campaign ownership."
+                    "description": "Get user profile by their unique slug identifier."
                   },
                   "response": []
                 },
                 {
-                  "name": "Create Extras Image",
+                  "name": "Deactivate Account",
                   "request": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"title\": \"Product Interface Screenshot\",\n  \"description\": \"Main dashboard showing key metrics and analytics features\",\n  \"imageUrl\": \"https://example.com/images/dashboard-screenshot.jpg\",\n  \"altText\": \"Product dashboard interface with analytics charts\",\n  \"category\": \"Product Screenshots\",\n  \"displayOrder\": 1,\n  \"isPublished\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/:equityId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", ":equityId"],
-                      "variable": [
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
                         {
-                          "key": "equityId",
-                          "value": "68c93bfd0aa85cc3e523c34b"
+                          "key": "token",
+                          "value": "{{FRONT_JWT}}",
+                          "type": "string"
                         }
                       ]
                     },
-                    "description": "Add a new extras image to a campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Extras Image",
-                  "request": {
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"title\": \"Updated Product Interface\",\n  \"description\": \"Updated dashboard with new v2.0 features and improved UX\",\n  \"displayOrder\": 1\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/:equityId/:extraImageId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", ":equityId", ":extraImageId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "extraImageId",
-                          "value": ""
-                        }
-                      ]
-                    },
-                    "description": "Update extras image information. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Delete Extras Image",
-                  "request": {
                     "method": "DELETE",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/extrasImage/:equityId/:extraImageId",
+                      "raw": "{{BASE_URL}}/users/deactivate",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["extrasImage", ":equityId", ":extraImageId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "extraImageId",
-                          "value": ""
-                        }
-                      ]
+                      "path": ["users", "deactivate"]
                     },
-                    "description": "Remove extras image from campaign. Requires campaign ownership."
+                    "description": "Deactivate user account. This sets the account status to inactive without permanent deletion."
                   },
                   "response": []
                 }
               ],
-              "description": "Additional image content management for campaigns. Supports product screenshots, company photos, infographics, and other visual marketing materials."
-            },
-            {
-              "name": "📄 Extras Documents",
-              "item": [
-                {
-                  "name": "Get Extras Documents",
-                  "request": {
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/:equityId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasDocument", ":equityId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        }
-                      ]
-                    },
-                    "description": "Get all extras documents for a specific campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Create Extras Document",
-                  "request": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"title\": \"Financial Projections 2024-2027\",\n  \"description\": \"Detailed financial projections including revenue forecasts, expense breakdowns, and profitability timeline\",\n  \"documentUrl\": \"https://example.com/documents/financial-projections.pdf\",\n  \"fileType\": \"PDF\",\n  \"fileSize\": 2048000,\n  \"category\": \"Financial Documents\",\n  \"displayOrder\": 1,\n  \"isPublic\": true,\n  \"requiresAccess\": false\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/:equityId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["extrasDocument", ":equityId"],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        }
-                      ]
-                    },
-                    "description": "Add a new extras document to a campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Update Extras Document",
-                  "request": {
-                    "method": "PATCH",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n  \"title\": \"Updated Financial Projections 2024-2027\",\n  \"description\": \"Revised financial projections with Q1 2024 actual results incorporated\",\n  \"isPublic\": false,\n  \"requiresAccess\": true\n}"
-                    },
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/:equityId/:extraDocumentId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "extrasDocument",
-                        ":equityId",
-                        ":extraDocumentId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "extraDocumentId",
-                          "value": ""
-                        }
-                      ]
-                    },
-                    "description": "Update extras document information. Requires campaign ownership."
-                  },
-                  "response": []
-                },
-                {
-                  "name": "Delete Extras Document",
-                  "request": {
-                    "method": "DELETE",
-                    "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/extrasDocument/:equityId/:extraDocumentId",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "extrasDocument",
-                        ":equityId",
-                        ":extraDocumentId"
-                      ],
-                      "variable": [
-                        {
-                          "key": "equityId",
-                          "value": ""
-                        },
-                        {
-                          "key": "extraDocumentId",
-                          "value": ""
-                        }
-                      ]
-                    },
-                    "description": "Remove extras document from campaign. Requires campaign ownership."
-                  },
-                  "response": []
-                }
-              ],
-              "description": "Additional document management for campaigns. Supports financial reports, legal documents, business plans, and other important campaign materials."
+              "description": "User profile management endpoints for authenticated users. Includes profile viewing, updating, password changes, and account management."
             }
           ]
         },

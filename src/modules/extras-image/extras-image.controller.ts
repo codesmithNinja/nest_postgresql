@@ -30,7 +30,7 @@ import { multerConfig } from '../../common/config/multer.config';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Extras Images')
-@Controller('extrasImage')
+@Controller('extras-image')
 @UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class ExtrasImageController {

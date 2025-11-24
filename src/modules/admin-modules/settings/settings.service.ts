@@ -42,20 +42,12 @@ export class SettingsService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.logger.log('Settings service initialized with caching enabled');
-
     // Set up cache event listeners
-    this.cache.on('set', (key: string) => {
-      this.logger.debug(`Cache SET: ${key}`);
-    });
+    this.cache.on('set', () => {});
 
-    this.cache.on('del', (key: string) => {
-      this.logger.debug(`Cache DELETE: ${key}`);
-    });
+    this.cache.on('del', () => {});
 
-    this.cache.on('expired', (key: string) => {
-      this.logger.debug(`Cache EXPIRED: ${key}`);
-    });
+    this.cache.on('expired', () => {});
   }
 
   async getSettingsByGroupType(
@@ -69,14 +61,9 @@ export class SettingsService implements OnModuleInit {
     if (useCache) {
       const cached = this.getFromCache<Settings[]>(cacheKey);
       if (cached) {
-        this.logger.debug(`Cache HIT for group type: ${groupType}`);
         return cached;
       }
     }
-
-    this.logger.debug(
-      `Cache MISS for group type: ${groupType}, fetching from database`
-    );
 
     try {
       const settings = await this.settingsRepository.findByGroupType(groupType);
@@ -115,14 +102,9 @@ export class SettingsService implements OnModuleInit {
     if (useCache) {
       const cached = this.getFromCache<Settings>(cacheKey);
       if (cached) {
-        this.logger.debug(`Cache HIT for setting: ${groupType}/${key}`);
         return cached;
       }
     }
-
-    this.logger.debug(
-      `Cache MISS for setting: ${groupType}/${key}, fetching from database`
-    );
 
     try {
       const setting = await this.settingsRepository.findByGroupTypeAndKey(
@@ -149,8 +131,6 @@ export class SettingsService implements OnModuleInit {
     groupType: string,
     formData: Record<string, string | number | boolean | Express.Multer.File>
   ): Promise<Settings[]> {
-    this.logger.log(`Processing form data for group type: ${groupType}`);
-
     try {
       // Process form data to separate text and file settings
       const processedData = await this.processFormDataSettings(
@@ -196,10 +176,6 @@ export class SettingsService implements OnModuleInit {
             }
           );
           results.push(result);
-
-          this.logger.log(
-            `File uploaded successfully for key: ${fileSetting.key}`
-          );
         } catch (error) {
           this.logger.error(
             `File upload failed for key: ${fileSetting.key}`,
@@ -215,9 +191,6 @@ export class SettingsService implements OnModuleInit {
       // Invalidate cache for this group type
       this.invalidateGroupTypeCache(groupType);
 
-      this.logger.log(
-        `Successfully processed ${results.length} settings for group type: ${groupType}`
-      );
       return results;
     } catch (error) {
       this.logger.error(
@@ -343,7 +316,6 @@ export class SettingsService implements OnModuleInit {
         this.invalidateGroupTypeCache(groupType);
       } else {
         this.cache.flushAll();
-        this.logger.log('Cache cleared completely');
       }
     } catch (error) {
       this.logger.error('Failed to clear cache', (error as Error).stack);
@@ -418,7 +390,6 @@ export class SettingsService implements OnModuleInit {
       const fileExists = await this.fileManagementService.fileExists(filePath);
       if (fileExists) {
         await this.fileManagementService.deleteFile(filePath);
-        this.logger.debug(`Old file deleted: ${filePath}`);
       }
     } catch (error) {
       this.logger.warn(
@@ -472,9 +443,6 @@ export class SettingsService implements OnModuleInit {
 
       if (keysToDelete.length > 0) {
         this.cache.del(keysToDelete);
-        this.logger.debug(
-          `Invalidated ${keysToDelete.length} cache entries for group type: ${groupType}`
-        );
       }
     } catch (error) {
       this.logger.warn(
@@ -498,7 +466,6 @@ export class SettingsService implements OnModuleInit {
       });
 
       this.cache.del([publicKey, adminKey]);
-      this.logger.debug(`Invalidated cache for setting: ${groupType}/${key}`);
     } catch (error) {
       this.logger.warn(
         `Failed to invalidate cache for setting: ${groupType}/${key}`,

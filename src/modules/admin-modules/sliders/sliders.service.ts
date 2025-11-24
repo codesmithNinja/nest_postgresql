@@ -235,10 +235,6 @@ export class SlidersService {
           languageFilePairs
         );
 
-      this.logger.log(
-        `Created slider entries: ${createData.title} with unique code ${uniqueCode} for ${languageCodes.length} languages`
-      );
-
       // Return only the slider for the requested language (or default language)
       const requestedLanguageSlider = createdSliders.find(
         (slider) => slider.languageId === languageId
@@ -301,10 +297,6 @@ export class SlidersService {
       // Update only this specific language variant
       await this.sliderRepository.updateById(existingSlider.id, updatedData);
 
-      this.logger.log(
-        `Updated slider ${publicId} for language ${existingSlider.language?.code || 'unknown'}`
-      );
-
       // Get the populated version for response
       const populatedSlider =
         await this.sliderRepository.findByPublicId(publicId);
@@ -360,10 +352,6 @@ export class SlidersService {
         existingSlider.uniqueCode
       );
 
-      this.logger.log(
-        `Deleted slider ${publicId} and ${deletedCount - 1} language variants with all their image files`
-      );
-
       return {
         message: `Slider deleted successfully (${deletedCount} variants removed)`,
       };
@@ -395,8 +383,6 @@ export class SlidersService {
         publicIds,
         { status }
       );
-
-      this.logger.log(`Bulk updated ${result.count} sliders`);
 
       return {
         count: result.count,
@@ -463,10 +449,6 @@ export class SlidersService {
           await this.sliderRepository.deleteByUniqueCode(uniqueCode);
         totalDeleted += count;
       }
-
-      this.logger.log(
-        `Bulk deleted ${totalDeleted} slider variants with all their image files from ${allUniqueCodes.length} unique sliders (${eligibleSliders.length} eligible out of ${publicIds.length} requested)`
-      );
 
       return {
         count: totalDeleted,
@@ -552,10 +534,6 @@ export class SlidersService {
         fieldName: 'sliderImage',
         customFileName: languageSpecificFileName,
       });
-
-      this.logger.log(
-        `Uploaded language-specific file: ${languageSpecificFileName} for slider ${existingSlider.publicId}`
-      );
 
       return result.filePath;
     } catch (error) {

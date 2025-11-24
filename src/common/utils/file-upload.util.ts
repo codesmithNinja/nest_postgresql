@@ -156,8 +156,6 @@ export class FileUploadUtil {
 
       await this.s3Client.send(uploadCommand);
 
-      this.logger.log(`File uploaded to S3: ${filePath}`);
-
       return {
         filePath,
         originalName: file.originalname,
@@ -190,8 +188,6 @@ export class FileUploadUtil {
 
       // Write file to disk
       fs.writeFileSync(fullPath, file.buffer);
-
-      this.logger.log(`File uploaded locally: ${filePath}`);
 
       return {
         filePath,
@@ -287,7 +283,6 @@ export class FileUploadUtil {
         });
 
         await this.s3Client.send(deleteCommand);
-        this.logger.log(`File deleted from S3: ${filePath}`);
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
@@ -299,7 +294,6 @@ export class FileUploadUtil {
         const fullPath = path.join(process.cwd(), 'uploads', filePath);
         if (fs.existsSync(fullPath)) {
           fs.unlinkSync(fullPath);
-          this.logger.log(`File deleted locally: ${filePath}`);
         }
       } catch (error) {
         const errorMessage =
@@ -455,10 +449,6 @@ export class FileUploadUtil {
       }
     }
 
-    this.logger.log(
-      `File uploaded for ${languageCodes.length} languages: ${languageCodes.join(', ')}`
-    );
-
     return results;
   }
 
@@ -494,10 +484,6 @@ export class FileUploadUtil {
       filePaths.push(newFilePath);
     }
 
-    this.logger.log(
-      `File copied for ${languageCodes.length} languages: ${languageCodes.join(', ')}`
-    );
-
     return filePaths;
   }
 
@@ -519,9 +505,6 @@ export class FileUploadUtil {
       });
 
       await this.s3Client.send(copyCommand);
-      this.logger.log(
-        `File copied on S3: ${sourceFilePath} -> ${destinationFilePath}`
-      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -552,10 +535,6 @@ export class FileUploadUtil {
 
       // Copy the file
       fs.copyFileSync(sourcePath, destinationPath);
-
-      this.logger.log(
-        `File copied locally: ${sourceFilePath} -> ${destinationFilePath}`
-      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -584,10 +563,6 @@ export class FileUploadUtil {
     });
 
     await Promise.all(deletePromises);
-
-    this.logger.log(
-      `Deleted language-specific files for uniqueCode ${uniqueCode}: ${languageCodes.join(', ')}`
-    );
   }
 
   /**

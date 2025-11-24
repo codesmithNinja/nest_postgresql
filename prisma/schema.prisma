@@ -39,6 +39,7 @@ model Language {
   sliders                     Slider[]
   revenueSubscriptionLanguages RevenueSubscriptionLanguage[]
   metaSettings                MetaSetting[]
+  emailTemplates              EmailTemplate[]
 
   @@index([name])
   @@index([folder])
@@ -595,5 +596,34 @@ model MetaSetting {
   @@index([publicId])
   @@index([createdAt])
   @@map("meta_settings")
+}
+
+// Email Template Model
+model EmailTemplate {
+  id              String   @id @default(cuid())
+  publicId        String   @unique @default(cuid())
+  languageId      String   // Allow multiple email templates per language
+  task            String   @db.VarChar(100) // Immutable after creation (e.g., "welcome_email", "password_reset")
+  senderEmail     String   @db.VarChar(255)
+  replyEmail      String   @db.VarChar(255)
+  senderName      String   @db.VarChar(200)
+  subject         String   @db.VarChar(500)
+  message         String   @db.Text
+  status          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  language        Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([task, languageId]) // One email template per task per language
+  @@index([languageId])
+  @@index([publicId])
+  @@index([task])
+  @@index([status])
+  @@index([task, languageId])
+  @@index([status, languageId])
+  @@index([createdAt])
+  @@map("email_templates")
 }
 

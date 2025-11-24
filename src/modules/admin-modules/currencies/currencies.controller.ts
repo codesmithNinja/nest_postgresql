@@ -9,7 +9,6 @@ import {
   Query,
   UseGuards,
   HttpStatus,
-  Logger,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -48,8 +47,6 @@ import { I18nResponseInterceptor } from '../../../common/interceptors/i18n-respo
 @Controller('currencies')
 @UseInterceptors(I18nResponseInterceptor)
 export class CurrenciesController {
-  private readonly logger = new Logger(CurrenciesController.name);
-
   constructor(
     private readonly currenciesService: CurrenciesService,
     private readonly i18nResponse: I18nResponseService
@@ -74,7 +71,7 @@ export class CurrenciesController {
   @ApiOperation({
     summary: 'Get active currencies (Public)',
     description:
-      'Retrieve all active currencies without authentication. Used for front-end applications.',
+      'Public endpoint to retrieve all active currencies for frontend usage',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -88,8 +85,6 @@ export class CurrenciesController {
   })
   async getPublicCurrencies() {
     try {
-      this.logger.log('Fetching public currencies');
-
       const currencies = await this.currenciesService.getPublicCurrencies();
 
       const response = {
@@ -104,14 +99,9 @@ export class CurrenciesController {
         HttpStatus.OK,
         response
       );
-    } catch (error) {
-      this.logger.error(
-        'Failed to fetch public currencies',
-        (error as Error).stack
-      );
-
+    } catch {
       return this.i18nResponse.translateError(
-        'currencies.fetch_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -123,7 +113,7 @@ export class CurrenciesController {
   @ApiOperation({
     summary: 'Get all currencies (Admin)',
     description:
-      'Retrieve all currencies with pagination and admin authentication.',
+      'Admin endpoint to retrieve all currencies with pagination and filtering',
   })
   @ApiQuery({
     name: 'page',
@@ -154,12 +144,6 @@ export class CurrenciesController {
   })
   async getAdminCurrencies(@Query() adminQueryDto: AdminCurrencyQueryDto) {
     try {
-      this.logger.log(
-        `Fetching admin currencies - page: ${adminQueryDto.page || 1}, limit: ${
-          adminQueryDto.limit || 10
-        }`
-      );
-
       const { page = 1, limit = 10, includeInactive = true } = adminQueryDto;
 
       const result = await this.currenciesService.getCurrenciesForAdmin(
@@ -182,14 +166,9 @@ export class CurrenciesController {
         HttpStatus.OK,
         response
       );
-    } catch (error) {
-      this.logger.error(
-        'Failed to fetch admin currencies',
-        (error as Error).stack
-      );
-
+    } catch {
       return this.i18nResponse.translateError(
-        'currencies.fetch_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -226,10 +205,6 @@ export class CurrenciesController {
   })
   async createCurrency(@Body() createCurrencyDto: CreateCurrencyDto) {
     try {
-      this.logger.log(
-        `Creating currency: ${createCurrencyDto.name} (${createCurrencyDto.code})`
-      );
-
       const currency =
         await this.currenciesService.createCurrency(createCurrencyDto);
 
@@ -239,8 +214,6 @@ export class CurrenciesController {
         this.transformToResponseDto(currency)
       );
     } catch (error) {
-      this.logger.error('Failed to create currency', (error as Error).stack);
-
       if (error instanceof CurrencyAlreadyExistsException) {
         return this.i18nResponse.translateError(
           'currencies.already_exists',
@@ -249,7 +222,7 @@ export class CurrenciesController {
       }
 
       return this.i18nResponse.translateError(
-        'currencies.creation_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -261,7 +234,7 @@ export class CurrenciesController {
   @ApiOperation({
     summary: 'Bulk update currency status',
     description:
-      'Update the status of multiple currencies. Admin authentication required.',
+      'Admin endpoint to update status of multiple currencies at once',
   })
   @ApiBody({ type: BulkUpdateCurrencyDto })
   @ApiResponse({
@@ -292,10 +265,6 @@ export class CurrenciesController {
   })
   async bulkUpdateCurrencies(@Body() bulkUpdateDto: BulkUpdateCurrencyDto) {
     try {
-      this.logger.log(
-        `Bulk update operation on ${bulkUpdateDto.publicIds.length} currencies`
-      );
-
       const result =
         await this.currenciesService.bulkUpdateCurrencies(bulkUpdateDto);
 
@@ -304,11 +273,9 @@ export class CurrenciesController {
         HttpStatus.OK,
         result
       );
-    } catch (error) {
-      this.logger.error('Failed bulk update operation', (error as Error).stack);
-
+    } catch {
       return this.i18nResponse.translateError(
-        'currencies.bulk_update_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -320,7 +287,7 @@ export class CurrenciesController {
   @ApiOperation({
     summary: 'Bulk delete currencies',
     description:
-      'Delete multiple currencies. Admin authentication required. Only allowed if useCount is 0 for all currencies.',
+      'Admin endpoint to delete multiple currencies at once (only if useCount is 0 for each)',
   })
   @ApiBody({ type: BulkDeleteCurrencyDto })
   @ApiResponse({
@@ -351,10 +318,6 @@ export class CurrenciesController {
   })
   async bulkDeleteCurrencies(@Body() bulkDeleteDto: BulkDeleteCurrencyDto) {
     try {
-      this.logger.log(
-        `Bulk delete operation on ${bulkDeleteDto.publicIds.length} currencies`
-      );
-
       const result =
         await this.currenciesService.bulkDeleteCurrencies(bulkDeleteDto);
 
@@ -364,17 +327,15 @@ export class CurrenciesController {
         result
       );
     } catch (error) {
-      this.logger.error('Failed bulk delete operation', (error as Error).stack);
-
       if (error instanceof CurrencyInUseException) {
         return this.i18nResponse.translateError(
-          'currencies.in_use',
+          'currencies.operation_failed',
           HttpStatus.BAD_REQUEST
         );
       }
 
       return this.i18nResponse.translateError(
-        'currencies.bulk_delete_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -386,7 +347,7 @@ export class CurrenciesController {
   @ApiOperation({
     summary: 'Get currency by public ID',
     description:
-      'Retrieve a specific currency by its public ID. Admin authentication required.',
+      'Admin endpoint to retrieve a specific currency by its public ID',
   })
   @ApiParam({
     name: 'publicId',
@@ -409,8 +370,6 @@ export class CurrenciesController {
   })
   async getCurrencyByPublicId(@Param('publicId') publicId: string) {
     try {
-      this.logger.log(`Fetching currency with publicId: ${publicId}`);
-
       const currency =
         await this.currenciesService.getCurrencyByPublicId(publicId);
 
@@ -420,11 +379,6 @@ export class CurrenciesController {
         this.transformToResponseDto(currency)
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to fetch currency ${publicId}`,
-        (error as Error).stack
-      );
-
       if (error instanceof CurrencyNotFoundException) {
         return this.i18nResponse.translateError(
           'currencies.not_found',
@@ -433,7 +387,7 @@ export class CurrenciesController {
       }
 
       return this.i18nResponse.translateError(
-        'currencies.fetch_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -476,8 +430,6 @@ export class CurrenciesController {
     @Body() updateCurrencyDto: UpdateCurrencyDto
   ) {
     try {
-      this.logger.log(`Updating currency: ${publicId}`);
-
       const currency = await this.currenciesService.updateCurrency(
         publicId,
         updateCurrencyDto
@@ -489,11 +441,6 @@ export class CurrenciesController {
         this.transformToResponseDto(currency)
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to update currency ${publicId}`,
-        (error as Error).stack
-      );
-
       if (error instanceof CurrencyNotFoundException) {
         return this.i18nResponse.translateError(
           'currencies.not_found',
@@ -509,7 +456,7 @@ export class CurrenciesController {
       }
 
       return this.i18nResponse.translateError(
-        'currencies.update_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -520,8 +467,7 @@ export class CurrenciesController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete currency',
-    description:
-      'Delete a currency by public ID. Admin authentication required. Only allowed if useCount is 0.',
+    description: 'Admin endpoint to delete a currency (only if useCount is 0)',
   })
   @ApiParam({
     name: 'publicId',
@@ -561,8 +507,6 @@ export class CurrenciesController {
   })
   async deleteCurrency(@Param('publicId') publicId: string) {
     try {
-      this.logger.log(`Deleting currency: ${publicId}`);
-
       const success = await this.currenciesService.deleteCurrency(publicId);
 
       return this.i18nResponse.translateAndRespond(
@@ -571,11 +515,6 @@ export class CurrenciesController {
         { deleted: success }
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to delete currency ${publicId}`,
-        (error as Error).stack
-      );
-
       if (error instanceof CurrencyNotFoundException) {
         return this.i18nResponse.translateError(
           'currencies.not_found',
@@ -585,13 +524,13 @@ export class CurrenciesController {
 
       if (error instanceof CurrencyInUseException) {
         return this.i18nResponse.translateError(
-          'currencies.in_use',
+          'currencies.operation_failed',
           HttpStatus.BAD_REQUEST
         );
       }
 
       return this.i18nResponse.translateError(
-        'currencies.deletion_failed',
+        'currencies.operation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

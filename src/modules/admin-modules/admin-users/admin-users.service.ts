@@ -52,10 +52,6 @@ export class AdminUsersService {
   ) {}
 
   async validateAdminCreation(createAdminDto: CreateAdminDto): Promise<void> {
-    this.logger.log(
-      `Validating admin creation for email: ${createAdminDto.email}`
-    );
-
     if (createAdminDto.password !== createAdminDto.passwordConfirm) {
       throw new AdminPasswordMismatchException(
         'Password and confirmation do not match'
@@ -71,8 +67,6 @@ export class AdminUsersService {
   }
 
   async createAdmin(createAdminDto: CreateAdminDto) {
-    this.logger.log(`Creating admin with email: ${createAdminDto.email}`);
-
     const hashedPassword = await bcrypt.hash(createAdminDto.password, 12);
     const publicId = uuidv4();
 
@@ -89,13 +83,10 @@ export class AdminUsersService {
 
     const admin = await this.adminRepository.insert(adminData);
 
-    this.logger.log(`Admin created successfully with ID: ${admin.id}`);
     return this.i18nResponse.adminCreated(this.transformToResponseDto(admin));
   }
 
   async login(loginDto: AdminLoginDto, loginIp: string) {
-    this.logger.log(`Login attempt for email: ${loginDto.email}`);
-
     const admin = await this.adminRepository.findByEmail(loginDto.email);
     if (!admin) {
       throw new InvalidAdminCredentialsException('Invalid credentials');
@@ -120,10 +111,6 @@ export class AdminUsersService {
       loginIpAddress: loginIp,
     });
 
-    this.logger.log(
-      `Admin login tracking updated - IP: ${loginIp}, Previous login: ${admin.currentLoginDateTime?.toISOString() || 'N/A'}`
-    );
-
     const payload = {
       sub: updatedAdmin.id,
       email: updatedAdmin.email,
@@ -131,8 +118,6 @@ export class AdminUsersService {
     };
 
     const access_token = this.jwtService.sign(payload);
-
-    this.logger.log(`Admin logged in successfully: ${updatedAdmin.email}`);
 
     return this.i18nResponse.adminLoginSuccess({
       access_token,
@@ -215,7 +200,6 @@ export class AdminUsersService {
       updateAdminDto
     );
 
-    this.logger.log(`Admin updated successfully: ${admin.id}`);
     return this.i18nResponse.adminUpdated(
       this.transformToResponseDto(updatedAdmin)
     );
@@ -231,14 +215,12 @@ export class AdminUsersService {
     if (admin.photo) {
       try {
         await FileUploadUtil.deleteFile(admin.photo);
-        this.logger.log(`Admin photo deleted: ${admin.photo}`);
       } catch (error) {
         this.logger.warn(`Failed to delete admin photo: ${admin.photo}`, error);
       }
     }
 
     await this.adminRepository.deleteById(admin.id);
-    this.logger.log(`Admin deleted successfully: ${admin.id}`);
   }
 
   async updatePassword(
@@ -270,7 +252,6 @@ export class AdminUsersService {
     );
 
     await this.adminRepository.updatePassword(admin.id, hashedNewPassword);
-    this.logger.log(`Password updated for admin: ${admin.id}`);
   }
 
   async forgotPassword(
@@ -281,9 +262,6 @@ export class AdminUsersService {
     );
     if (!admin) {
       // Don't reveal that admin doesn't exist
-      this.logger.log(
-        `Password reset requested for non-existent admin: ${forgotPasswordDto.email}`
-      );
       return;
     }
 
@@ -302,7 +280,6 @@ export class AdminUsersService {
         resetToken,
         admin.firstName
       );
-      this.logger.log(`Password reset email sent to admin: ${admin.email}`);
     } catch (error) {
       this.logger.error(
         `Failed to send password reset email to: ${admin.email}`,
@@ -336,14 +313,11 @@ export class AdminUsersService {
       passwordResetToken: undefined,
       passwordResetExpires: undefined,
     });
-
-    this.logger.log(`Password reset successful for admin: ${admin.id}`);
   }
 
-  logout(adminId: string): void {
+  logout(): void {
     // For JWT, we just log the logout action
     // In a real app, you might want to implement token blacklisting
-    this.logger.log(`Admin logged out: ${adminId}`);
   }
 
   private transformToResponseDto(admin: Admin): AdminResponseDto {

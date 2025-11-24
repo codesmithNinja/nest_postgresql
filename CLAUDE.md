@@ -26,16 +26,24 @@ src/
 └── modules/         # Feature modules
     ├── auth/           # Authentication module
     ├── users/          # Users module
-    └── admin-modules/  # Admin modules
-        ├── admin-users/         # Admin users management
-        ├── countries/           # Countries management
-        ├── currencies/          # Currencies management
-        ├── languages/           # Languages management
-        ├── manage-dropdown/     # Master dropdown management
-        ├── meta-settings/       # Meta settings (SEO/OG) management
-        ├── revenue-subscriptions/ # Revenue subscription management
-        ├── settings/            # Settings management
-        └── sliders/             # Sliders management
+    ├── admin-modules/  # Admin modules
+    │   ├── admin-users/         # Admin users management
+    │   ├── countries/           # Countries management
+    │   ├── currencies/          # Currencies management
+    │   ├── email-templates/     # Email templates management
+    │   ├── languages/           # Languages management
+    │   ├── manage-dropdown/     # Master dropdown management
+    │   ├── meta-settings/       # Meta settings (SEO/OG) management
+    │   ├── revenue-subscriptions/ # Revenue subscription management
+    │   ├── settings/            # Settings management
+    │   └── sliders/             # Sliders management
+    └── campaign-modules/ # Campaign management modules
+        ├── team-member/         # Team members for campaigns
+        ├── lead-investor/       # Lead investors for campaigns
+        ├── campaign-faq/        # FAQ management for campaigns
+        ├── extras-image/        # Extra images for campaigns
+        ├── extras-video/        # Extra videos for campaigns
+        └── extras-document/     # Extra documents for campaigns
 ```
 
 ## Code Conventions
@@ -131,6 +139,16 @@ src/
 - **Core fields**: id, publicId, mainSubscriptionId, languageId
 - **Content**: title, description
 - **Metadata**: createdAt, updatedAt
+
+### Email Template Entity Fields
+
+- **Core fields**: id, publicId, languageId, task (immutable)
+- **Sender details**: senderEmail, replyEmail, senderName
+- **Content**: subject, message (HTML)
+- **Status**: status (boolean - active/inactive)
+- **Metadata**: createdAt, updatedAt
+- **Relationships**: One email template per language (unique languageId)
+- **Constraints**: Task field is immutable after creation for template identification
 
 ### Enums
 
@@ -238,13 +256,103 @@ src/
   GET    /:publicId                # Admin: Get single meta setting by public ID
   POST   /                         # Admin: Create meta settings for all active languages with OG image upload
   PATCH  /:publicId                # Admin: Update meta setting with optional OG image upload
+
+/email-templates (admin-modules)
+  GET    /                         # Admin: Get email templates with pagination and search (supports filtering by task, senderEmail, senderName, subject, languageId, status, and search across task/subject/senderName)
+  GET    /:publicId                # Admin: Get single email template by public ID
+  POST   /                         # Admin: Create new email template with task and content
+  POST   /all-languages            # Admin: Create email template for all active languages
+  PATCH  /:publicId                # Admin: Update email template (task field immutable)
+  DELETE /:publicId                # Admin: Delete email template
+  PATCH  /bulk-update              # Admin: Bulk update email template status
+  GET    /admin/cache/stats        # Admin: Get cache statistics
+  DELETE /admin/cache/clear        # Admin: Clear all cache
+  DELETE /admin/cache/clear/:pattern # Admin: Clear cache by pattern
+
+/team-member (campaign-modules)
+  GET    /:equityId                # User: Get all team members for campaign
+  POST   /:equityId                # User: Create team member with photo upload (requires file)
+  PATCH  /:equityId/:id            # User: Update team member with optional photo upload
+  DELETE /:equityId/:id            # User: Delete team member
+
+/lead-investor (campaign-modules)
+  GET    /:equityId                # User: Get all lead investors for campaign
+  POST   /:equityId                # User: Create lead investor with photo upload (requires file)
+  PATCH  /:equityId/:id            # User: Update lead investor with optional photo upload
+  DELETE /:equityId/:id            # User: Delete lead investor
+
+/campaign-faq (campaign-modules)
+  GET    /:equityId                # User: Get all FAQ entries for campaign
+  POST   /:equityId                # User: Create new FAQ entry
+  PATCH  /:equityId/:id            # User: Update FAQ entry
+  DELETE /:equityId/:id            # User: Delete FAQ entry
+
+/extras-image (campaign-modules)
+  GET    /:equityId                # User: Get all extra images for campaign
+  POST   /:equityId                # User: Create extra image entry
+  PATCH  /:equityId/:id            # User: Update extra image entry
+  DELETE /:equityId/:id            # User: Delete extra image entry
+  POST   /upload/image             # User: Upload image file
+
+/extras-video (campaign-modules)
+  GET    /:equityId                # User: Get all extra videos for campaign
+  POST   /:equityId                # User: Create extra video entry
+  PATCH  /:equityId/:id            # User: Update extra video entry
+  DELETE /:equityId/:id            # User: Delete extra video entry
+  POST   /upload/video             # User: Upload video file
+
+/extras-document (campaign-modules)
+  GET    /:equityId                # User: Get all extra documents for campaign
+  POST   /:equityId                # User: Create extra document entry
+  PATCH  /:equityId/:id            # User: Update extra document entry
+  DELETE /:equityId/:id            # User: Delete extra document entry
+  POST   /upload/document          # User: Upload document file
 ```
 
 ## Email Templates
 
+The application features a comprehensive Email Templates management system with the following capabilities:
+
+### Template Management Features
+
+- **Task-Based Organization**: Templates organized by immutable task identifiers (e.g., `account_activation`, `password_reset`, `welcome_email`)
+- **Multi-Language Support**: One template per active language with automatic language resolution
+- **HTML Content**: Full HTML support for rich email formatting with template variables
+- **Sender Configuration**: Configurable sender email, reply-to email, and sender name per template
+- **Status Management**: Active/inactive status control with bulk operations support
+- **Dual Database Support**: Works with both PostgreSQL (Prisma) and MongoDB (Mongoose)
+
+### Template Structure
+
+- **Core Fields**: Task (immutable), language association, status
+- **Content Fields**: Subject, HTML message content with variable support
+- **Sender Fields**: Sender email, reply email, sender name for professional communication
+- **Metadata**: Creation and update timestamps, public ID for API access
+
+### API Features
+
+- **Admin Management**: Full CRUD operations with authentication
+- **Public Access**: Frontend access to active templates by language
+- **Bulk Operations**: Mass status updates for efficient management
+- **Caching**: NodeCache integration for optimal performance (5-minute TTL)
+- **Validation**: Comprehensive validation with multilingual error messages
+
+### Common Template Types
+
 - Account Activation Email
 - Password Reset Email
-- Use nodemailer with HTML templates
+- Welcome Email
+- Newsletter Templates
+- Notification Templates
+- Promotional Templates
+- Administrative Communications
+
+### Integration
+
+- Use with nodemailer for email delivery
+- Template variable substitution support
+- I18n integration for multilingual content
+- Admin dashboard integration for template management
 
 ## Internationalization (i18n)
 

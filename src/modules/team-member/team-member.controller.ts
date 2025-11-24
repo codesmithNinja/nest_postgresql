@@ -30,7 +30,7 @@ import { multerConfig } from '../../common/config/multer.config';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Team Members')
-@Controller('teamMember')
+@Controller('team-member')
 @UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class TeamMemberController {

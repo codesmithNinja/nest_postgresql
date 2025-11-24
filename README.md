@@ -47,7 +47,17 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **🎯 Sliders Management** - Multi-language slider management with image upload, color customization, and unique code system
 - **💰 Revenue Subscriptions Management** - Subscription plan management for INVESTOR and SPONSOR types with financial limits, refund/cancel policies, and multi-language content support
 - **🔍 Meta Settings Management** - SEO and social media optimization with meta titles, descriptions, keywords, OpenGraph data, OG image uploads, and AI-generated image tracking across all languages
+- **📧 Email Templates Management** - Task-based email template system with HTML content, sender configuration, multi-language support, immutable task identifiers, bulk operations, and NodeCache performance optimization
 - **👤 Admin Users** - Administrative user management and authentication
+
+#### Campaign Modules
+
+- **👥 Team Member Management** - Manage campaign team members with photo uploads and profile information
+- **💼 Lead Investor Management** - Manage lead investors for campaigns with photo uploads and investor details
+- **❓ Campaign FAQ Management** - Create and manage frequently asked questions for campaigns
+- **🖼️ Extras Images Management** - Manage additional images for campaigns with upload support
+- **🎥 Extras Videos Management** - Manage additional videos for campaigns with upload support
+- **📄 Extras Documents Management** - Manage additional documents for campaigns with upload support
 
 #### Public API Endpoints (No Authentication Required)
 
@@ -129,6 +139,19 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   POST   /                               # Admin: Create meta settings for all active languages with OG image upload
   PATCH  /:publicId                      # Admin: Update meta setting with optional OG image upload
 
+/email-templates                        # Email templates management
+  GET    /front                          # Public: Get active email templates for frontend
+  GET    /                               # Admin: Get email templates with pagination and search functionality
+  GET    /:publicId                      # Admin: Get single email template by public ID
+  POST   /                               # Admin: Create new email template with task and content
+  POST   /all-languages                  # Admin: Create email template for all active languages
+  PATCH  /:publicId                      # Admin: Update email template (task field immutable)
+  DELETE /:publicId                      # Admin: Delete email template
+  PATCH  /bulk-update                    # Admin: Bulk update email template status
+  GET    /admin/cache/stats              # Admin: Get cache statistics
+  DELETE /admin/cache/clear              # Admin: Clear all cache
+  DELETE /admin/cache/clear/:pattern     # Admin: Clear cache by pattern
+
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type
   GET    /:dropdownType/admin            # Admin: Get dropdown options with pagination
@@ -146,6 +169,45 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   DELETE /:groupType/admin               # Admin: Delete all settings by group type
   GET    /admin/cache/stats              # Admin: Get cache statistics
   DELETE /admin/cache/clear/:groupType?  # Admin: Clear cache (all or by group)
+
+/team-member                           # Team member management for campaigns (User Authentication Required)
+  GET    /:equityId                      # Get all team members for campaign
+  POST   /:equityId                      # Create team member with photo upload
+  PATCH  /:equityId/:id                  # Update team member with optional photo upload
+  DELETE /:equityId/:id                  # Delete team member
+
+/lead-investor                         # Lead investor management for campaigns (User Authentication Required)
+  GET    /:equityId                      # Get all lead investors for campaign
+  POST   /:equityId                      # Create lead investor with photo upload
+  PATCH  /:equityId/:id                  # Update lead investor with optional photo upload
+  DELETE /:equityId/:id                  # Delete lead investor
+
+/campaign-faq                          # Campaign FAQ management (User Authentication Required)
+  GET    /:equityId                      # Get all FAQ entries for campaign
+  POST   /:equityId                      # Create new FAQ entry
+  PATCH  /:equityId/:id                  # Update FAQ entry
+  DELETE /:equityId/:id                  # Delete FAQ entry
+
+/extras-image                          # Campaign extras images management (User Authentication Required)
+  GET    /:equityId                      # Get all extra images for campaign
+  POST   /:equityId                      # Create extra image entry
+  PATCH  /:equityId/:id                  # Update extra image entry
+  DELETE /:equityId/:id                  # Delete extra image entry
+  POST   /upload/image                   # Upload image file
+
+/extras-video                          # Campaign extras videos management (User Authentication Required)
+  GET    /:equityId                      # Get all extra videos for campaign
+  POST   /:equityId                      # Create extra video entry
+  PATCH  /:equityId/:id                  # Update extra video entry
+  DELETE /:equityId/:id                  # Delete extra video entry
+  POST   /upload/video                   # Upload video file
+
+/extras-document                       # Campaign extras documents management (User Authentication Required)
+  GET    /:equityId                      # Get all extra documents for campaign
+  POST   /:equityId                      # Create extra document entry
+  PATCH  /:equityId/:id                  # Update extra document entry
+  DELETE /:equityId/:id                  # Delete extra document entry
+  POST   /upload/document                # Upload document file
 ```
 
 #### Bulk Operations

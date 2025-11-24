@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import {
   IExtrasVideoRepository,
   EXTRAS_VIDEO_REPOSITORY,
@@ -17,8 +17,6 @@ import { existsSync } from 'fs';
 
 @Injectable()
 export class ExtrasVideoService {
-  private readonly logger = new Logger(ExtrasVideoService.name);
-
   constructor(
     @Inject(EXTRAS_VIDEO_REPOSITORY)
     private readonly extrasVideoRepository: IExtrasVideoRepository,
@@ -26,59 +24,43 @@ export class ExtrasVideoService {
   ) {}
 
   async getExtrasVideosByEquityId(equityId: string) {
-    try {
-      const cacheKey = CacheUtil.getCampaignRelationsKey(
-        equityId,
-        'extrasVideos'
-      );
+    const cacheKey = CacheUtil.getCampaignRelationsKey(
+      equityId,
+      'extrasVideos'
+    );
 
-      const cachedData = CacheUtil.get(cacheKey);
-      if (cachedData) {
-        return cachedData;
-      }
-
-      const extrasVideos =
-        await this.extrasVideoRepository.findByEquityId(equityId);
-
-      const response = this.i18nResponse.success(
-        'extras_video.retrieved',
-        extrasVideos
-      );
-
-      CacheUtil.set(cacheKey, response, 300);
-      return response;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error getting extras videos: ${errorMessage}`);
-      throw error;
+    const cachedData = CacheUtil.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
     }
+
+    const extrasVideos =
+      await this.extrasVideoRepository.findByEquityId(equityId);
+
+    const response = this.i18nResponse.success(
+      'extras_video.retrieved',
+      extrasVideos
+    );
+
+    CacheUtil.set(cacheKey, response, 300);
+    return response;
   }
 
   async createExtrasVideo(
     equityId: string,
     createExtrasVideoDto: CreateExtrasVideoDto
   ) {
-    try {
-      const extrasVideoData: Partial<ExtrasVideo> = {
-        ...createExtrasVideoDto,
-        equityId,
-      };
+    const extrasVideoData: Partial<ExtrasVideo> = {
+      ...createExtrasVideoDto,
+      equityId,
+    };
 
-      const extrasVideo =
-        await this.extrasVideoRepository.insert(extrasVideoData);
+    const extrasVideo =
+      await this.extrasVideoRepository.insert(extrasVideoData);
 
-      CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
+    CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
 
-      this.logger.log(`Extras video created successfully: ${extrasVideo.id}`);
-
-      return this.i18nResponse.created('extras_video.created', extrasVideo);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error creating extras video: ${errorMessage}`);
-      throw error;
-    }
+    return this.i18nResponse.created('extras_video.created', extrasVideo);
   }
 
   async updateExtrasVideo(
@@ -86,90 +68,56 @@ export class ExtrasVideoService {
     id: string,
     updateExtrasVideoDto: UpdateExtrasVideoDto
   ) {
-    try {
-      const extrasVideo =
-        await this.extrasVideoRepository.findByEquityIdAndPublicId(
-          equityId,
-          id
-        );
+    const extrasVideo =
+      await this.extrasVideoRepository.findByEquityIdAndPublicId(equityId, id);
 
-      if (!extrasVideo) {
-        throw new NotFoundException();
-      }
-
-      const updatedExtrasVideo = await this.extrasVideoRepository.updateById(
-        extrasVideo.id,
-        updateExtrasVideoDto
-      );
-
-      CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
-
-      this.logger.log(`Extras video updated successfully: ${id}`);
-
-      return this.i18nResponse.success(
-        'extras_video.updated',
-        updatedExtrasVideo
-      );
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error updating extras video: ${errorMessage}`);
-      throw error;
+    if (!extrasVideo) {
+      throw new NotFoundException();
     }
+
+    const updatedExtrasVideo = await this.extrasVideoRepository.updateById(
+      extrasVideo.id,
+      updateExtrasVideoDto
+    );
+
+    CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
+
+    return this.i18nResponse.success(
+      'extras_video.updated',
+      updatedExtrasVideo
+    );
   }
 
   async deleteExtrasVideo(equityId: string, id: string) {
-    try {
-      const extrasVideo =
-        await this.extrasVideoRepository.findByEquityIdAndPublicId(
-          equityId,
-          id
-        );
+    const extrasVideo =
+      await this.extrasVideoRepository.findByEquityIdAndPublicId(equityId, id);
 
-      if (!extrasVideo) {
-        throw new NotFoundException();
-      }
-
-      await this.extrasVideoRepository.deleteById(extrasVideo.id);
-
-      CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
-
-      this.logger.log(`Extras video deleted successfully: ${id}`);
-
-      return this.i18nResponse.success('extras_video.deleted');
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error deleting extras video: ${errorMessage}`);
-      throw error;
+    if (!extrasVideo) {
+      throw new NotFoundException();
     }
+
+    await this.extrasVideoRepository.deleteById(extrasVideo.id);
+
+    CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
+
+    return this.i18nResponse.success('extras_video.deleted');
   }
 
   async uploadFile(file: Express.Multer.File, prefix: string) {
-    try {
-      const uploadDir = join(process.cwd(), 'uploads');
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true });
-      }
-
-      const filename = FileUploadUtil.generateFileName(
-        file.originalname,
-        prefix
-      );
-      const filepath = join(uploadDir, filename);
-
-      await writeFile(filepath, file.buffer);
-
-      return this.i18nResponse.success('common.file_uploaded', {
-        filename,
-        mimetype: file.mimetype,
-        size: file.size,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Error uploading file: ${errorMessage}`);
-      throw error;
+    const uploadDir = join(process.cwd(), 'uploads');
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true });
     }
+
+    const filename = FileUploadUtil.generateFileName(file.originalname, prefix);
+    const filepath = join(uploadDir, filename);
+
+    await writeFile(filepath, file.buffer);
+
+    return this.i18nResponse.success('common.file_uploaded', {
+      filename,
+      mimetype: file.mimetype,
+      size: file.size,
+    });
   }
 }

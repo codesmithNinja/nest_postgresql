@@ -12,6 +12,7 @@ import {
   Query,
   UploadedFiles,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -28,6 +29,7 @@ import { LanguagesService } from './languages.service';
 import { JwtAdminGuard } from '../../../common/guards/jwt-admin.guard';
 import { Public } from '../../../common/decorators/public.decorator';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
+import { I18nResponseInterceptor } from '../../../common/interceptors/i18n-response.interceptor';
 import {
   ILanguagesRepository,
   LANGUAGES_REPOSITORY,
@@ -47,6 +49,7 @@ import { BulkOperationResponseDto } from '../../../common/dto/bulk-operation.dto
 @ApiTags('Languages')
 @Controller('languages')
 @UseGuards(JwtAdminGuard)
+@UseInterceptors(I18nResponseInterceptor)
 export class LanguagesController {
   constructor(
     private readonly languagesService: LanguagesService,

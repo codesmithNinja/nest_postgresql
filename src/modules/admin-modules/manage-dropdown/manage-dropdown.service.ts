@@ -97,10 +97,6 @@ export class ManageDropdownService {
           allLanguageIds // Array of language primary keys (_id/id)
         );
 
-      this.logger.log(
-        `Created dropdown entries for type ${normalizedDropdownType}: ${createData.name} with unique code ${uniqueCode}`
-      );
-
       // Return only the dropdown for the requested language (or default language)
       const requestedLanguageDropdown = createdDropdowns.find(
         (dropdown) => dropdown.languageId === languageId
@@ -161,10 +157,6 @@ export class ManageDropdownService {
     limit: number;
   }> {
     try {
-      this.logger.log(
-        `findByTypeForAdmin called with dropdownType: ${dropdownType}, languageId: ${languageId}`
-      );
-
       // Validate pagination parameters
       if (page < 1 || limit < 1 || limit > 100) {
         throw new BadRequestException('Invalid pagination parameters');
@@ -172,9 +164,6 @@ export class ManageDropdownService {
 
       // Validate and normalize dropdown type
       const normalizedDropdownType = this.normalizeDropdownType(dropdownType);
-      this.logger.log(
-        `[DEBUG] Normalized dropdown type: ${normalizedDropdownType}`
-      );
 
       if (!this.validateDropdownType(normalizedDropdownType)) {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
@@ -182,10 +171,6 @@ export class ManageDropdownService {
 
       // Resolve languageId to primary key
       const resolvedLanguageId = await this.resolveLanguageId(languageId);
-
-      this.logger.log(
-        `Calling repository for dropdownType: ${normalizedDropdownType}, languageId: ${resolvedLanguageId}`
-      );
 
       const result =
         await this.manageDropdownRepository.findByTypeWithPagination(
@@ -195,10 +180,6 @@ export class ManageDropdownService {
           includeInactive,
           resolvedLanguageId
         );
-
-      this.logger.log(
-        `Repository returned ${result.data.length} dropdowns, total: ${result.total}`
-      );
 
       return result;
     } catch (error) {
@@ -341,9 +322,6 @@ export class ManageDropdownService {
         allowedUpdateData
       );
 
-      this.logger.log(
-        `Updated dropdown ${publicId} in type ${normalizedDropdownType}`
-      );
       return updatedDropdown;
     } catch (error) {
       this.logger.error(
@@ -401,10 +379,6 @@ export class ManageDropdownService {
       const deletedCount =
         await this.manageDropdownRepository.deleteByUniqueCode(uniqueCode);
 
-      this.logger.log(
-        `Deleted ${deletedCount} dropdown variants with unique code ${uniqueCode} from type ${normalizedDropdownType}`
-      );
-
       return {
         deletedCount,
         dropdowns: existingDropdowns,
@@ -433,10 +407,6 @@ export class ManageDropdownService {
         throw new BadRequestException('No dropdown public IDs provided');
       }
 
-      this.logger.log(
-        `Bulk updating ${bulkUpdateDto.publicIds.length} dropdowns in type ${normalizedDropdownType}`
-      );
-
       const updateData: Partial<ManageDropdown> = {
         status: bulkUpdateDto.status,
       };
@@ -446,9 +416,6 @@ export class ManageDropdownService {
         updateData
       );
 
-      this.logger.log(
-        `Bulk update completed: ${result.count} dropdowns updated in type ${normalizedDropdownType}`
-      );
       return {
         count: result.count,
         message: `${result.count} dropdowns updated successfully`,
@@ -476,10 +443,6 @@ export class ManageDropdownService {
       if (!bulkDeleteDto.publicIds || bulkDeleteDto.publicIds.length === 0) {
         throw new BadRequestException('No dropdown public IDs provided');
       }
-
-      this.logger.log(
-        `Bulk deleting ${bulkDeleteDto.publicIds.length} dropdowns in type ${normalizedDropdownType}`
-      );
 
       // Get all dropdowns to be deleted
       const dropdownsToDelete = await Promise.all(
@@ -513,9 +476,6 @@ export class ManageDropdownService {
           eligiblePublicIds
         );
 
-      this.logger.log(
-        `Bulk deletion completed: ${result.count} dropdowns deleted in type ${normalizedDropdownType}`
-      );
       return {
         count: result.count,
         message: `${result.count} dropdowns deleted successfully`,
@@ -533,8 +493,6 @@ export class ManageDropdownService {
     try {
       const dropdown = await this.findByPublicId(publicId);
       await this.manageDropdownRepository.incrementUseCount(dropdown.id);
-
-      this.logger.debug(`Incremented use count for dropdown ${publicId}`);
     } catch (error) {
       this.logger.error(
         `Failed to increment use count for dropdown ${publicId}:`,

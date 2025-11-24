@@ -260,10 +260,6 @@ export class MetaSettingsService {
         );
       }
 
-      this.logger.log(
-        `Created meta settings for ${createdMetaSettings.length} languages`
-      );
-
       // Return the meta setting for the default language
       const defaultLanguageId =
         await this.metaSettingRepository.getDefaultLanguageId();
@@ -330,8 +326,6 @@ export class MetaSettingsService {
       // Update meta setting
       await this.metaSettingRepository.updateByPublicId(publicId, updatedData);
 
-      this.logger.log(`Updated meta setting with public ID: ${publicId}`);
-
       // Get the updated meta setting with language info
       const populatedMetaSetting =
         await this.metaSettingRepository.findByPublicIdWithLanguage(publicId);
@@ -391,10 +385,6 @@ export class MetaSettingsService {
         fieldName: 'ogImage',
         customFileName: languageSpecificFileName,
       });
-
-      this.logger.log(
-        `Uploaded language-specific OG image: ${languageSpecificFileName} for meta setting ${existingMetaSetting.publicId}`
-      );
 
       return result.filePath;
     } catch (error) {

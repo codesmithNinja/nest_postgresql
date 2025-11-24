@@ -30,6 +30,7 @@ import { AdminUsersService } from './admin-users.service';
 import { JwtAdminGuard } from '../../../common/guards/jwt-admin.guard';
 import { Public } from '../../../common/decorators/public.decorator';
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
+import { I18nResponseInterceptor } from '../../../common/interceptors/i18n-response.interceptor';
 import {
   CreateAdminDto,
   UpdateAdminDto,
@@ -52,6 +53,7 @@ interface RequestWithAdmin extends ExpressRequest {
 
 @Controller('admins')
 @UseGuards(JwtAdminGuard)
+@UseInterceptors(I18nResponseInterceptor)
 export class AdminUsersController {
   constructor(
     private readonly adminUsersService: AdminUsersService,
@@ -166,8 +168,8 @@ export class AdminUsersController {
   }
 
   @Post('logout')
-  logout(@Request() req: RequestWithAdmin) {
-    this.adminUsersService.logout(req.user.id);
+  logout() {
+    this.adminUsersService.logout();
     return this.i18nResponse.adminLogoutSuccess();
   }
 }

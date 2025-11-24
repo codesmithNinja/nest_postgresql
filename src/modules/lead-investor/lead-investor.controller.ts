@@ -30,7 +30,7 @@ import { multerConfig } from '../../common/config/multer.config';
 import { I18nResponseService } from '../../common/services/i18n-response.service';
 
 @ApiTags('Lead Investors')
-@Controller('leadInvestor')
+@Controller('lead-investor')
 @UseGuards(JwtUserGuard)
 @ApiBearerAuth()
 export class LeadInvestorController {
