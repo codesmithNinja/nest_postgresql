@@ -78,7 +78,11 @@ export class AdminUsersController {
     @Body(ValidationPipe) forgotPasswordDto: AdminForgotPasswordDto
   ) {
     await this.adminUsersService.forgotPassword(forgotPasswordDto);
-    return this.i18nResponse.success('admin.password_reset_sent');
+    return this.i18nResponse.translateAndRespond(
+      'admin.password_reset_sent',
+      HttpStatus.OK,
+      { message: 'Password reset email sent' }
+    );
   }
 
   @Public()
@@ -87,22 +91,62 @@ export class AdminUsersController {
     @Body(ValidationPipe) resetPasswordDto: AdminResetPasswordDto
   ) {
     await this.adminUsersService.resetPassword(resetPasswordDto);
-    return this.i18nResponse.success('admin.password_reset_success');
+    return this.i18nResponse.translateAndRespond(
+      'admin.password_reset_success',
+      HttpStatus.OK,
+      { message: 'Password reset successful' }
+    );
   }
 
   @Get('me')
   async getProfile(@Request() req: RequestWithAdmin) {
-    return this.adminUsersService.getProfile(req.user.id);
+    try {
+      const profile = await this.adminUsersService.getProfile(req.user.id);
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.profile_retrieved_successfully',
+        HttpStatus.OK,
+        profile
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.not_found',
+        HttpStatus.NOT_FOUND
+      );
+    }
   }
 
   @Get()
   async getAllAdmins(@Query(ValidationPipe) filterDto: AdminFilterDto) {
-    return this.adminUsersService.getAllAdmins(filterDto);
+    try {
+      const admins = await this.adminUsersService.getAllAdmins(filterDto);
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.admins_retrieved_successfully',
+        HttpStatus.OK,
+        admins
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.fetch_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
   }
 
   @Get(':publicId')
   async getAdminByPublicId(@Param('publicId') publicId: string) {
-    return this.adminUsersService.getAdminByPublicId(publicId);
+    try {
+      const admin = await this.adminUsersService.getAdminByPublicId(publicId);
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.profile_retrieved_successfully',
+        HttpStatus.OK,
+        admin
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.not_found',
+        HttpStatus.NOT_FOUND
+      );
+    }
   }
 
   @Public()
@@ -128,7 +172,19 @@ export class AdminUsersController {
       createAdminDto.photo = uploadResult.filePath;
     }
 
-    return this.adminUsersService.createAdmin(createAdminDto);
+    try {
+      const newAdmin = await this.adminUsersService.createAdmin(createAdminDto);
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.created_successfully',
+        HttpStatus.CREATED,
+        newAdmin
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.creation_failed',
+        HttpStatus.BAD_REQUEST
+      );
+    }
   }
 
   @Patch(':publicId')
@@ -149,13 +205,39 @@ export class AdminUsersController {
       updateAdminDto.photo = uploadResult.filePath;
     }
 
-    return this.adminUsersService.updateAdmin(publicId, updateAdminDto);
+    try {
+      const updatedAdmin = await this.adminUsersService.updateAdmin(
+        publicId,
+        updateAdminDto
+      );
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.updated_successfully',
+        HttpStatus.OK,
+        updatedAdmin
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.not_found',
+        HttpStatus.NOT_FOUND
+      );
+    }
   }
 
   @Delete(':publicId')
   async deleteAdmin(@Param('publicId') publicId: string) {
-    await this.adminUsersService.deleteAdmin(publicId);
-    return this.i18nResponse.adminDeleted();
+    try {
+      await this.adminUsersService.deleteAdmin(publicId);
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.deleted_successfully',
+        HttpStatus.OK,
+        { message: 'Admin deleted successfully' }
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.not_found',
+        HttpStatus.NOT_FOUND
+      );
+    }
   }
 
   @Patch('update-password')
@@ -163,13 +245,31 @@ export class AdminUsersController {
     @Body(ValidationPipe) updatePasswordDto: UpdatePasswordDto,
     @Request() req: RequestWithAdmin
   ) {
-    await this.adminUsersService.updatePassword(req.user.id, updatePasswordDto);
-    return this.i18nResponse.adminPasswordUpdated();
+    try {
+      await this.adminUsersService.updatePassword(
+        req.user.id,
+        updatePasswordDto
+      );
+      return this.i18nResponse.translateAndRespond(
+        'admin_users.password_updated_successfully',
+        HttpStatus.OK,
+        { message: 'Password updated successfully' }
+      );
+    } catch (error) {
+      return this.i18nResponse.translateError(
+        'admin_users.update_failed',
+        HttpStatus.BAD_REQUEST
+      );
+    }
   }
 
   @Post('logout')
   logout() {
     this.adminUsersService.logout();
-    return this.i18nResponse.adminLogoutSuccess();
+    return this.i18nResponse.translateAndRespond(
+      'admin.logout_success',
+      HttpStatus.OK,
+      { message: 'Logout successful' }
+    );
   }
 }

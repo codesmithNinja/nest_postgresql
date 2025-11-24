@@ -34,7 +34,7 @@ export class CampaignFaqService {
       await this.campaignFaqRepository.findByEquityId(equityId);
 
     const response = this.i18nResponse.success(
-      'campaign_faq.retrieved',
+      'campaign_faq.retrieved_successfully',
       campaignFaqs
     );
 
@@ -72,7 +72,10 @@ export class CampaignFaqService {
 
     CacheUtil.delPattern(`campaign:${equityId}:campaignFaqs`);
 
-    return this.i18nResponse.created('campaign_faq.created', campaignFaq);
+    return this.i18nResponse.created(
+      'campaign_faq.created_successfully',
+      campaignFaq
+    );
   }
 
   async updateCampaignFaq(
@@ -95,7 +98,7 @@ export class CampaignFaqService {
     CacheUtil.delPattern(`campaign:${equityId}:campaignFaqs`);
 
     return this.i18nResponse.success(
-      'campaign_faq.updated',
+      'campaign_faq.updated_successfully',
       updatedCampaignFaq
     );
   }
@@ -112,6 +115,6 @@ export class CampaignFaqService {
 
     CacheUtil.delPattern(`campaign:${equityId}:campaignFaqs`);
 
-    return this.i18nResponse.success('campaign_faq.deleted');
+    return this.i18nResponse.success('campaign_faq.deleted_successfully');
   }
 }

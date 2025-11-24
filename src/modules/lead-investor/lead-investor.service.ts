@@ -36,7 +36,7 @@ export class LeadInvestorService {
       await this.leadInvestorRepository.findByEquityId(equityId);
 
     const response = this.i18nResponse.success(
-      'lead_investor.retrieved',
+      'lead_investor.retrieved_successfully',
       leadInvestors
     );
 
@@ -65,7 +65,10 @@ export class LeadInvestorService {
     // Clear related caches
     CacheUtil.delPattern(`campaign:${equityId}:leadInvestors`);
 
-    return this.i18nResponse.created('lead_investor.created', leadInvestor);
+    return this.i18nResponse.created(
+      'lead_investor.created_successfully',
+      leadInvestor
+    );
   }
 
   async update(
@@ -119,7 +122,7 @@ export class LeadInvestorService {
     CacheUtil.delPattern(`campaign:${equityId}:leadInvestors`);
 
     return this.i18nResponse.success(
-      'lead_investor.updated',
+      'lead_investor.updated_successfully',
       updatedLeadInvestor
     );
   }
@@ -154,6 +157,6 @@ export class LeadInvestorService {
     // Clear related caches
     CacheUtil.delPattern(`campaign:${equityId}:leadInvestors`);
 
-    return this.i18nResponse.success('lead_investor.deleted');
+    return this.i18nResponse.success('lead_investor.deleted_successfully');
   }
 }

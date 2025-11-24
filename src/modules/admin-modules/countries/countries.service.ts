@@ -54,7 +54,7 @@ export class CountriesService {
       options
     );
 
-    return this.i18nResponse.success('countries.retrieved', {
+    return this.i18nResponse.success('countries.retrieved_successfully', {
       countries: result.items.map((country) =>
         this.transformToResponseDto(country)
       ),
@@ -72,7 +72,7 @@ export class CountriesService {
     }
 
     return this.i18nResponse.success(
-      'countries.retrieved',
+      'countries.retrieved_successfully',
       this.transformToResponseDto(country)
     );
   }
@@ -86,7 +86,7 @@ export class CountriesService {
     );
 
     return this.i18nResponse.success(
-      'countries.retrieved',
+      'countries.retrieved_successfully',
       countries.map((country) => this.transformToResponseDto(country))
     );
   }
@@ -112,7 +112,7 @@ export class CountriesService {
     const country = await this.countriesRepository.insert(countryData);
 
     return this.i18nResponse.created(
-      'countries.created',
+      'countries.created_successfully',
       this.transformToResponseDto(country)
     );
   }
@@ -147,7 +147,7 @@ export class CountriesService {
     );
 
     return this.i18nResponse.success(
-      'countries.updated',
+      'countries.updated_successfully',
       this.transformToResponseDto(updatedCountry)
     );
   }
@@ -193,7 +193,7 @@ export class CountriesService {
       updateData
     );
 
-    return this.i18nResponse.success('countries.bulk_updated', {
+    return this.i18nResponse.success('countries.bulk_updated_successfully', {
       count: result.count,
       message: `${result.count} countries updated successfully`,
     });
@@ -248,7 +248,7 @@ export class CountriesService {
     const result =
       await this.countriesRepository.bulkDeleteByPublicIds(eligiblePublicIds);
 
-    return this.i18nResponse.success('countries.bulk_deleted', {
+    return this.i18nResponse.success('countries.bulk_deleted_successfully', {
       count: result.count,
       message: `${result.count} countries deleted successfully`,
     });

@@ -140,7 +140,7 @@ export class ManageDropdownController {
       };
 
       return this.i18nResponse.translateAndRespond(
-        'dropdowns.retrieved_successfully',
+        'manage_dropdown.retrieved_successfully',
         HttpStatus.OK,
         response
       );
@@ -152,20 +152,20 @@ export class ManageDropdownController {
 
       if (error instanceof ManageDropdownNotFoundException) {
         return this.i18nResponse.translateError(
-          'dropdowns.not_found',
+          'manage_dropdown.not_found',
           HttpStatus.NOT_FOUND
         );
       }
 
       if (error instanceof InvalidDropdownTypeException) {
         return this.i18nResponse.translateError(
-          'dropdowns.invalid_option_type',
+          'manage_dropdown.invalid_option_type',
           HttpStatus.BAD_REQUEST
         );
       }
 
       return this.i18nResponse.translateError(
-        'dropdowns.fetch_failed',
+        'manage_dropdown.fetch_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -238,7 +238,7 @@ export class ManageDropdownController {
       };
 
       return this.i18nResponse.translateAndRespond(
-        'dropdowns.retrieved_successfully',
+        'manage_dropdown.retrieved_successfully',
         HttpStatus.OK,
         response
       );
@@ -250,20 +250,20 @@ export class ManageDropdownController {
 
       if (error instanceof ManageDropdownNotFoundException) {
         return this.i18nResponse.translateError(
-          'dropdowns.not_found',
+          'manage_dropdown.not_found',
           HttpStatus.NOT_FOUND
         );
       }
 
       if (error instanceof InvalidDropdownTypeException) {
         return this.i18nResponse.translateError(
-          'dropdowns.invalid_option_type',
+          'manage_dropdown.invalid_option_type',
           HttpStatus.BAD_REQUEST
         );
       }
 
       return this.i18nResponse.translateError(
-        'dropdowns.fetch_failed',
+        'manage_dropdown.fetch_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -391,7 +391,7 @@ export class ManageDropdownController {
       );
 
       return this.i18nResponse.translateAndRespond(
-        'dropdowns.bulk_update_success',
+        'manage_dropdown.bulk_updated_successfully',
         HttpStatus.OK,
         result
       );
@@ -399,7 +399,7 @@ export class ManageDropdownController {
       this.logger.error('Failed bulk update operation', (error as Error).stack);
 
       return this.i18nResponse.translateError(
-        'dropdowns.bulk_update_failed',
+        'manage_dropdown.bulk_update_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -460,7 +460,7 @@ export class ManageDropdownController {
       );
 
       return this.i18nResponse.translateAndRespond(
-        'dropdowns.bulk_delete_success',
+        'manage_dropdown.bulk_deleted_successfully',
         HttpStatus.OK,
         result
       );
@@ -468,7 +468,7 @@ export class ManageDropdownController {
       this.logger.error('Failed bulk delete operation', (error as Error).stack);
 
       return this.i18nResponse.translateError(
-        'dropdowns.bulk_delete_failed',
+        'manage_dropdown.bulk_delete_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

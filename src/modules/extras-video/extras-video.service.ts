@@ -38,7 +38,7 @@ export class ExtrasVideoService {
       await this.extrasVideoRepository.findByEquityId(equityId);
 
     const response = this.i18nResponse.success(
-      'extras_video.retrieved',
+      'extras_video.retrieved_successfully',
       extrasVideos
     );
 
@@ -60,7 +60,10 @@ export class ExtrasVideoService {
 
     CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
 
-    return this.i18nResponse.created('extras_video.created', extrasVideo);
+    return this.i18nResponse.created(
+      'extras_video.created_successfully',
+      extrasVideo
+    );
   }
 
   async updateExtrasVideo(
@@ -83,7 +86,7 @@ export class ExtrasVideoService {
     CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
 
     return this.i18nResponse.success(
-      'extras_video.updated',
+      'extras_video.updated_successfully',
       updatedExtrasVideo
     );
   }
@@ -100,7 +103,7 @@ export class ExtrasVideoService {
 
     CacheUtil.delPattern(`campaign:${equityId}:extrasVideos`);
 
-    return this.i18nResponse.success('extras_video.deleted');
+    return this.i18nResponse.success('extras_video.deleted_successfully');
   }
 
   async uploadFile(file: Express.Multer.File, prefix: string) {

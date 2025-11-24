@@ -316,6 +316,6 @@ export class LanguagesController {
   })
   async deleteLanguage(@Param('publicId') publicId: string) {
     await this.languagesService.deleteLanguage(publicId);
-    return this.i18nResponse.success('languages.deleted');
+    return this.i18nResponse.success('languages.deleted_successfully');
   }
 }

@@ -209,7 +209,7 @@ export class CurrenciesController {
         await this.currenciesService.createCurrency(createCurrencyDto);
 
       return this.i18nResponse.translateAndRespond(
-        'currencies.created',
+        'currencies.created_successfully',
         HttpStatus.CREATED,
         this.transformToResponseDto(currency)
       );
@@ -436,7 +436,7 @@ export class CurrenciesController {
       );
 
       return this.i18nResponse.translateAndRespond(
-        'currencies.updated',
+        'currencies.updated_successfully',
         HttpStatus.OK,
         this.transformToResponseDto(currency)
       );
@@ -510,7 +510,7 @@ export class CurrenciesController {
       const success = await this.currenciesService.deleteCurrency(publicId);
 
       return this.i18nResponse.translateAndRespond(
-        'currencies.deleted',
+        'currencies.deleted_successfully',
         HttpStatus.OK,
         { deleted: success }
       );

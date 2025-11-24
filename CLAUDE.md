@@ -375,7 +375,11 @@ The application supports comprehensive multi-language functionality:
 ### Usage in Controllers
 
 ```typescript
-return this.i18nResponse.success('languages.created', 201, language);
+return this.i18nResponse.success(
+  'languages.created_successfully',
+  201,
+  language
+);
 return this.i18nResponse.error('languages.not_found', 404);
 ```
 

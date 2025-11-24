@@ -33,7 +33,7 @@ export class TeamMemberService {
       await this.teamMemberRepository.findByEquityId(equityId);
 
     const response = this.i18nResponse.success(
-      'team_member.retrieved',
+      'team_member.retrieved_successfully',
       teamMembers
     );
 
@@ -60,7 +60,10 @@ export class TeamMemberService {
 
     CacheUtil.delPattern(`campaign:${equityId}:teamMembers`);
 
-    return this.i18nResponse.created('team_member.created', teamMember);
+    return this.i18nResponse.created(
+      'team_member.created_successfully',
+      teamMember
+    );
   }
 
   async update(
@@ -110,7 +113,10 @@ export class TeamMemberService {
 
     CacheUtil.delPattern(`campaign:${equityId}:teamMembers`);
 
-    return this.i18nResponse.success('team_member.updated', updatedTeamMember);
+    return this.i18nResponse.success(
+      'team_member.updated_successfully',
+      updatedTeamMember
+    );
   }
 
   async delete(equityId: string, id: string) {
@@ -136,6 +142,6 @@ export class TeamMemberService {
 
     CacheUtil.delPattern(`campaign:${equityId}:teamMembers`);
 
-    return this.i18nResponse.success('team_member.deleted');
+    return this.i18nResponse.success('team_member.deleted_successfully');
   }
 }

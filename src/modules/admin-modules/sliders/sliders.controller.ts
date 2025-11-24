@@ -147,7 +147,7 @@ export class SlidersController {
       const result = await this.slidersService.getActiveSliders(languageCode);
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.retrieved',
+        'sliders.retrieved_successfully',
         HttpStatus.OK,
         result
       );
@@ -227,7 +227,7 @@ export class SlidersController {
       const result = await this.slidersService.getAllSliders(queryDto);
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.retrieved',
+        'sliders.retrieved_successfully',
         HttpStatus.OK,
         result
       );
@@ -276,7 +276,7 @@ export class SlidersController {
       const result = await this.slidersService.bulkUpdateSliders(bulkUpdateDto);
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.bulk_updated',
+        'sliders.bulk_updated_successfully',
         HttpStatus.OK,
         result
       );
@@ -329,7 +329,7 @@ export class SlidersController {
       const result = await this.slidersService.bulkDeleteSliders(bulkDeleteDto);
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.bulk_deleted',
+        'sliders.bulk_deleted_successfully',
         HttpStatus.OK,
         result
       );
@@ -370,7 +370,7 @@ export class SlidersController {
       const result = await this.slidersService.getSliderByPublicId(publicId);
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.retrieved',
+        'sliders.retrieved_successfully',
         HttpStatus.OK,
         result
       );
@@ -452,7 +452,7 @@ export class SlidersController {
       );
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.created',
+        'sliders.created_successfully',
         HttpStatus.CREATED,
         result
       );
@@ -531,7 +531,7 @@ export class SlidersController {
       );
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.updated',
+        'sliders.updated_successfully',
         HttpStatus.OK,
         result
       );
@@ -593,7 +593,7 @@ export class SlidersController {
       const result = await this.slidersService.deleteSlider(publicId);
 
       return this.i18nResponse.translateAndRespond(
-        'sliders.deleted',
+        'sliders.deleted_successfully',
         HttpStatus.OK,
         result
       );

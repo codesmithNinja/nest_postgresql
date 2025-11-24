@@ -23,16 +23,14 @@
     "forbidden": "وصول محظور"
   },
   "user": {
-    "profile_updated": "تم تحديث الملف الشخصي بنجاح",
-    "profile_retrieved": "تم استرداد الملف الشخصي بنجاح",
-    "password_changed": "تم تغيير كلمة المرور بنجاح",
+    "profile_updated_successfully": "تم تحديث الملف الشخصي بنجاح",
+    "profile_retrieved_successfully": "تم استرداد الملف الشخصي بنجاح",
+    "password_changed_successfully": "تم تغيير كلمة المرور بنجاح",
     "user_not_found": "المستخدم غير موجود",
     "user_retrieved": "تم استرداد المستخدم بنجاح",
-    "account_deactivated": "تم إلغاء تفعيل الحساب بنجاح",
+    "account_deactivated_successfully": "تم إلغاء تفعيل الحساب بنجاح",
     "invalid_current_password": "كلمة المرور الحالية غير صحيحة",
-    "email_already_taken": "البريد الإلكتروني مستخدم بالفعل",
-    "user_created": "تم إنشاء المستخدم بنجاح",
-    "user_deleted": "تم حذف المستخدم بنجاح"
+    "email_already_taken": "البريد الإلكتروني مستخدم بالفعل"
   },
   "validation": {
     "required_field": "{{field}} مطلوب",
@@ -54,15 +52,13 @@
     "conflict": "المورد موجود بالفعل",
     "file_uploaded": "تم رفع الملف بنجاح"
   },
-  "campaign": {
-    "created": "تم إنشاء الحملة بنجاح",
-    "updated": "تم تحديث الحملة بنجاح",
-    "deleted": "تم حذف الحملة بنجاح",
+  "equity": {
+    "created_successfully": "تم إنشاء الحملة بنجاح",
+    "updated_successfully": "تم تحديث الحملة بنجاح",
+    "deleted_successfully": "تم حذف الحملة بنجاح",
     "not_found": "الحملة غير موجودة",
     "access_denied": "الوصول مرفوض لهذه الحملة",
-    "status_updated": "تم تحديث حالة الحملة بنجاح"
-  },
-  "equity": {
+    "status_updated_successfully": "تم تحديث حالة الحملة بنجاح",
     "logo_file_required": "ملف الشعار مطلوب",
     "image_file_required": "ملف الصورة مطلوب",
     "video_file_required": "ملف الفيديو مطلوب",
@@ -75,71 +71,87 @@
     "missing_required_fields": "حقول مطلوبة مفقودة لـ {{termslug}}: {{fields}}"
   },
   "campaign_faq": {
-    "retrieved": "تم استرداد الأسئلة الشائعة للحملة بنجاح",
+    "retrieved_successfully": "تم استرداد الأسئلة الشائعة للحملة بنجاح",
     "either_standard_or_custom": "يرجى تقديم questionID مع الإجابة، أو customQuestion مع customAnswer",
     "cannot_provide_both": "لا يمكن تقديم بيانات الأسئلة الشائعة القياسية والمخصصة معاً",
-    "created": "تم إنشاء الأسئلة الشائعة للحملة بنجاح",
+    "created_successfully": "تم إنشاء الأسئلة الشائعة للحملة بنجاح",
     "not_found": "الأسئلة الشائعة للحملة غير موجودة",
-    "updated": "تم تحديث الأسئلة الشائعة للحملة بنجاح",
-    "deleted": "تم حذف الأسئلة الشائعة للحملة بنجاح"
+    "updated_successfully": "تم تحديث الأسئلة الشائعة للحملة بنجاح",
+    "deleted_successfully": "تم حذف الأسئلة الشائعة للحملة بنجاح"
   },
   "extras_document": {
     "document_file_required": "ملف المستند مطلوب",
-    "retrieved": "تم استرداد المستندات الإضافية بنجاح",
-    "created": "تم إنشاء المستند الإضافي بنجاح",
+    "retrieved_successfully": "تم استرداد المستندات الإضافية بنجاح",
+    "created_successfully": "تم إنشاء المستند الإضافي بنجاح",
     "not_found": "المستند الإضافي غير موجود",
-    "updated": "تم تحديث المستند الإضافي بنجاح",
-    "deleted": "تم حذف المستند الإضافي بنجاح"
+    "updated_successfully": "تم تحديث المستند الإضافي بنجاح",
+    "deleted_successfully": "تم حذف المستند الإضافي بنجاح"
   },
   "extras_image": {
     "image_file_required": "ملف الصورة مطلوب",
-    "retrieved": "تم استرداد الصور الإضافية بنجاح",
-    "created": "تم إنشاء الصورة الإضافية بنجاح",
+    "retrieved_successfully": "تم استرداد الصور الإضافية بنجاح",
+    "created_successfully": "تم إنشاء الصورة الإضافية بنجاح",
     "not_found": "الصورة الإضافية غير موجودة",
-    "updated": "تم تحديث الصورة الإضافية بنجاح",
-    "deleted": "تم حذف الصورة الإضافية بنجاح"
+    "updated_successfully": "تم تحديث الصورة الإضافية بنجاح",
+    "deleted_successfully": "تم حذف الصورة الإضافية بنجاح"
   },
   "extras_video": {
     "video_file_required": "ملف الفيديو مطلوب",
-    "retrieved": "تم استرداد الفيديوهات الإضافية بنجاح",
-    "created": "تم إنشاء الفيديو الإضافي بنجاح",
+    "retrieved_successfully": "تم استرداد الفيديوهات الإضافية بنجاح",
+    "created_successfully": "تم إنشاء الفيديو الإضافي بنجاح",
     "not_found": "الفيديو الإضافي غير موجود",
-    "updated": "تم تحديث الفيديو الإضافي بنجاح",
-    "deleted": "تم حذف الفيديو الإضافي بنجاح"
+    "updated_successfully": "تم تحديث الفيديو الإضافي بنجاح",
+    "deleted_successfully": "تم حذف الفيديو الإضافي بنجاح"
   },
   "lead_investor": {
     "photo_file_required": "ملف الصورة مطلوب",
-    "retrieved": "تم استرداد المستثمرين الرئيسيين بنجاح",
-    "created": "تم إنشاء المستثمر الرئيسي بنجاح",
+    "retrieved_successfully": "تم استرداد المستثمرين الرئيسيين بنجاح",
+    "created_successfully": "تم إنشاء المستثمر الرئيسي بنجاح",
     "not_found": "المستثمر الرئيسي غير موجود",
-    "updated": "تم تحديث المستثمر الرئيسي بنجاح",
-    "deleted": "تم حذف المستثمر الرئيسي بنجاح"
+    "updated_successfully": "تم تحديث المستثمر الرئيسي بنجاح",
+    "deleted_successfully": "تم حذف المستثمر الرئيسي بنجاح"
   },
   "team_member": {
     "photo_file_required": "ملف الصورة مطلوب",
-    "retrieved": "تم استرداد أعضاء الفريق بنجاح",
-    "created": "تم إنشاء عضو الفريق بنجاح",
+    "retrieved_successfully": "تم استرداد أعضاء الفريق بنجاح",
+    "created_successfully": "تم إنشاء عضو الفريق بنجاح",
     "not_found": "عضو الفريق غير موجود",
-    "updated": "تم تحديث عضو الفريق بنجاح",
-    "deleted": "تم حذف عضو الفريق بنجاح"
+    "updated_successfully": "تم تحديث عضو الفريق بنجاح",
+    "deleted_successfully": "تم حذف عضو الفريق بنجاح"
   },
   "admin": {
     "login_success": "تم تسجيل دخول المدير بنجاح",
     "logout_success": "تم تسجيل خروج المدير بنجاح",
-    "created": "تم إنشاء المدير بنجاح",
-    "updated": "تم تحديث المدير بنجاح",
-    "deleted": "تم حذف المدير بنجاح",
-    "not_found": "المدير غير موجود",
-    "profile_retrieved": "تم استرداد ملف المدير الشخصي بنجاح",
-    "admins_retrieved": "تم استرداد المديرين بنجاح",
-    "password_updated": "تم تحديث كلمة مرور المدير بنجاح",
     "invalid_credentials": "بيانات اعتماد المدير غير صالحة",
-    "email_already_exists": "يوجد مدير بهذا البريد الإلكتروني بالفعل",
     "password_reset_sent": "تم إرسال بريد إعادة تعيين كلمة المرور إذا كان المدير موجوداً",
     "password_reset_success": "تم إعادة تعيين كلمة المرور بنجاح",
     "invalid_reset_token": "رمز غير صالح أو منتهي الصلاحية",
     "password_mismatch": "كلمات المرور لا تتطابق",
     "invalid_current_password": "كلمة المرور الحالية غير صحيحة"
+  },
+  "admin_users": {
+    "profile_retrieved_successfully": "تم استرداد ملف المدير الشخصي بنجاح",
+    "admins_retrieved_successfully": "تم استرداد المديرين بنجاح",
+    "created_successfully": "تم إنشاء المدير بنجاح",
+    "updated_successfully": "تم تحديث المدير بنجاح",
+    "deleted_successfully": "تم حذف المدير بنجاح",
+    "not_found": "المدير غير موجود",
+    "password_updated_successfully": "تم تحديث كلمة مرور المدير بنجاح",
+    "email_already_exists": "يوجد مدير بهذا البريد الإلكتروني بالفعل",
+    "fetch_failed": "فشل في استرداد المستخدمين المديرين",
+    "creation_failed": "فشل في إنشاء المستخدم المدير",
+    "update_failed": "فشل في تحديث المستخدم المدير",
+    "deletion_failed": "فشل في حذف المستخدم المدير",
+    "validation_failed": "فشل في التحقق من صحة المستخدم المدير",
+    "already_exists": "المستخدم المدير موجود بالفعل",
+    "in_use": "لا يمكن حذف المستخدم المدير لأنه قيد الاستخدام حالياً",
+    "bulk_updated_successfully": "تم تحديث المستخدمين المديرين بنجاح",
+    "bulk_deleted_successfully": "تم حذف المستخدمين المديرين بنجاح",
+    "bulk_update_failed": "فشل في عملية التحديث المجمعة",
+    "bulk_delete_failed": "فشل في عملية الحذف المجمعة",
+    "admin_role_required": "دور المدير مطلوب",
+    "invalid_admin_role": "تنسيق دور المدير غير صالح",
+    "minimum_admins_required": "الحد الأدنى لعدد المستخدمين المديرين مطلوب"
   },
   "settings": {
     "retrieved_successfully": "تم استرداد الإعدادات بنجاح",
@@ -156,14 +168,14 @@
     "cache_cleared": "تم مسح ذاكرة التخزين المؤقت بنجاح"
   },
   "countries": {
-    "retrieved": "تم استرداد البلدان بنجاح",
-    "created": "تم إنشاء البلد بنجاح",
-    "updated": "تم تحديث البلد بنجاح",
-    "deleted": "تم حذف البلد بنجاح",
+    "retrieved_successfully": "تم استرداد البلدان بنجاح",
+    "created_successfully": "تم إنشاء البلد بنجاح",
+    "updated_successfully": "تم تحديث البلد بنجاح",
+    "deleted_successfully": "تم حذف البلد بنجاح",
     "not_found": "البلد غير موجود",
     "flag_file_required": "ملف علم البلد مطلوب",
-    "bulk_updated": "تم تحديث البلدان بنجاح",
-    "bulk_deleted": "تم حذف البلدان بنجاح",
+    "bulk_updated_successfully": "تم تحديث البلدان بنجاح",
+    "bulk_deleted_successfully": "تم حذف البلدان بنجاح",
     "name_already_exists": "يوجد بلد بهذا الاسم بالفعل",
     "iso2_already_exists": "يوجد بلد بهذا الرمز ISO2 بالفعل",
     "iso3_already_exists": "يوجد بلد بهذا الرمز ISO3 بالفعل",
@@ -171,14 +183,14 @@
     "invalid_iso_code": "تنسيق رمز ISO للبلد غير صالح"
   },
   "languages": {
-    "retrieved": "تم استرداد اللغات بنجاح",
-    "created": "تم إنشاء اللغة بنجاح",
-    "updated": "تم تحديث اللغة بنجاح",
-    "deleted": "تم حذف اللغة بنجاح",
+    "retrieved_successfully": "تم استرداد اللغات بنجاح",
+    "created_successfully": "تم إنشاء اللغة بنجاح",
+    "updated_successfully": "تم تحديث اللغة بنجاح",
+    "deleted_successfully": "تم حذف اللغة بنجاح",
     "not_found": "اللغة غير موجودة",
     "flag_file_required": "ملف علم اللغة مطلوب",
-    "bulk_updated": "تم تحديث اللغات بنجاح",
-    "bulk_deleted": "تم حذف اللغات بنجاح",
+    "bulk_updated_successfully": "تم تحديث اللغات بنجاح",
+    "bulk_deleted_successfully": "تم حذف اللغات بنجاح",
     "name_already_exists": "توجد لغة بهذا الاسم بالفعل",
     "folder_already_exists": "توجد لغة بهذا اسم المجلد بالفعل",
     "iso2_already_exists": "توجد لغة بهذا الرمز ISO2 بالفعل",
@@ -191,17 +203,35 @@
     "default_language_required": "مطلوب لغة افتراضية واحدة على الأقل",
     "language_in_use": "لا يمكن حذف اللغة لأنها قيد الاستخدام حالياً"
   },
-  "dropdowns": {
+  "manage_dropdown": {
     "retrieved_successfully": "تم استرداد خيارات القائمة المنسدلة بنجاح",
-    "not_found": "خيارات القائمة المنسدلة غير موجودة",
+    "created_successfully": "تم إنشاء خيار القائمة المنسدلة بنجاح",
+    "updated_successfully": "تم تحديث خيار القائمة المنسدلة بنجاح",
+    "deleted_successfully": "تم حذف خيار القائمة المنسدلة بنجاح",
+    "not_found": "خيار القائمة المنسدلة غير موجود",
     "invalid_option_type": "تنسيق نوع الخيار غير صالح",
-    "fetch_failed": "فشل في استرداد خيارات القائمة المنسدلة"
+    "fetch_failed": "فشل في استرداد خيارات القائمة المنسدلة",
+    "creation_failed": "فشل في إنشاء خيار القائمة المنسدلة",
+    "update_failed": "فشل في تحديث خيار القائمة المنسدلة",
+    "deletion_failed": "فشل في حذف خيار القائمة المنسدلة",
+    "bulk_updated_successfully": "تم تحديث خيارات القائمة المنسدلة بنجاح",
+    "bulk_deleted_successfully": "تم حذف خيارات القائمة المنسدلة بنجاح",
+    "bulk_update_failed": "فشل في عملية التحديث المجمعة",
+    "bulk_delete_failed": "فشل في عملية الحذف المجمعة",
+    "validation_failed": "فشل في التحقق من صحة خيار القائمة المنسدلة",
+    "already_exists": "خيار القائمة المنسدلة موجود بالفعل",
+    "in_use": "لا يمكن حذف خيار القائمة المنسدلة لأنه قيد الاستخدام حالياً",
+    "dropdown_type_required": "نوع القائمة المنسدلة مطلوب",
+    "invalid_dropdown_type": "تنسيق نوع القائمة المنسدلة غير صالح",
+    "option_value_required": "قيمة الخيار مطلوبة",
+    "option_title_required": "عنوان الخيار مطلوب",
+    "use_count_must_be_zero": "لا يمكن حذف الخيار مع عداد الاستخدام النشط"
   },
   "currencies": {
     "retrieved_successfully": "تم استرداد العملات بنجاح",
-    "created": "تم إنشاء العملة بنجاح",
-    "updated": "تم تحديث العملة بنجاح",
-    "deleted": "تم حذف العملة بنجاح",
+    "created_successfully": "تم إنشاء العملة بنجاح",
+    "updated_successfully": "تم تحديث العملة بنجاح",
+    "deleted_successfully": "تم حذف العملة بنجاح",
     "not_found": "العملة غير موجودة",
     "already_exists": "توجد عملة بهذا الاسم أو الرمز بالفعل",
     "in_use": "لا يمكن حذف العملة لأنها قيد الاستخدام حالياً",
@@ -260,13 +290,13 @@
   },
   "sliders": {
     "retrieved": "تم استرداد الشرائح بنجاح",
-    "created": "تم إنشاء الشريحة بنجاح",
-    "updated": "تم تحديث الشريحة بنجاح",
-    "deleted": "تم حذف الشريحة بنجاح",
+    "created_successfully": "تم إنشاء الشريحة بنجاح",
+    "updated_successfully": "تم تحديث الشريحة بنجاح",
+    "deleted_successfully": "تم حذف الشريحة بنجاح",
     "not_found": "الشريحة غير موجودة",
     "image_file_required": "ملف صورة الشريحة مطلوب",
-    "bulk_updated": "تم تحديث الشرائح بنجاح",
-    "bulk_deleted": "تم حذف الشرائح بنجاح",
+    "bulk_updated_successfully": "تم تحديث الشرائح بنجاح",
+    "bulk_deleted_successfully": "تم حذف الشرائح بنجاح",
     "fetch_failed": "فشل في استرداد الشرائح",
     "creation_failed": "فشل في إنشاء الشريحة",
     "update_failed": "فشل في تحديث الشريحة",
@@ -328,6 +358,7 @@
   "email_templates": {
     "retrieved_successfully": "تم استرداد قوالب البريد الإلكتروني بنجاح",
     "created_successfully": "تم إنشاء قالب البريد الإلكتروني بنجاح",
+    "created_successfully_all_languages": "تم إنشاء قوالب البريد الإلكتروني بنجاح لجميع اللغات",
     "updated_successfully": "تم تحديث قالب البريد الإلكتروني بنجاح",
     "deleted_successfully": "تم حذف قالب البريد الإلكتروني بنجاح",
     "not_found": "قالب البريد الإلكتروني غير موجود",

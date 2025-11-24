@@ -54,7 +54,7 @@ export class LanguagesService {
       options
     );
 
-    return this.i18nResponse.success('languages.retrieved', {
+    return this.i18nResponse.success('languages.retrieved_successfully', {
       languages: result.items.map((language) =>
         this.transformToResponseDto(language)
       ),
@@ -72,7 +72,7 @@ export class LanguagesService {
     }
 
     return this.i18nResponse.success(
-      'languages.retrieved',
+      'languages.retrieved_successfully',
       this.transformToResponseDto(language)
     );
   }
@@ -86,7 +86,7 @@ export class LanguagesService {
     );
 
     return this.i18nResponse.success(
-      'languages.retrieved',
+      'languages.retrieved_successfully',
       languages.map((language) => this.transformToResponseDto(language))
     );
   }
@@ -111,7 +111,7 @@ export class LanguagesService {
     const language = await this.languagesRepository.insert(languageData);
 
     return this.i18nResponse.created(
-      'languages.created',
+      'languages.created_successfully',
       this.transformToResponseDto(language)
     );
   }
@@ -146,7 +146,7 @@ export class LanguagesService {
     );
 
     return this.i18nResponse.success(
-      'languages.updated',
+      'languages.updated_successfully',
       this.transformToResponseDto(updatedLanguage)
     );
   }
@@ -187,7 +187,7 @@ export class LanguagesService {
       updateData
     );
 
-    return this.i18nResponse.success('languages.bulk_updated', {
+    return this.i18nResponse.success('languages.bulk_updated_successfully', {
       count: result.count,
       message: `${result.count} languages updated successfully`,
     });
@@ -236,7 +236,7 @@ export class LanguagesService {
     const result =
       await this.languagesRepository.bulkDeleteByPublicIds(eligiblePublicIds);
 
-    return this.i18nResponse.success('languages.bulk_deleted', {
+    return this.i18nResponse.success('languages.bulk_deleted_successfully', {
       count: result.count,
       message: `${result.count} languages deleted successfully`,
     });

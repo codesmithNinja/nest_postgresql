@@ -1305,8 +1305,12 @@ export class MetaSettingsModule {}
 // Interface definition
 export interface IMetaSettingRepository extends IRepository<MetaSetting> {
   findByLanguageId(languageId: string): Promise<MetaSetting | null>;
-  findByLanguageIdWithLanguage(languageId: string): Promise<MetaSettingWithLanguage | null>;
-  findByPublicIdWithLanguage(publicId: string): Promise<MetaSettingWithLanguage | null>;
+  findByLanguageIdWithLanguage(
+    languageId: string
+  ): Promise<MetaSettingWithLanguage | null>;
+  findByPublicIdWithLanguage(
+    publicId: string
+  ): Promise<MetaSettingWithLanguage | null>;
   existsByLanguageId(languageId: string): Promise<boolean>;
   getAllActiveLanguageIds(): Promise<string[]>;
   getDefaultLanguageId(): Promise<string>;
@@ -1429,9 +1433,16 @@ export class EmailTemplatesModule {}
 // Interface definition
 export interface IEmailTemplateRepository extends IRepository<EmailTemplate> {
   findByLanguageId(languageId: string): Promise<EmailTemplate | null>;
-  findByTaskAndLanguageId(task: string, languageId: string): Promise<EmailTemplate | null>;
-  findByLanguageIdWithLanguage(languageId: string): Promise<EmailTemplateWithLanguage | null>;
-  findByPublicIdWithLanguage(publicId: string): Promise<EmailTemplateWithLanguage | null>;
+  findByTaskAndLanguageId(
+    task: string,
+    languageId: string
+  ): Promise<EmailTemplate | null>;
+  findByLanguageIdWithLanguage(
+    languageId: string
+  ): Promise<EmailTemplateWithLanguage | null>;
+  findByPublicIdWithLanguage(
+    publicId: string
+  ): Promise<EmailTemplateWithLanguage | null>;
   existsByTaskAndLanguageId(task: string, languageId: string): Promise<boolean>;
   findActiveTemplatesByLanguage(languageCode: string): Promise<EmailTemplate[]>;
   bulkUpdateStatus(publicIds: string[], status: boolean): Promise<void>;
@@ -1439,10 +1450,15 @@ export interface IEmailTemplateRepository extends IRepository<EmailTemplate> {
 }
 
 // PostgreSQL Implementation
-export class EmailTemplatePostgresRepository implements IEmailTemplateRepository {
+export class EmailTemplatePostgresRepository
+  implements IEmailTemplateRepository
+{
   constructor(private prisma: PrismaService) {}
 
-  async findByTaskAndLanguageId(task: string, languageId: string): Promise<EmailTemplate | null> {
+  async findByTaskAndLanguageId(
+    task: string,
+    languageId: string
+  ): Promise<EmailTemplate | null> {
     const emailTemplate = await this.prisma.emailTemplate.findFirst({
       where: { task, languageId },
       include: { language: true },
@@ -1454,10 +1470,18 @@ export class EmailTemplatePostgresRepository implements IEmailTemplateRepository
 }
 
 // MongoDB Implementation
-export class EmailTemplateMongodbRepository implements IEmailTemplateRepository {
-  constructor(@InjectModel(EmailTemplate.name) private emailTemplateModel: Model<EmailTemplateDocument>) {}
+export class EmailTemplateMongodbRepository
+  implements IEmailTemplateRepository
+{
+  constructor(
+    @InjectModel(EmailTemplate.name)
+    private emailTemplateModel: Model<EmailTemplateDocument>
+  ) {}
 
-  async findByTaskAndLanguageId(task: string, languageId: string): Promise<EmailTemplate | null> {
+  async findByTaskAndLanguageId(
+    task: string,
+    languageId: string
+  ): Promise<EmailTemplate | null> {
     const emailTemplate = await this.emailTemplateModel
       .findOne({ task, languageId })
       .populate('language')
@@ -1474,7 +1498,9 @@ export class EmailTemplateMongodbRepository implements IEmailTemplateRepository 
 ```typescript
 // Key service methods showcasing business logic
 export class EmailTemplatesService {
-  async createEmailTemplate(createDto: CreateEmailTemplateDto): Promise<EmailTemplateResponseDto> {
+  async createEmailTemplate(
+    createDto: CreateEmailTemplateDto
+  ): Promise<EmailTemplateResponseDto> {
     // Validate email template data
     this.validateEmailTemplateData(createDto);
 
@@ -1485,10 +1511,11 @@ export class EmailTemplatesService {
     const language = await this.resolveLanguage(createDto.languageId);
 
     // Check for existing template with same task and language
-    const existingTemplate = await this.emailTemplateRepository.findByTaskAndLanguageId(
-      createDto.task,
-      language.id
-    );
+    const existingTemplate =
+      await this.emailTemplateRepository.findByTaskAndLanguageId(
+        createDto.task,
+        language.id
+      );
 
     if (existingTemplate) {
       throw new EmailTemplateAlreadyExistsForLanguageException();
@@ -1514,7 +1541,9 @@ export class EmailTemplatesService {
     }
   }
 
-  private validateEmailTemplateData(data: CreateEmailTemplateDto | UpdateEmailTemplateDto): void {
+  private validateEmailTemplateData(
+    data: CreateEmailTemplateDto | UpdateEmailTemplateDto
+  ): void {
     if (!this.isValidEmail(data.senderEmail)) {
       throw new InvalidSenderEmailException();
     }
@@ -1915,9 +1944,17 @@ Each language file contains organized translation keys for:
 
 ```typescript
 // In services using I18nResponseService
-return this.i18nResponse.success('languages.created', 201, language);
+return this.i18nResponse.success(
+  'languages.created_successfully',
+  201,
+  language
+);
 return this.i18nResponse.error('languages.not_found', 404);
-return this.i18nResponse.success('currencies.created', 201, currency);
+return this.i18nResponse.success(
+  'currencies.created_successfully',
+  201,
+  currency
+);
 return this.i18nResponse.error('currencies.not_found', 404);
 
 // Parameterized translations

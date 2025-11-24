@@ -312,6 +312,6 @@ export class CountriesController {
   })
   async deleteCountry(@Param('publicId') publicId: string) {
     await this.countriesService.deleteCountry(publicId);
-    return this.i18nResponse.success('countries.deleted');
+    return this.i18nResponse.success('countries.deleted_successfully');
   }
 }

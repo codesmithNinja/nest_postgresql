@@ -38,7 +38,7 @@ export class ExtrasDocumentService {
       await this.extrasDocumentRepository.findByEquityId(equityId);
 
     const response = this.i18nResponse.success(
-      'extras_document.retrieved',
+      'extras_document.retrieved_successfully',
       extrasDocuments
     );
 
@@ -60,7 +60,10 @@ export class ExtrasDocumentService {
 
     CacheUtil.delPattern(`campaign:${equityId}:extrasDocuments`);
 
-    return this.i18nResponse.created('extras_document.created', extrasDocument);
+    return this.i18nResponse.created(
+      'extras_document.created_successfully',
+      extrasDocument
+    );
   }
 
   async updateExtrasDocument(
@@ -87,7 +90,7 @@ export class ExtrasDocumentService {
     CacheUtil.delPattern(`campaign:${equityId}:extrasDocuments`);
 
     return this.i18nResponse.success(
-      'extras_document.updated',
+      'extras_document.updated_successfully',
       updatedExtrasDocument
     );
   }
@@ -107,7 +110,7 @@ export class ExtrasDocumentService {
 
     CacheUtil.delPattern(`campaign:${equityId}:extrasDocuments`);
 
-    return this.i18nResponse.success('extras_document.deleted');
+    return this.i18nResponse.success('extras_document.deleted_successfully');
   }
 
   async uploadFile(file: Express.Multer.File, prefix: string) {

@@ -36,7 +36,7 @@ export class ExtrasImageService {
       await this.extrasImageRepository.findByEquityId(equityId);
 
     const response = this.i18nResponse.success(
-      'extras_image.retrieved',
+      'extras_image.retrieved_successfully',
       extrasImages
     );
 
@@ -58,7 +58,10 @@ export class ExtrasImageService {
 
     CacheUtil.delPattern(`campaign:${equityId}:extrasImages`);
 
-    return this.i18nResponse.created('extras_image.created', extrasImage);
+    return this.i18nResponse.created(
+      'extras_image.created_successfully',
+      extrasImage
+    );
   }
 
   async updateExtrasImage(
@@ -81,7 +84,7 @@ export class ExtrasImageService {
     CacheUtil.delPattern(`campaign:${equityId}:extrasImages`);
 
     return this.i18nResponse.success(
-      'extras_image.updated',
+      'extras_image.updated_successfully',
       updatedExtrasImage
     );
   }
@@ -98,7 +101,7 @@ export class ExtrasImageService {
 
     CacheUtil.delPattern(`campaign:${equityId}:extrasImages`);
 
-    return this.i18nResponse.success('extras_image.deleted');
+    return this.i18nResponse.success('extras_image.deleted_successfully');
   }
 
   async uploadFile(file: Express.Multer.File) {

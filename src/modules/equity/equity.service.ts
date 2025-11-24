@@ -185,7 +185,7 @@ export class EquityService {
     // Clear user's campaign cache
     CacheUtil.delPattern(`campaigns:user:${userId}`);
 
-    return this.i18nResponse.created('campaign.created', campaign);
+    return this.i18nResponse.created('equity.created_successfully', campaign);
   }
 
   /**
@@ -457,7 +457,10 @@ export class EquityService {
     CacheUtil.delPattern(`campaign:${id}`);
     CacheUtil.delPattern(`campaigns:user:${existingCampaign.userId}`);
 
-    return this.i18nResponse.success('campaign.updated', updatedCampaign);
+    return this.i18nResponse.success(
+      'equity.updated_successfully',
+      updatedCampaign
+    );
   }
 
   /**
@@ -483,7 +486,7 @@ export class EquityService {
     CacheUtil.delPattern(`campaign:${id}`);
     CacheUtil.delPattern(`campaigns:user:${campaign.userId}`);
 
-    return this.i18nResponse.success('campaign.deleted');
+    return this.i18nResponse.success('equity.deleted_successfully');
   }
 
   /**
