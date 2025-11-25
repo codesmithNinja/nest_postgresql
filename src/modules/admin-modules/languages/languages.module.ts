@@ -37,19 +37,23 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
     {
       provide: LANGUAGES_REPOSITORY,
       useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        languagesMongodbRepository: LanguagesMongodbRepository
+        languagesPostgresRepository: LanguagesPostgresRepository,
+        languagesMongodbRepository: LanguagesMongodbRepository,
+        configService: ConfigService
       ) => {
         const databaseType = configService.get<string>('DATABASE_TYPE');
         if (databaseType === 'mongodb') {
           return languagesMongodbRepository;
         }
-        // Default to PostgreSQL
-        return new LanguagesPostgresRepository(prismaService);
+        return languagesPostgresRepository;
       },
-      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+      inject: [
+        LanguagesPostgresRepository,
+        LanguagesMongodbRepository,
+        ConfigService,
+      ],
     },
+    LanguagesPostgresRepository,
     LanguagesMongodbRepository,
   ],
   exports: [LanguagesService, LANGUAGES_REPOSITORY],

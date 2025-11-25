@@ -35,19 +35,23 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
     {
       provide: COUNTRIES_REPOSITORY,
       useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        countriesMongodbRepository: CountriesMongodbRepository
+        countriesPostgresRepository: CountriesPostgresRepository,
+        countriesMongodbRepository: CountriesMongodbRepository,
+        configService: ConfigService
       ) => {
         const databaseType = configService.get<string>('DATABASE_TYPE');
         if (databaseType === 'mongodb') {
           return countriesMongodbRepository;
         }
-        // Default to PostgreSQL
-        return new CountriesPostgresRepository(prismaService);
+        return countriesPostgresRepository;
       },
-      inject: [ConfigService, PrismaService, CountriesMongodbRepository],
+      inject: [
+        CountriesPostgresRepository,
+        CountriesMongodbRepository,
+        ConfigService,
+      ],
     },
+    CountriesPostgresRepository,
     CountriesMongodbRepository,
   ],
   exports: [CountriesService, COUNTRIES_REPOSITORY],

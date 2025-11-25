@@ -47,7 +47,7 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
         emailTemplateMongodbRepository: EmailTemplateMongodbRepository,
         configService: ConfigService
       ) => {
-        const databaseType = configService.get<string>('database.type');
+        const databaseType = configService.get<string>('DATABASE_TYPE');
         if (databaseType === 'mongodb') {
           return emailTemplateMongodbRepository;
         }
@@ -66,7 +66,7 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
         languagesMongodbRepository: LanguagesMongodbRepository,
         configService: ConfigService
       ) => {
-        const databaseType = configService.get<string>('database.type');
+        const databaseType = configService.get<string>('DATABASE_TYPE');
         if (databaseType === 'mongodb') {
           return languagesMongodbRepository;
         }

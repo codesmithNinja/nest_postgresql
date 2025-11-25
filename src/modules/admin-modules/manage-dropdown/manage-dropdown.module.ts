@@ -43,36 +43,44 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
     {
       provide: MANAGE_DROPDOWN_REPOSITORY,
       useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        manageDropdownMongodbRepository: ManageDropdownMongodbRepository
+        manageDropdownPostgresRepository: ManageDropdownPostgresRepository,
+        manageDropdownMongodbRepository: ManageDropdownMongodbRepository,
+        configService: ConfigService
       ) => {
         const databaseType = configService.get<string>('DATABASE_TYPE');
         if (databaseType === 'mongodb') {
           return manageDropdownMongodbRepository;
         }
-        // Default to PostgreSQL
-        return new ManageDropdownPostgresRepository(prismaService);
+        return manageDropdownPostgresRepository;
       },
-      inject: [ConfigService, PrismaService, ManageDropdownMongodbRepository],
+      inject: [
+        ManageDropdownPostgresRepository,
+        ManageDropdownMongodbRepository,
+        ConfigService,
+      ],
     },
     {
       provide: LANGUAGES_REPOSITORY,
       useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        languagesMongodbRepository: LanguagesMongodbRepository
+        languagesPostgresRepository: LanguagesPostgresRepository,
+        languagesMongodbRepository: LanguagesMongodbRepository,
+        configService: ConfigService
       ) => {
         const databaseType = configService.get<string>('DATABASE_TYPE');
         if (databaseType === 'mongodb') {
           return languagesMongodbRepository;
         }
-        // Default to PostgreSQL
-        return new LanguagesPostgresRepository(prismaService);
+        return languagesPostgresRepository;
       },
-      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+      inject: [
+        LanguagesPostgresRepository,
+        LanguagesMongodbRepository,
+        ConfigService,
+      ],
     },
+    ManageDropdownPostgresRepository,
     ManageDropdownMongodbRepository,
+    LanguagesPostgresRepository,
     LanguagesMongodbRepository,
   ],
   exports: [ManageDropdownService, MANAGE_DROPDOWN_REPOSITORY],
