@@ -43,37 +43,45 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
     {
       provide: EMAIL_TEMPLATE_REPOSITORY,
       useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        emailTemplateMongodbRepository: EmailTemplateMongodbRepository
+        emailTemplatePostgresRepository: EmailTemplatePostgresRepository,
+        emailTemplateMongodbRepository: EmailTemplateMongodbRepository,
+        configService: ConfigService
       ) => {
-        const databaseType = configService.get<string>('DATABASE_TYPE');
+        const databaseType = configService.get<string>('database.type');
         if (databaseType === 'mongodb') {
           return emailTemplateMongodbRepository;
         }
-        // Default to PostgreSQL
-        return new EmailTemplatePostgresRepository(prismaService);
+        return emailTemplatePostgresRepository;
       },
-      inject: [ConfigService, PrismaService, EmailTemplateMongodbRepository],
+      inject: [
+        EmailTemplatePostgresRepository,
+        EmailTemplateMongodbRepository,
+        ConfigService,
+      ],
     },
     {
       provide: LANGUAGES_REPOSITORY,
       useFactory: (
-        configService: ConfigService,
-        prismaService: PrismaService,
-        languagesMongodbRepository: LanguagesMongodbRepository
+        languagesPostgresRepository: LanguagesPostgresRepository,
+        languagesMongodbRepository: LanguagesMongodbRepository,
+        configService: ConfigService
       ) => {
-        const databaseType = configService.get<string>('DATABASE_TYPE');
+        const databaseType = configService.get<string>('database.type');
         if (databaseType === 'mongodb') {
           return languagesMongodbRepository;
         }
-        // Default to PostgreSQL
-        return new LanguagesPostgresRepository(prismaService);
+        return languagesPostgresRepository;
       },
-      inject: [ConfigService, PrismaService, LanguagesMongodbRepository],
+      inject: [
+        LanguagesPostgresRepository,
+        LanguagesMongodbRepository,
+        ConfigService,
+      ],
     },
-    // MongoDB repository providers (needed for factory functions)
+    // Repository providers (needed for factory functions)
+    EmailTemplatePostgresRepository,
     EmailTemplateMongodbRepository,
+    LanguagesPostgresRepository,
     LanguagesMongodbRepository,
   ],
   exports: [

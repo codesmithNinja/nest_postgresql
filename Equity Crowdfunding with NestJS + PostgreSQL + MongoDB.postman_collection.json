@@ -1330,7 +1330,13 @@
                     "url": {
                       "raw": "{{BASE_URL}}/email-templates/admin/cache/clear/:pattern",
                       "host": ["{{BASE_URL}}"],
-                      "path": ["email-templates", "admin", "cache", "clear", ":pattern"],
+                      "path": [
+                        "email-templates",
+                        "admin",
+                        "cache",
+                        "clear",
+                        ":pattern"
+                      ],
                       "variable": [
                         {
                           "key": "pattern",
@@ -2177,6 +2183,264 @@
                 }
               ],
               "description": "Meta settings management endpoints for SEO and social media optimization. Supports meta titles, descriptions, keywords, OpenGraph data, and OG image uploads across all languages."
+            },
+            {
+              "name": "💳 Payment Gateway Management",
+              "item": [
+                {
+                  "name": "Get Payment Gateway Details (Admin)",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "description": "Language preference (en, es, fr, ar)",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/:paymentSlug/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", ":paymentSlug", "admin"],
+                      "variable": [
+                        {
+                          "key": "paymentSlug",
+                          "value": "stripe",
+                          "description": "Payment gateway identifier (stripe, paypal, razorpay, etc.)"
+                        }
+                      ]
+                    },
+                    "description": "Get comprehensive payment gateway details for admin management including sensitive configuration data."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Create Payment Gateway",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Stripe Payment Gateway\",\n  \"paymentMode\": \"sandbox\",\n  \"sandboxDetails\": {\n    \"publishableKey\": \"pk_test_...\",\n    \"secretKey\": \"sk_test_...\",\n    \"webhookSecret\": \"whsec_...\"\n  },\n  \"liveDetails\": {\n    \"publishableKey\": \"pk_live_...\",\n    \"secretKey\": \"sk_live_...\",\n    \"webhookSecret\": \"whsec_...\"\n  },\n  \"isDefault\": false,\n  \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/:paymentSlug/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", ":paymentSlug", "admin"],
+                      "variable": [
+                        {
+                          "key": "paymentSlug",
+                          "value": "stripe",
+                          "description": "Unique payment gateway identifier"
+                        }
+                      ]
+                    },
+                    "description": "Create a new payment gateway with sandbox and live configuration."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Payment Gateway",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Stripe Payment Gateway - Updated\",\n  \"paymentMode\": \"live\",\n  \"sandboxDetails\": {\n    \"publishableKey\": \"pk_test_updated...\",\n    \"secretKey\": \"sk_test_updated...\",\n    \"webhookSecret\": \"whsec_updated...\"\n  },\n  \"status\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/:paymentSlug/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", ":paymentSlug", "admin"],
+                      "variable": [
+                        {
+                          "key": "paymentSlug",
+                          "value": "stripe"
+                        }
+                      ]
+                    },
+                    "description": "Update payment gateway configuration. All fields are optional for partial updates."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Payment Gateway",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/:paymentSlug/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", ":paymentSlug", "admin"],
+                      "variable": [
+                        {
+                          "key": "paymentSlug",
+                          "value": "stripe"
+                        }
+                      ]
+                    },
+                    "description": "Delete payment gateway. Includes validation checks to prevent deletion of gateways in use."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Set Default Payment Gateway",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/:paymentSlug/set-default/admin",
+                      "host": ["{{BASE_URL}}"],
+                      "path": [
+                        "payment-gateway",
+                        ":paymentSlug",
+                        "set-default",
+                        "admin"
+                      ],
+                      "variable": [
+                        {
+                          "key": "paymentSlug",
+                          "value": "stripe"
+                        }
+                      ]
+                    },
+                    "description": "Set specified payment gateway as the default. Automatically unsets all other defaults."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Cache Statistics",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/admin/cache/stats",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", "admin", "cache", "stats"]
+                    },
+                    "description": "Get payment gateway cache statistics including hit ratio and performance metrics."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Clear Cache",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{ADMIN_JWT}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/admin/cache/clear",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", "admin", "cache", "clear"]
+                    },
+                    "description": "Clear all payment gateway cache entries for performance troubleshooting."
+                  },
+                  "response": []
+                }
+              ],
+              "description": "Payment gateway management endpoints for configuring multiple payment processors with sandbox/live environments, default gateway management, and cache optimization."
             },
             {
               "name": "💰 Revenue Subscriptions Management",
@@ -4321,6 +4585,60 @@
                 }
               ],
               "description": "Public Meta Settings endpoints for SEO and social media optimization without authentication."
+            },
+            {
+              "name": "💳 Payment Gateway Management",
+              "item": [
+                {
+                  "name": "Get Active Payment Gateway",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "description": "Language preference (en, es, fr, ar)",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/:paymentSlug/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", ":paymentSlug", "front"],
+                      "variable": [
+                        {
+                          "key": "paymentSlug",
+                          "value": "stripe",
+                          "description": "Payment gateway identifier (stripe, paypal, razorpay, etc.)"
+                        }
+                      ]
+                    },
+                    "description": "Public endpoint to get active payment gateway details with sensitive data sanitized. No authentication required."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Default Payment Gateway",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "lang",
+                        "value": "en",
+                        "description": "Language preference",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{BASE_URL}}/payment-gateway/default/front",
+                      "host": ["{{BASE_URL}}"],
+                      "path": ["payment-gateway", "default", "front"]
+                    },
+                    "description": "Public endpoint to get the default payment gateway configuration for frontend use. Returns sanitized data without sensitive credentials."
+                  },
+                  "response": []
+                }
+              ]
             },
             {
               "name": "💰 Revenue Subscriptions Management",

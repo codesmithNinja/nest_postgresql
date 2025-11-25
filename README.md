@@ -47,6 +47,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **🎯 Sliders Management** - Multi-language slider management with image upload, color customization, and unique code system
 - **💰 Revenue Subscriptions Management** - Subscription plan management for INVESTOR and SPONSOR types with financial limits, refund/cancel policies, and multi-language content support
 - **🔍 Meta Settings Management** - SEO and social media optimization with meta titles, descriptions, keywords, OpenGraph data, OG image uploads, and AI-generated image tracking across all languages
+- **💳 Payment Gateway Management** - Multi-payment processor support with slug-based routing, sandbox/live configuration modes, default gateway system, sensitive data sanitization, and dual database support
 - **📧 Email Templates Management** - Task-based email template system with HTML content, sender configuration, multi-language support, immutable task identifiers, bulk operations, and NodeCache performance optimization
 - **👤 Admin Users** - Administrative user management and authentication
 
@@ -70,6 +71,8 @@ GET /revenue-subscriptions/front               # Get active revenue subscription
 GET /manage-dropdown/:dropdownType/front       # Get active dropdown options by type with language support
 GET /meta-settings/:languageCode/front         # Get meta settings for frontend by language code with SEO/OG data
 GET /settings/:groupType/front                 # Get settings by group type for frontend
+GET /payment-gateway/:paymentSlug/front        # Get active payment gateway by slug with sanitized data
+GET /payment-gateway/default/front             # Get default payment gateway for frontend
 ```
 
 #### Admin API Endpoints (Authentication Required)
@@ -151,6 +154,17 @@ GET /settings/:groupType/front                 # Get settings by group type for 
   GET    /admin/cache/stats              # Admin: Get cache statistics
   DELETE /admin/cache/clear              # Admin: Clear all cache
   DELETE /admin/cache/clear/:pattern     # Admin: Clear cache by pattern
+
+/payment-gateway                       # Payment gateway management
+  GET    /:paymentSlug/front             # Public: Get active payment gateway by slug with sanitized data
+  GET    /:paymentSlug/admin             # Admin: Get payment gateway details by slug
+  POST   /:paymentSlug/admin             # Admin: Create new payment gateway with configuration
+  PATCH  /:paymentSlug/admin             # Admin: Update payment gateway configuration
+  DELETE /:paymentSlug/admin             # Admin: Delete payment gateway (validation checks)
+  PATCH  /:paymentSlug/set-default/admin # Admin: Set payment gateway as default
+  GET    /default/front                  # Public: Get default payment gateway
+  GET    /admin/cache/stats              # Admin: Get cache statistics
+  DELETE /admin/cache/clear              # Admin: Clear payment gateway cache
 
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type

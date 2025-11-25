@@ -406,5 +406,23 @@
     "content_length_validation_error": "Content length validation error for {{field}}",
     "template_status_updated": "Email template status updated successfully",
     "conflicting_language_params": "Cannot use both languageCode and publicId parameters. Please provide only one"
+  },
+  "payment_gateway": {
+    "retrieved_successfully": "Payment gateway retrieved successfully",
+    "created_successfully": "Payment gateway created successfully",
+    "updated_successfully": "Payment gateway updated successfully",
+    "deleted_successfully": "Payment gateway deleted successfully",
+    "not_found": "Payment gateway not found",
+    "already_exists": "Payment gateway with this slug already exists",
+    "invalid_configuration": "Invalid payment gateway configuration",
+    "operation_failed": "Payment gateway operation failed",
+    "default_set_successfully": "Default payment gateway updated successfully",
+    "cannot_delete_default": "Cannot delete the default payment gateway",
+    "cache_stats_retrieved": "Cache statistics retrieved successfully",
+    "cache_cleared": "Cache cleared successfully",
+    "invalid_payment_slug": "Invalid payment slug format",
+    "invalid_payment_mode": "Invalid payment mode",
+    "configuration_error": "Payment gateway configuration error",
+    "validation_failed": "Payment gateway validation failed"
   }
 }

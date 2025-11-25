@@ -406,5 +406,23 @@
     "content_length_validation_error": "Erreur de validation de la longueur du contenu pour {{field}}",
     "template_status_updated": "Statut du modèle d'email mis à jour avec succès",
     "conflicting_language_params": "Impossible d'utiliser les paramètres languageCode et publicId en même temps. Veuillez n'en fournir qu'un seul"
+  },
+  "payment_gateway": {
+    "retrieved_successfully": "Passerelle de paiement récupérée avec succès",
+    "created_successfully": "Passerelle de paiement créée avec succès",
+    "updated_successfully": "Passerelle de paiement mise à jour avec succès",
+    "deleted_successfully": "Passerelle de paiement supprimée avec succès",
+    "not_found": "Passerelle de paiement non trouvée",
+    "already_exists": "Une passerelle de paiement avec ce slug existe déjà",
+    "invalid_configuration": "Configuration de passerelle de paiement invalide",
+    "operation_failed": "Opération de passerelle de paiement échouée",
+    "default_set_successfully": "Passerelle de paiement par défaut mise à jour avec succès",
+    "cannot_delete_default": "Impossible de supprimer la passerelle de paiement par défaut",
+    "cache_stats_retrieved": "Statistiques de cache récupérées avec succès",
+    "cache_cleared": "Cache effacé avec succès",
+    "invalid_payment_slug": "Format de slug de paiement invalide",
+    "invalid_payment_mode": "Mode de paiement invalide",
+    "configuration_error": "Erreur de configuration de passerelle de paiement",
+    "validation_failed": "Validation de passerelle de paiement échouée"
   }
 }

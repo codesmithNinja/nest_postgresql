@@ -405,5 +405,23 @@
     "email_template_with_task": "قالب البريد الإلكتروني للمهمة '{{task}}'",
     "duplicate_task_prevented": "تم منع إنشاء مهمة مكررة '{{task}}' للغة '{{languageId}}'",
     "conflicting_language_params": "لا يمكن استخدام معاملي languageCode و publicId في نفس الوقت. يرجى تقديم واحد فقط"
+  },
+  "payment_gateway": {
+    "retrieved_successfully": "تم استرداد بوابة الدفع بنجاح",
+    "created_successfully": "تم إنشاء بوابة الدفع بنجاح",
+    "updated_successfully": "تم تحديث بوابة الدفع بنجاح",
+    "deleted_successfully": "تم حذف بوابة الدفع بنجاح",
+    "not_found": "بوابة الدفع غير موجودة",
+    "already_exists": "بوابة دفع بهذا الرمز موجودة بالفعل",
+    "invalid_configuration": "تكوين بوابة الدفع غير صحيح",
+    "operation_failed": "فشلت عملية بوابة الدفع",
+    "default_set_successfully": "تم تحديث بوابة الدفع الافتراضية بنجاح",
+    "cannot_delete_default": "لا يمكن حذف بوابة الدفع الافتراضية",
+    "cache_stats_retrieved": "تم استرداد إحصائيات ذاكرة التخزين المؤقت بنجاح",
+    "cache_cleared": "تم مسح ذاكرة التخزين المؤقت بنجاح",
+    "invalid_payment_slug": "تنسيق رمز الدفع غير صحيح",
+    "invalid_payment_mode": "وضع الدفع غير صحيح",
+    "configuration_error": "خطأ في تكوين بوابة الدفع",
+    "validation_failed": "فشل في التحقق من بوابة الدفع"
   }
 }

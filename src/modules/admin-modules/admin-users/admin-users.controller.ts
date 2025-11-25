@@ -107,7 +107,7 @@ export class AdminUsersController {
         HttpStatus.OK,
         profile
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.not_found',
         HttpStatus.NOT_FOUND
@@ -124,7 +124,7 @@ export class AdminUsersController {
         HttpStatus.OK,
         admins
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.fetch_failed',
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -141,7 +141,7 @@ export class AdminUsersController {
         HttpStatus.OK,
         admin
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.not_found',
         HttpStatus.NOT_FOUND
@@ -179,7 +179,7 @@ export class AdminUsersController {
         HttpStatus.CREATED,
         newAdmin
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.creation_failed',
         HttpStatus.BAD_REQUEST
@@ -215,7 +215,7 @@ export class AdminUsersController {
         HttpStatus.OK,
         updatedAdmin
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.not_found',
         HttpStatus.NOT_FOUND
@@ -232,7 +232,7 @@ export class AdminUsersController {
         HttpStatus.OK,
         { message: 'Admin deleted successfully' }
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.not_found',
         HttpStatus.NOT_FOUND
@@ -255,7 +255,7 @@ export class AdminUsersController {
         HttpStatus.OK,
         { message: 'Password updated successfully' }
       );
-    } catch (error) {
+    } catch {
       return this.i18nResponse.translateError(
         'admin_users.update_failed',
         HttpStatus.BAD_REQUEST

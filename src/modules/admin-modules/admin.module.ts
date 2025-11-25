@@ -9,6 +9,7 @@ import { SlidersModule } from './sliders/sliders.module';
 import { RevenueSubscriptionsModule } from './revenue-subscriptions/revenue-subscriptions.module';
 import { MetaSettingsModule } from './meta-settings/meta-settings.module';
 import { EmailTemplatesModule } from './email-templates/email-templates.module';
+import { PaymentGatewayModule } from './payment-gateway/payment-gateway.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { EmailTemplatesModule } from './email-templates/email-templates.module';
     RevenueSubscriptionsModule,
     MetaSettingsModule,
     EmailTemplatesModule,
+    PaymentGatewayModule,
   ],
   exports: [
     AdminUsersModule,
@@ -34,6 +36,7 @@ import { EmailTemplatesModule } from './email-templates/email-templates.module';
     RevenueSubscriptionsModule,
     MetaSettingsModule,
     EmailTemplatesModule,
+    PaymentGatewayModule,
   ],
 })
 export class AdminModule {}

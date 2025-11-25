@@ -34,6 +34,7 @@ src/
     │   ├── languages/           # Languages management
     │   ├── manage-dropdown/     # Master dropdown management
     │   ├── meta-settings/       # Meta settings (SEO/OG) management
+    │   ├── payment-gateway/     # Payment gateway management
     │   ├── revenue-subscriptions/ # Revenue subscription management
     │   ├── settings/            # Settings management
     │   └── sliders/             # Sliders management
@@ -125,6 +126,16 @@ src/
 - Financial: walletId, achCustomerId, plaidDwollaCustomerId
 - Metadata: createdAt, updatedAt
 
+### Payment Gateway Entity Fields
+
+- **Core fields**: id, publicId, title, paymentSlug (unique, lowercase)
+- **Configuration**: paymentMode (sandbox/live), sandboxDetails, liveDetails
+- **Status management**: status (boolean), isDefault (boolean)
+- **Dynamic objects**: sandboxDetails and liveDetails as JSON/Record<string, unknown>
+- **Unique constraints**: paymentSlug must be unique across all gateways
+- **Metadata**: createdAt, updatedAt
+- **Dual database support**: Works with both PostgreSQL (Prisma) and MongoDB (Mongoose)
+
 ### Revenue Subscription Entity Fields
 
 - **Core fields**: id, publicId, subscriptionType, amount, useCount, status
@@ -155,6 +166,7 @@ src/
 - **ActiveStatus**: PENDING, ACTIVE, INACTIVE, DELETED
 - **NotificationStatus**: YES, NO
 - **DatabaseType**: postgres, mongodb
+- **PaymentMode**: sandbox, live (for Payment Gateway configuration mode)
 - **RecordType**: STRING, NUMBER, BOOLEAN, FILE (for Settings module mixed data types)
 - **SubscriptionType**: INVESTOR, SPONSOR (for Revenue Subscription module)
 
@@ -269,6 +281,17 @@ src/
   DELETE /admin/cache/clear        # Admin: Clear all cache
   DELETE /admin/cache/clear/:pattern # Admin: Clear cache by pattern
 
+/payment-gateway (admin-modules)
+  GET    /:paymentSlug/front      # Public: Get active payment gateway by slug (no auth)
+  GET    /:paymentSlug/admin      # Admin: Get payment gateway details by slug
+  POST   /:paymentSlug/admin      # Admin: Create new payment gateway with configuration
+  PATCH  /:paymentSlug/admin      # Admin: Update payment gateway configuration
+  DELETE /:paymentSlug/admin      # Admin: Delete payment gateway (validation checks)
+  PATCH  /:paymentSlug/set-default/admin # Admin: Set payment gateway as default
+  GET    /default/front           # Public: Get default payment gateway (no auth)
+  GET    /admin/cache/stats       # Admin: Get cache statistics
+  DELETE /admin/cache/clear       # Admin: Clear payment gateway cache
+
 /team-member (campaign-modules)
   GET    /:equityId                # User: Get all team members for campaign
   POST   /:equityId                # User: Create team member with photo upload (requires file)
@@ -353,6 +376,90 @@ The application features a comprehensive Email Templates management system with 
 - Template variable substitution support
 - I18n integration for multilingual content
 - Admin dashboard integration for template management
+
+## Payment Gateway Management
+
+The application features a comprehensive Payment Gateway Management system for handling multiple payment processors with the following capabilities:
+
+### Gateway Management Features
+
+- **Individual Gateway Management**: Each gateway managed via unique slug-based routing (e.g., `stripe`, `paypal`, `razorpay`)
+- **Dual Configuration Mode**: Separate sandbox and live environment configurations with dynamic key-value pairs
+- **Default Gateway System**: Ability to set one gateway as the default for transactions
+- **Status Management**: Enable/disable gateways without deleting configuration data
+- **Sensitive Data Protection**: Automatic sanitization of sensitive data for public API responses
+- **Dual Database Support**: Works with both PostgreSQL (Prisma) and MongoDB (Mongoose)
+
+### Gateway Configuration Structure
+
+- **Core Fields**: Title, payment slug (unique identifier), payment mode selection
+- **Configuration Objects**: Dynamic sandbox and live configuration with flexible key-value pairs
+- **Status Fields**: Active/inactive status and default gateway flag
+- **Metadata**: Creation and update timestamps, public ID for API access
+
+### API Features
+
+- **Public Access**: Frontend access to active gateway details with sensitive data sanitization
+- **Admin Management**: Full CRUD operations with authentication and comprehensive configuration
+- **Slug-Based Routing**: RESTful endpoints using payment slug identifiers (e.g., `/payment-gateway/stripe/admin`)
+- **Default Gateway Access**: Dedicated endpoints for retrieving the default payment gateway
+- **Caching**: NodeCache integration for optimal performance (5-minute TTL)
+- **Validation**: Comprehensive validation with multilingual error messages
+
+### Configuration Examples
+
+**Stripe Configuration**:
+```json
+{
+  "sandboxDetails": {
+    "publishableKey": "pk_test_...",
+    "secretKey": "sk_test_...",
+    "webhookSecret": "whsec_..."
+  },
+  "liveDetails": {
+    "publishableKey": "pk_live_...",
+    "secretKey": "sk_live_...",
+    "webhookSecret": "whsec_..."
+  }
+}
+```
+
+**PayPal Configuration**:
+```json
+{
+  "sandboxDetails": {
+    "clientId": "sandbox_client_id",
+    "clientSecret": "sandbox_client_secret",
+    "mode": "sandbox"
+  },
+  "liveDetails": {
+    "clientId": "live_client_id",
+    "clientSecret": "live_client_secret",
+    "mode": "live"
+  }
+}
+```
+
+### Security Features
+
+- **Sensitive Data Sanitization**: Public endpoints automatically hide sensitive configuration values
+- **Admin Authentication**: All management operations require admin-level authentication
+- **Validation Checks**: Prevents deletion of gateways with active transactions or dependencies
+- **Environment Separation**: Clear separation between sandbox and live configurations
+
+### Cache Management
+
+- **Performance Optimization**: NodeCache integration with 5-minute TTL for frequently accessed gateways
+- **Cache Invalidation**: Automatic cache clearing when gateway configurations change
+- **Cache Statistics**: Admin endpoint for monitoring cache performance metrics
+- **Manual Cache Control**: Admin endpoints for clearing cache when needed
+
+### Integration Points
+
+- **Transaction Processing**: Easy integration with payment processing services
+- **Frontend Integration**: Public endpoints for frontend payment gateway selection
+- **Multi-tenant Support**: Gateway configurations isolated per application instance
+- **Audit Trail**: Complete tracking of configuration changes and access patterns
 
 ## Internationalization (i18n)
 

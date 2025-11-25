@@ -627,3 +627,33 @@ model EmailTemplate {
   @@map("email_templates")
 }
 
+enum PaymentMode {
+  sandbox
+  live
+}
+
+model PaymentGateway {
+  id             String      @id @default(cuid())
+  publicId       String      @unique @default(cuid())
+  title          String
+  paymentSlug    String      @unique
+  paymentMode    PaymentMode
+  sandboxDetails Json        @default("{}")
+  liveDetails    Json        @default("{}")
+  isDefault      Boolean     @default(false)
+  status         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([paymentSlug])
+  @@index([status])
+  @@index([isDefault])
+  @@index([paymentMode])
+  @@index([title])
+  @@index([publicId])
+  @@index([createdAt])
+  @@index([paymentSlug, status])
+  @@index([status, isDefault])
+  @@map("payment_gateways")
+}
+

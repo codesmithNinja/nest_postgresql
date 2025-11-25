@@ -1555,6 +1555,133 @@ export class EmailTemplatesService {
 }
 ```
 
+### Feature Module Example: PaymentGatewayModule
+
+```typescript
+// src/modules/admin-modules/payment-gateway/payment-gateway.module.ts
+@Module({
+  imports: [
+    ConfigModule, // Access to environment variables
+    MongooseModule.forFeature([
+      { name: PaymentGateway.name, schema: PaymentGatewaySchema },
+    ]), // MongoDB schema registration
+    AdminUsersModule, // For admin authentication
+  ],
+  controllers: [PaymentGatewayController], // HTTP endpoints
+  providers: [
+    PaymentGatewayService, // Business logic
+    PrismaService, // PostgreSQL service
+    I18nResponseService, // Response internationalization
+    {
+      provide: PAYMENT_GATEWAY_REPOSITORY, // Repository injection token
+      useFactory: (
+        configService: ConfigService,
+        prismaService: PrismaService,
+        paymentGatewayMongodbRepository: PaymentGatewayMongodbRepository
+      ) => {
+        const databaseType = configService.get<string>('DATABASE_TYPE');
+        if (databaseType === 'mongodb') {
+          return paymentGatewayMongodbRepository;
+        }
+        return new PaymentGatewayPostgresRepository(prismaService);
+      },
+      inject: [ConfigService, PrismaService, PaymentGatewayMongodbRepository],
+    },
+    PaymentGatewayMongodbRepository, // MongoDB repository implementation
+  ],
+  exports: [PaymentGatewayService, PAYMENT_GATEWAY_REPOSITORY], // Available to other modules
+})
+export class PaymentGatewayModule {}
+```
+
+#### Payment Gateway Module Features
+
+- **Individual Gateway Management**: Each payment gateway managed via unique slug-based routing (stripe, paypal, razorpay)
+- **Dual Configuration Mode**: Separate sandbox and live environment configurations with dynamic key-value pairs
+- **Default Gateway System**: Ability to set one gateway as the default for transactions with automatic management
+- **Status Management**: Enable/disable gateways without deleting configuration data for operational flexibility
+- **Sensitive Data Protection**: Automatic sanitization of sensitive data for public API responses
+- **Dual Database Support**: MongoDB and PostgreSQL repository implementations with type-safe transformations
+- **Public/Admin Endpoints**: Frontend access for active gateways and comprehensive admin management
+- **Performance Caching**: NodeCache integration with 5-minute TTL for frequently accessed gateway configurations
+- **Comprehensive Validation**: Payment slug format, configuration object validation with multilingual error messages
+- **Configuration Flexibility**: Dynamic sandbox/live configuration objects supporting any payment gateway format
+- **Internationalization**: Multi-language error messages and responses (EN, ES, FR, AR)
+
+#### Payment Gateway Repository Pattern
+
+```typescript
+// Interface definition
+export interface IPaymentGatewayRepository extends Omit<IRepository<PaymentGateway>, 'insert'> {
+  findByPaymentSlug(paymentSlug: string): Promise<PaymentGateway | null>;
+  findActiveByPaymentSlug(paymentSlug: string): Promise<PaymentGateway | null>;
+  findByPaymentSlugForAdmin(paymentSlug: string): Promise<PaymentGateway | null>;
+  existsByPaymentSlug(paymentSlug: string): Promise<boolean>;
+  createPaymentGateway(paymentSlug: string, createDto: CreatePaymentGatewayDto): Promise<PaymentGateway>;
+  updateByPaymentSlug(paymentSlug: string, updateDto: Partial<PaymentGateway>): Promise<PaymentGateway>;
+  deleteByPaymentSlugAndPublicId(paymentSlug: string, publicId: string): Promise<boolean>;
+  setDefaultGateway(paymentSlug: string): Promise<PaymentGateway>;
+  getDefaultGateway(): Promise<PaymentGateway | null>;
+}
+
+// PostgreSQL Implementation
+export class PaymentGatewayPostgresRepository extends PostgresRepository<PaymentGateway> implements IPaymentGatewayRepository {
+  protected modelName = 'paymentGateway';
+  protected selectFields = {
+    id: true, publicId: true, title: true, paymentSlug: true,
+    paymentMode: true, sandboxDetails: true, liveDetails: true,
+    isDefault: true, status: true, createdAt: true, updatedAt: true,
+  };
+
+  async findByPaymentSlug(paymentSlug: string): Promise<PaymentGateway | null> {
+    const delegate = this.getModelDelegate();
+    const paymentGateway = await delegate.findUnique({
+      where: { paymentSlug: paymentSlug.toLowerCase() },
+    });
+    return paymentGateway as PaymentGateway | null;
+  }
+
+  async createPaymentGateway(paymentSlug: string, createDto: CreatePaymentGatewayDto): Promise<PaymentGateway> {
+    if (createDto.isDefault) {
+      await this.unsetAllDefaults();
+    }
+    const delegate = this.getModelDelegate();
+    const paymentGateway = await delegate.create({
+      data: { publicId: uuidv4(), paymentSlug: paymentSlug.toLowerCase(), ...createDto },
+    });
+    return paymentGateway as PaymentGateway;
+  }
+}
+```
+
+#### Payment Gateway API Endpoints
+
+```typescript
+// GET /payment-gateway/:paymentSlug/front - Public endpoint (no auth)
+@Public()
+@Get(':paymentSlug/front')
+async getActivePaymentGateway(@Param('paymentSlug') paymentSlug: string) {
+  return await this.paymentGatewayService.getActiveGatewayBySlug(paymentSlug);
+}
+
+// POST /payment-gateway/:paymentSlug/admin - Create gateway (admin auth)
+@UseGuards(AdminJwtUserGuard)
+@Post(':paymentSlug/admin')
+async createPaymentGateway(
+  @Param('paymentSlug') paymentSlug: string,
+  @Body(ValidationPipe) createDto: CreatePaymentGatewayDto
+) {
+  return await this.paymentGatewayService.createGateway(paymentSlug, createDto);
+}
+
+// PATCH /payment-gateway/:paymentSlug/set-default/admin - Set default gateway
+@UseGuards(AdminJwtUserGuard)
+@Patch(':paymentSlug/set-default/admin')
+async setDefaultGateway(@Param('paymentSlug') paymentSlug: string) {
+  return await this.paymentGatewayService.setDefaultGateway(paymentSlug);
+}
+```
+
 ---
 
 ## Development Patterns
