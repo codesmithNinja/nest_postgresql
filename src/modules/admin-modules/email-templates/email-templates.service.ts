@@ -31,7 +31,6 @@ import {
 import { I18nResponseService } from '../../../common/services/i18n-response.service';
 import {
   EmailTemplateNotFoundException,
-  EmailTemplateAlreadyExistsException,
   EmailTemplateLanguageException,
   EmailTemplateTaskValidationException,
   EmailTemplateTaskAlreadyExistsException,
@@ -405,15 +404,6 @@ export class EmailTemplatesService implements OnModuleInit {
       const resolvedLanguageId = await this.resolveLanguageId(
         createDto.languageId
       );
-
-      // Check if email template already exists for this language
-      const existing =
-        await this.emailTemplateRepository.existsByLanguageId(
-          resolvedLanguageId
-        );
-      if (existing) {
-        throw new EmailTemplateAlreadyExistsException(resolvedLanguageId);
-      }
 
       // Check if task already exists for this language
       const taskExists =

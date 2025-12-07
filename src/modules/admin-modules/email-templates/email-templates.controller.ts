@@ -37,7 +37,6 @@ import { AdminJwtUserGuard } from '../admin-users/guards/admin-jwt-auth.guard';
 import {
   EmailTemplateNotFoundException,
   EmailTemplateLanguageException,
-  EmailTemplateAlreadyExistsException,
   EmailTemplateValidationException,
   EmailTemplateTaskException,
   EmailTemplateTaskAlreadyExistsException,
@@ -262,13 +261,6 @@ export class EmailTemplatesController {
         );
       }
     } catch (error) {
-      if (error instanceof EmailTemplateAlreadyExistsException) {
-        return this.i18nResponse.translateError(
-          'email_templates.already_exists',
-          HttpStatus.CONFLICT
-        );
-      }
-
       if (error instanceof EmailTemplateTaskAlreadyExistsException) {
         return this.i18nResponse.translateError(
           'email_templates.task_already_exists',

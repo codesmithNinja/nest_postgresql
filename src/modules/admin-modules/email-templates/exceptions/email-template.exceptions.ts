@@ -35,19 +35,6 @@ export class EmailTemplateValidationException extends HttpException {
   }
 }
 
-export class EmailTemplateAlreadyExistsException extends HttpException {
-  constructor(languageId: string) {
-    super(
-      {
-        message: `Email template for language ID '${languageId}' already exists`,
-        code: 'EMAIL_TEMPLATE_ALREADY_EXISTS',
-        statusCode: HttpStatus.CONFLICT,
-      },
-      HttpStatus.CONFLICT
-    );
-  }
-}
-
 export class EmailTemplateAccessDeniedException extends HttpException {
   constructor() {
     super(

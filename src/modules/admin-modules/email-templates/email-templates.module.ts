@@ -78,16 +78,11 @@ import { I18nResponseService } from '../../../common/services/i18n-response.serv
         ConfigService,
       ],
     },
-    // Repository providers (needed for factory functions)
     EmailTemplatePostgresRepository,
     EmailTemplateMongodbRepository,
     LanguagesPostgresRepository,
     LanguagesMongodbRepository,
   ],
-  exports: [
-    EmailTemplatesService,
-    EMAIL_TEMPLATE_REPOSITORY,
-    // Export these in case other modules need email templates functionality
-  ],
+  exports: [EmailTemplatesService, EMAIL_TEMPLATE_REPOSITORY],
 })
 export class EmailTemplatesModule {}
