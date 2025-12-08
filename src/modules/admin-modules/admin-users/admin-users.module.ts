@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
@@ -16,7 +16,7 @@ import { DatabaseModule } from '../../../database/database.module';
     PassportModule.register({ defaultStrategy: 'admin-jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService): JwtModuleOptions => {
         const secret = configService.get<string>('JWT_SECRET');
         const expiresIn = configService.get<string>('JWT_EXPIRES_IN');
 
@@ -24,12 +24,10 @@ import { DatabaseModule } from '../../../database/database.module';
           throw new Error('JWT_SECRET is not defined in environment variables');
         }
 
-        const jwtExpiresIn: string = expiresIn || '7d';
-
         return {
           secret,
           signOptions: {
-            expiresIn: jwtExpiresIn,
+            expiresIn: (expiresIn || '7d') as string | number,
           },
         };
       },
