@@ -65,7 +65,7 @@ export class SettingsMongoRepository
     const query = this.model.find(filter || {});
     const appliedQuery = this.applyQueryOptions(query, options);
     const results = await appliedQuery.lean().exec();
-    return this.transformDocuments(results as SettingsDocument[]);
+    return this.transformDocuments(results as unknown as SettingsDocument[]);
   }
 
   async getDetailById(
@@ -75,7 +75,9 @@ export class SettingsMongoRepository
     const query = this.model.findById(id);
     const appliedQuery = this.applyQueryOptions(query, options);
     const result = await appliedQuery.lean().exec();
-    return result ? this.transformDocument(result as SettingsDocument) : null;
+    return result
+      ? this.transformDocument(result as unknown as SettingsDocument)
+      : null;
   }
 
   async getDetail(
@@ -85,13 +87,17 @@ export class SettingsMongoRepository
     const query = this.model.findOne(filter);
     const appliedQuery = this.applyQueryOptions(query, options);
     const result = await appliedQuery.lean().exec();
-    return result ? this.transformDocument(result as SettingsDocument) : null;
+    return result
+      ? this.transformDocument(result as unknown as SettingsDocument)
+      : null;
   }
 
   async insert(data: Partial<Settings>): Promise<Settings> {
     const created = new this.model(data);
     const saved = await created.save();
-    return this.transformDocument(saved.toObject() as SettingsDocument);
+    return this.transformDocument(
+      saved.toObject() as unknown as SettingsDocument
+    );
   }
 
   async updateById(id: string, data: Partial<Settings>): Promise<Settings> {
@@ -104,7 +110,7 @@ export class SettingsMongoRepository
       throw new Error(`Settings with id ${id} not found`);
     }
 
-    return this.transformDocument(updated as SettingsDocument);
+    return this.transformDocument(updated as unknown as SettingsDocument);
   }
 
   async updateMany(
@@ -121,7 +127,9 @@ export class SettingsMongoRepository
 
     return {
       count: updateResult.modifiedCount,
-      updated: this.transformDocuments(updatedItems as SettingsDocument[]),
+      updated: this.transformDocuments(
+        updatedItems as unknown as SettingsDocument[]
+      ),
     };
   }
 
@@ -141,7 +149,9 @@ export class SettingsMongoRepository
 
     return {
       count: deleteResult.deletedCount,
-      deleted: this.transformDocuments(itemsToDelete as SettingsDocument[]),
+      deleted: this.transformDocuments(
+        itemsToDelete as unknown as SettingsDocument[]
+      ),
     };
   }
 
@@ -177,7 +187,7 @@ export class SettingsMongoRepository
     const totalPages = Math.ceil(totalCount / limit);
 
     return {
-      items: this.transformDocuments(items as SettingsDocument[]),
+      items: this.transformDocuments(items as unknown as SettingsDocument[]),
       pagination: {
         currentPage: page,
         totalPages,
@@ -195,7 +205,7 @@ export class SettingsMongoRepository
       .sort({ key: 1 })
       .lean()
       .exec();
-    return this.transformDocuments(results as SettingsDocument[]);
+    return this.transformDocuments(results as unknown as SettingsDocument[]);
   }
 
   async findByGroupTypeAndKey(
@@ -203,7 +213,9 @@ export class SettingsMongoRepository
     key: string
   ): Promise<Settings | null> {
     const result = await this.model.findOne({ groupType, key }).lean().exec();
-    return result ? this.transformDocument(result as SettingsDocument) : null;
+    return result
+      ? this.transformDocument(result as unknown as SettingsDocument)
+      : null;
   }
 
   async upsertByGroupTypeAndKey(
@@ -226,7 +238,7 @@ export class SettingsMongoRepository
       .lean()
       .exec();
 
-    return this.transformDocument(result as SettingsDocument);
+    return this.transformDocument(result as unknown as SettingsDocument);
   }
 
   async deleteByGroupType(groupType: string): Promise<number> {
