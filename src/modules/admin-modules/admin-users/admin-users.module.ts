@@ -24,10 +24,12 @@ import { DatabaseModule } from '../../../database/database.module';
           throw new Error('JWT_SECRET is not defined in environment variables');
         }
 
+        const jwtExpiresIn: string = expiresIn || '7d';
+
         return {
           secret,
           signOptions: {
-            expiresIn: expiresIn || '7d',
+            expiresIn: jwtExpiresIn,
           },
         };
       },
