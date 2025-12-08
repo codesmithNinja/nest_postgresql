@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
 import { ISettingsRepository } from './settings.repository.interface';
@@ -7,7 +8,10 @@ import {
   CreateSettingsData,
   UpdateSettingsData,
 } from '../../entities/settings.entity';
-import { SettingsDocument } from '../../schemas/settings.schema';
+import {
+  Settings as SettingsSchema,
+  SettingsDocument,
+} from '../../schemas/settings.schema';
 import {
   QueryOptions,
   PaginationOptions,
@@ -16,35 +20,41 @@ import {
 
 @Injectable()
 export class SettingsMongoRepository
-  extends MongoRepository<SettingsDocument>
+  extends MongoRepository<SettingsDocument, Settings>
   implements ISettingsRepository
 {
   protected readonly logger = new Logger(SettingsMongoRepository.name);
 
-  constructor(private settingsModel: Model<SettingsDocument>) {
+  constructor(
+    @InjectModel(SettingsSchema.name) settingsModel: Model<SettingsDocument>
+  ) {
     super(settingsModel);
   }
 
   protected toEntity(doc: SettingsDocument): Settings {
-    return {
-      id: (doc._id?.toString() || doc.id) as string,
+    const entity: Settings = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: doc.id ?? doc._id?.toString() ?? '',
       groupType: doc.groupType,
       recordType: doc.recordType,
       key: doc.key,
       value: doc.value,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
+      createdAt: doc.createdAt || new Date(),
+      updatedAt: doc.updatedAt || new Date(),
     };
+    return entity;
   }
 
-  protected toDocument(entity: Partial<Settings>): Partial<SettingsDocument> {
-    const doc: Partial<SettingsDocument> & { id?: string; _id?: string } = {
-      ...entity,
-    };
-    if (doc.id && !doc._id) {
-      doc._id = doc.id as string;
-      delete doc.id;
-    }
+  protected toDocument(entity: Partial<Settings>): Record<string, unknown> {
+    const doc: Record<string, unknown> = {};
+
+    if (entity.groupType !== undefined) doc.groupType = entity.groupType;
+    if (entity.recordType !== undefined) doc.recordType = entity.recordType;
+    if (entity.key !== undefined) doc.key = entity.key;
+    if (entity.value !== undefined) doc.value = entity.value;
+    if (entity.createdAt !== undefined) doc.createdAt = entity.createdAt;
+    if (entity.updatedAt !== undefined) doc.updatedAt = entity.updatedAt;
+
     return doc;
   }
 
@@ -52,7 +62,7 @@ export class SettingsMongoRepository
     filter?: Partial<Settings>,
     options?: QueryOptions
   ): Promise<Settings[]> {
-    const query = this.settingsModel.find(filter || {});
+    const query = this.model.find(filter || {});
     const appliedQuery = this.applyQueryOptions(query, options);
     const results = await appliedQuery.lean().exec();
     return this.transformDocuments(results as SettingsDocument[]);
@@ -62,7 +72,7 @@ export class SettingsMongoRepository
     id: string,
     options?: QueryOptions
   ): Promise<Settings | null> {
-    const query = this.settingsModel.findById(id);
+    const query = this.model.findById(id);
     const appliedQuery = this.applyQueryOptions(query, options);
     const result = await appliedQuery.lean().exec();
     return result ? this.transformDocument(result as SettingsDocument) : null;
@@ -72,20 +82,20 @@ export class SettingsMongoRepository
     filter: Partial<Settings>,
     options?: QueryOptions
   ): Promise<Settings | null> {
-    const query = this.settingsModel.findOne(filter);
+    const query = this.model.findOne(filter);
     const appliedQuery = this.applyQueryOptions(query, options);
     const result = await appliedQuery.lean().exec();
     return result ? this.transformDocument(result as SettingsDocument) : null;
   }
 
   async insert(data: Partial<Settings>): Promise<Settings> {
-    const created = new this.settingsModel(data);
+    const created = new this.model(data);
     const saved = await created.save();
     return this.transformDocument(saved.toObject() as SettingsDocument);
   }
 
   async updateById(id: string, data: Partial<Settings>): Promise<Settings> {
-    const updated = await this.settingsModel
+    const updated = await this.model
       .findByIdAndUpdate(id, data, { new: true, runValidators: true })
       .lean()
       .exec();
@@ -102,12 +112,12 @@ export class SettingsMongoRepository
     data: Partial<Settings>
   ): Promise<{ count: number; updated: Settings[] }> {
     // Perform the update
-    const updateResult = await this.settingsModel
+    const updateResult = await this.model
       .updateMany(filter, data, { runValidators: true })
       .exec();
 
     // Get updated items
-    const updatedItems = await this.settingsModel.find(filter).lean().exec();
+    const updatedItems = await this.model.find(filter).lean().exec();
 
     return {
       count: updateResult.modifiedCount,
@@ -116,7 +126,7 @@ export class SettingsMongoRepository
   }
 
   async deleteById(id: string): Promise<boolean> {
-    const result = await this.settingsModel.findByIdAndDelete(id).exec();
+    const result = await this.model.findByIdAndDelete(id).exec();
     return !!result;
   }
 
@@ -124,10 +134,10 @@ export class SettingsMongoRepository
     filter: Partial<Settings>
   ): Promise<{ count: number; deleted: Settings[] }> {
     // Get items that will be deleted
-    const itemsToDelete = await this.settingsModel.find(filter).lean().exec();
+    const itemsToDelete = await this.model.find(filter).lean().exec();
 
     // Perform the deletion
-    const deleteResult = await this.settingsModel.deleteMany(filter).exec();
+    const deleteResult = await this.model.deleteMany(filter).exec();
 
     return {
       count: deleteResult.deletedCount,
@@ -136,11 +146,11 @@ export class SettingsMongoRepository
   }
 
   async count(filter?: Partial<Settings>): Promise<number> {
-    return await this.settingsModel.countDocuments(filter || {}).exec();
+    return await this.model.countDocuments(filter || {}).exec();
   }
 
   async exists(filter: Partial<Settings>): Promise<boolean> {
-    const count = await this.settingsModel.countDocuments(filter).exec();
+    const count = await this.model.countDocuments(filter).exec();
     return count > 0;
   }
 
@@ -152,7 +162,7 @@ export class SettingsMongoRepository
     const limit = options?.limit || 10;
     const skip = (page - 1) * limit;
 
-    const query = this.settingsModel.find(filter || {});
+    const query = this.model.find(filter || {});
     const appliedQuery = this.applyQueryOptions(query, {
       ...options,
       skip,
@@ -161,7 +171,7 @@ export class SettingsMongoRepository
 
     const [items, totalCount] = await Promise.all([
       appliedQuery.lean().exec(),
-      this.settingsModel.countDocuments(filter || {}).exec(),
+      this.model.countDocuments(filter || {}).exec(),
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -180,7 +190,7 @@ export class SettingsMongoRepository
   }
 
   async findByGroupType(groupType: string): Promise<Settings[]> {
-    const results = await this.settingsModel
+    const results = await this.model
       .find({ groupType })
       .sort({ key: 1 })
       .lean()
@@ -192,10 +202,7 @@ export class SettingsMongoRepository
     groupType: string,
     key: string
   ): Promise<Settings | null> {
-    const result = await this.settingsModel
-      .findOne({ groupType, key })
-      .lean()
-      .exec();
+    const result = await this.model.findOne({ groupType, key }).lean().exec();
     return result ? this.transformDocument(result as SettingsDocument) : null;
   }
 
@@ -210,7 +217,7 @@ export class SettingsMongoRepository
       key,
     };
 
-    const result = await this.settingsModel
+    const result = await this.model
       .findOneAndUpdate({ groupType, key }, upsertData, {
         new: true,
         upsert: true,
@@ -223,9 +230,7 @@ export class SettingsMongoRepository
   }
 
   async deleteByGroupType(groupType: string): Promise<number> {
-    const deleteResult = await this.settingsModel
-      .deleteMany({ groupType })
-      .exec();
+    const deleteResult = await this.model.deleteMany({ groupType }).exec();
     return deleteResult.deletedCount;
   }
 
@@ -233,9 +238,7 @@ export class SettingsMongoRepository
     groupType: string,
     key: string
   ): Promise<boolean> {
-    const result = await this.settingsModel
-      .findOneAndDelete({ groupType, key })
-      .exec();
+    const result = await this.model.findOneAndDelete({ groupType, key }).exec();
     return !!result;
   }
 
