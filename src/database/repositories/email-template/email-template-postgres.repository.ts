@@ -73,7 +73,7 @@ export class EmailTemplatePostgresRepository
   async findByLanguageId(
     languageId: string
   ): Promise<EmailTemplateWithLanguage | null> {
-    const emailTemplate = await this.prisma.emailTemplate.findUnique({
+    const emailTemplate = await this.prisma.emailTemplate.findFirst({
       where: { languageId },
       include: { language: true },
     });
@@ -150,14 +150,14 @@ export class EmailTemplatePostgresRepository
   async createOrUpdateByLanguageId(
     createDto: CreateEmailTemplateDto
   ): Promise<EmailTemplate> {
-    const existing = await this.prisma.emailTemplate.findUnique({
+    const existing = await this.prisma.emailTemplate.findFirst({
       where: { languageId: createDto.languageId },
     });
 
     if (existing) {
       // Update existing email template (excluding task which is immutable)
       const updated = await this.prisma.emailTemplate.update({
-        where: { languageId: createDto.languageId },
+        where: { id: existing.id },
         data: {
           senderEmail: createDto.senderEmail,
           replyEmail: createDto.replyEmail,
@@ -290,7 +290,7 @@ export class EmailTemplatePostgresRepository
   }
 
   async existsByLanguageId(languageId: string): Promise<boolean> {
-    const emailTemplate = await this.prisma.emailTemplate.findUnique({
+    const emailTemplate = await this.prisma.emailTemplate.findFirst({
       where: { languageId },
     });
     return !!emailTemplate;
@@ -308,10 +308,10 @@ export class EmailTemplatePostgresRepository
 
   async deleteByLanguageId(languageId: string): Promise<boolean> {
     try {
-      await this.prisma.emailTemplate.delete({
+      const result = await this.prisma.emailTemplate.deleteMany({
         where: { languageId },
       });
-      return true;
+      return result.count > 0;
     } catch {
       return false;
     }

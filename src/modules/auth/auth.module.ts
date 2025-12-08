@@ -26,7 +26,8 @@ import { DatabaseModule } from '../../database/database.module';
         return {
           secret,
           signOptions: {
-            expiresIn: (expiresIn || '7d') as string | number,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            expiresIn: (expiresIn || '7d') as any,
           },
         };
       },
