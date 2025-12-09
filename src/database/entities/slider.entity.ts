@@ -20,7 +20,13 @@ export interface Slider {
   titleColor: string;
   descriptionColor: string;
   buttonTitleColor: string;
-  buttonLinkColor: string;
+  buttonBackground: string;
+  descriptionTwo?: string;
+  buttonTitleTwo?: string;
+  buttonLinkTwo?: string;
+  descriptionTwoColor: string;
+  buttonTwoColor: string;
+  buttonBackgroundTwo: string;
   status: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -38,7 +44,13 @@ export interface CreateSliderDto {
   titleColor?: string;
   descriptionColor?: string;
   buttonTitleColor?: string;
-  buttonLinkColor?: string;
+  buttonBackground?: string;
+  descriptionTwo?: string;
+  buttonTitleTwo?: string;
+  buttonLinkTwo?: string;
+  descriptionTwoColor?: string;
+  buttonTwoColor?: string;
+  buttonBackgroundTwo?: string;
   status?: boolean;
 }
 
@@ -52,7 +64,13 @@ export interface UpdateSliderDto {
   titleColor?: string;
   descriptionColor?: string;
   buttonTitleColor?: string;
-  buttonLinkColor?: string;
+  buttonBackground?: string;
+  descriptionTwo?: string;
+  buttonTitleTwo?: string;
+  buttonLinkTwo?: string;
+  descriptionTwoColor?: string;
+  buttonTwoColor?: string;
+  buttonBackgroundTwo?: string;
   status?: boolean;
 }
 

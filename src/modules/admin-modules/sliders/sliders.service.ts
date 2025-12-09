@@ -224,7 +224,13 @@ export class SlidersService {
         titleColor: createDto.titleColor ?? '#000000',
         descriptionColor: createDto.descriptionColor ?? '#000000',
         buttonTitleColor: createDto.buttonTitleColor ?? '#FFFFFF',
-        buttonLinkColor: createDto.buttonLinkColor ?? '#007BFF',
+        buttonBackground: createDto.buttonBackground ?? '#007BFF',
+        descriptionTwo: createDto.descriptionTwo,
+        buttonTitleTwo: createDto.buttonTitleTwo,
+        buttonLinkTwo: createDto.buttonLinkTwo,
+        descriptionTwoColor: createDto.descriptionTwoColor ?? '#666666',
+        buttonTwoColor: createDto.buttonTwoColor ?? '#FFFFFF',
+        buttonBackgroundTwo: createDto.buttonBackgroundTwo ?? '#28A745',
         status: createDto.status ?? true,
       };
 
@@ -280,9 +286,26 @@ export class SlidersService {
         this.validateColorCode(updateDto.descriptionColor, 'descriptionColor');
       if (updateDto.buttonTitleColor)
         this.validateColorCode(updateDto.buttonTitleColor, 'buttonTitleColor');
-      if (updateDto.buttonLinkColor)
-        this.validateColorCode(updateDto.buttonLinkColor, 'buttonLinkColor');
+      if (updateDto.buttonBackground)
+        this.validateColorCode(updateDto.buttonBackground, 'buttonBackground');
+
+      // Validate second set of color fields
+      if (updateDto.descriptionTwoColor)
+        this.validateColorCode(
+          updateDto.descriptionTwoColor,
+          'descriptionTwoColor'
+        );
+      if (updateDto.buttonTwoColor)
+        this.validateColorCode(updateDto.buttonTwoColor, 'buttonTwoColor');
+      if (updateDto.buttonBackgroundTwo)
+        this.validateColorCode(
+          updateDto.buttonBackgroundTwo,
+          'buttonBackgroundTwo'
+        );
+
+      // Validate button links
       if (updateDto.buttonLink) this.validateUrl(updateDto.buttonLink);
+      if (updateDto.buttonLinkTwo) this.validateUrl(updateDto.buttonLinkTwo);
 
       // Handle language-specific file upload if new image provided
       const updatedData = { ...updateDto };
@@ -581,11 +604,20 @@ export class SlidersService {
       this.validateColorCode(data.descriptionColor, 'descriptionColor');
     if (data.buttonTitleColor)
       this.validateColorCode(data.buttonTitleColor, 'buttonTitleColor');
-    if (data.buttonLinkColor)
-      this.validateColorCode(data.buttonLinkColor, 'buttonLinkColor');
+    if (data.buttonBackground)
+      this.validateColorCode(data.buttonBackground, 'buttonBackground');
 
-    // Validate button link
+    // Validate second set of color fields
+    if (data.descriptionTwoColor)
+      this.validateColorCode(data.descriptionTwoColor, 'descriptionTwoColor');
+    if (data.buttonTwoColor)
+      this.validateColorCode(data.buttonTwoColor, 'buttonTwoColor');
+    if (data.buttonBackgroundTwo)
+      this.validateColorCode(data.buttonBackgroundTwo, 'buttonBackgroundTwo');
+
+    // Validate button links
     if (data.buttonLink) this.validateUrl(data.buttonLink);
+    if (data.buttonLinkTwo) this.validateUrl(data.buttonLinkTwo);
   }
 
   /**
@@ -647,7 +679,14 @@ export class SlidersService {
       titleColor: slider.titleColor,
       descriptionColor: slider.descriptionColor,
       buttonTitleColor: slider.buttonTitleColor,
-      buttonLinkColor: slider.buttonLinkColor,
+      buttonBackground: slider.buttonBackground,
+      // Second set of description and button fields
+      descriptionTwo: slider.descriptionTwo,
+      buttonTitleTwo: slider.buttonTitleTwo,
+      buttonLinkTwo: slider.buttonLinkTwo,
+      descriptionTwoColor: slider.descriptionTwoColor,
+      buttonTwoColor: slider.buttonTwoColor,
+      buttonBackgroundTwo: slider.buttonBackgroundTwo,
       status: slider.status,
       createdAt: slider.createdAt,
       updatedAt: slider.updatedAt,

@@ -161,6 +161,20 @@ src/
 - **Relationships**: One email template per language (unique languageId)
 - **Constraints**: Task field is immutable after creation for template identification
 
+### Slider Entity Fields
+
+- **Core fields**: id, publicId, uniqueCode, sliderImage, languageId
+- **Primary content**: title, description, buttonTitle, buttonLink
+- **Secondary content**: descriptionTwo, buttonTitleTwo, buttonLinkTwo (optional second set)
+- **Color customization**: customColor (boolean flag for enabling custom styling)
+- **Primary colors**: titleColor, descriptionColor, buttonTitleColor, buttonBackground
+- **Secondary colors**: descriptionTwoColor, buttonTwoColor, buttonBackgroundTwo
+- **Status management**: status (boolean - active/inactive)
+- **Metadata**: createdAt, updatedAt
+- **Multi-language support**: One slider per language with same uniqueCode for grouping
+- **Unique constraints**: Composite uniqueCode + languageId ensures one slider variant per language
+- **Default colors**: Primary (#000000, #FFFFFF, #007BFF), Secondary (#666666, #FFFFFF, #28A745)
+
 ### Enums
 
 - **ActiveStatus**: PENDING, ACTIVE, INACTIVE, DELETED

@@ -503,7 +503,14 @@ model Slider {
   titleColor         String   @default("#000000")       // Title text color
   descriptionColor   String   @default("#000000")       // Description text color
   buttonTitleColor   String   @default("#FFFFFF")       // Button text color
-  buttonLinkColor    String   @default("#007BFF")       // Button background color
+  buttonBackground   String   @default("#007BFF")       // Button background color
+  // Second set of description and button fields
+  descriptionTwo     String? @db.Text                  // Second slider description (optional)
+  buttonTitleTwo     String?                           // Second button text (optional)
+  buttonLinkTwo      String?                           // Second button URL/link (optional)
+  descriptionTwoColor String  @default("#666666")       // Second description text color
+  buttonTwoColor     String   @default("#FFFFFF")       // Second button text color
+  buttonBackgroundTwo String  @default("#28A745")       // Second button background color
   status             Boolean  @default(true)            // Active/inactive status
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

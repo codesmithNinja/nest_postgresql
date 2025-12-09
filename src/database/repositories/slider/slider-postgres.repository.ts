@@ -44,7 +44,14 @@ export class SliderPostgresRepository
     titleColor: true,
     descriptionColor: true,
     buttonTitleColor: true,
-    buttonLinkColor: true,
+    buttonBackground: true,
+    // Second set of description and button fields
+    descriptionTwo: true,
+    buttonTitleTwo: true,
+    buttonLinkTwo: true,
+    descriptionTwoColor: true,
+    buttonTwoColor: true,
+    buttonBackgroundTwo: true,
     status: true,
     createdAt: true,
     updatedAt: true,
@@ -368,8 +375,20 @@ export class SliderPostgresRepository
       updateData.descriptionColor = data.descriptionColor;
     if (data.buttonTitleColor !== undefined)
       updateData.buttonTitleColor = data.buttonTitleColor;
-    if (data.buttonLinkColor !== undefined)
-      updateData.buttonLinkColor = data.buttonLinkColor;
+    if (data.buttonBackground !== undefined)
+      updateData.buttonBackground = data.buttonBackground;
+    if (data.descriptionTwo !== undefined)
+      updateData.descriptionTwo = data.descriptionTwo;
+    if (data.buttonTitleTwo !== undefined)
+      updateData.buttonTitleTwo = data.buttonTitleTwo;
+    if (data.buttonLinkTwo !== undefined)
+      updateData.buttonLinkTwo = data.buttonLinkTwo;
+    if (data.descriptionTwoColor !== undefined)
+      updateData.descriptionTwoColor = data.descriptionTwoColor;
+    if (data.buttonTwoColor !== undefined)
+      updateData.buttonTwoColor = data.buttonTwoColor;
+    if (data.buttonBackgroundTwo !== undefined)
+      updateData.buttonBackgroundTwo = data.buttonBackgroundTwo;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.sliderImage !== undefined)
       updateData.sliderImage = data.sliderImage;
@@ -469,8 +488,22 @@ export class SliderPostgresRepository
       updateData.descriptionColor = updateDto.descriptionColor;
     if (updateDto.buttonTitleColor !== undefined)
       updateData.buttonTitleColor = updateDto.buttonTitleColor;
-    if (updateDto.buttonLinkColor !== undefined)
-      updateData.buttonLinkColor = updateDto.buttonLinkColor;
+    if (updateDto.buttonBackground !== undefined)
+      updateData.buttonBackground = updateDto.buttonBackground;
+
+    // Second set of description and button fields
+    if (updateDto.descriptionTwo !== undefined)
+      updateData.descriptionTwo = updateDto.descriptionTwo;
+    if (updateDto.buttonTitleTwo !== undefined)
+      updateData.buttonTitleTwo = updateDto.buttonTitleTwo;
+    if (updateDto.buttonLinkTwo !== undefined)
+      updateData.buttonLinkTwo = updateDto.buttonLinkTwo;
+    if (updateDto.descriptionTwoColor !== undefined)
+      updateData.descriptionTwoColor = updateDto.descriptionTwoColor;
+    if (updateDto.buttonTwoColor !== undefined)
+      updateData.buttonTwoColor = updateDto.buttonTwoColor;
+    if (updateDto.buttonBackgroundTwo !== undefined)
+      updateData.buttonBackgroundTwo = updateDto.buttonBackgroundTwo;
     if (updateDto.status !== undefined) updateData.status = updateDto.status;
 
     const slider = await this.prisma.slider.update({

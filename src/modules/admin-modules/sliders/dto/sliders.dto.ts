@@ -289,9 +289,131 @@ export class CreateSliderDto {
   @IsOptional()
   @IsString()
   @Matches(/^#[0-9A-Fa-f]{6}$/, {
-    message: 'Button link color must be a valid hex color code (e.g., #007BFF)',
+    message:
+      'Button background color must be a valid hex color code (e.g., #007BFF)',
   })
-  buttonLinkColor?: string = '#007BFF';
+  buttonBackground?: string = '#007BFF';
+
+  // Second set of description and button fields
+  @ApiPropertyOptional({
+    description: 'Second slider description (optional)',
+    example:
+      'Additional information about our platform and investment opportunities for experienced investors.',
+    minLength: 1,
+    maxLength: 1000,
+    examples: {
+      additional: {
+        summary: 'Additional Description',
+        description: 'Extra description for more details',
+        value:
+          'Additional information about our platform and investment opportunities for experienced investors.',
+      },
+    },
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(1000)
+  descriptionTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button title/text (optional)',
+    example: 'Learn More',
+    minLength: 1,
+    maxLength: 100,
+    examples: {
+      secondary: {
+        summary: 'Secondary Button',
+        description: 'Secondary call-to-action button text',
+        value: 'Learn More',
+      },
+    },
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  buttonTitleTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button link/URL (optional)',
+    example: '/learn-more',
+    maxLength: 500,
+    examples: {
+      secondary: {
+        summary: 'Secondary Link',
+        description: 'Link for secondary button',
+        value: '/learn-more',
+      },
+    },
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  buttonLinkTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second description text color (hex color code)',
+    example: '#666666',
+    default: '#666666',
+    pattern: '^#[0-9A-F]{6}$',
+    examples: {
+      gray: {
+        summary: 'Gray Second Description',
+        description: 'Gray color for second description text',
+        value: '#666666',
+      },
+    },
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message:
+      'Second description color must be a valid hex color code (e.g., #666666)',
+  })
+  descriptionTwoColor?: string = '#666666';
+
+  @ApiPropertyOptional({
+    description: 'Second button text color (hex color code)',
+    example: '#FFFFFF',
+    default: '#FFFFFF',
+    pattern: '^#[0-9A-F]{6}$',
+    examples: {
+      white: {
+        summary: 'White Second Button Text',
+        description: 'White color for second button text',
+        value: '#FFFFFF',
+      },
+    },
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message:
+      'Second button text color must be a valid hex color code (e.g., #FFFFFF)',
+  })
+  buttonTwoColor?: string = '#FFFFFF';
+
+  @ApiPropertyOptional({
+    description: 'Second button background color (hex color code)',
+    example: '#28A745',
+    default: '#28A745',
+    pattern: '^#[0-9A-F]{6}$',
+    examples: {
+      green: {
+        summary: 'Green Second Button',
+        description: 'Green background for second button',
+        value: '#28A745',
+      },
+    },
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message:
+      'Second button background color must be a valid hex color code (e.g., #28A745)',
+  })
+  buttonBackgroundTwo?: string = '#28A745';
 
   @ApiPropertyOptional({
     description: 'Slider status (active/inactive)',
@@ -429,15 +551,90 @@ export class UpdateSliderDto {
 
   @ApiPropertyOptional({
     description: 'Button background color (hex color code)',
+    example: '#007BFF',
+    pattern: '^#[0-9A-F]{6}$',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message:
+      'Button background color must be a valid hex color code (e.g., #007BFF)',
+  })
+  buttonBackground?: string;
+
+  // Second set of description and button fields
+  @ApiPropertyOptional({
+    description: 'Second slider description (optional)',
+    example: 'Updated additional information about our platform.',
+    minLength: 1,
+    maxLength: 1000,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(1000)
+  descriptionTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button title/text (optional)',
+    example: 'Discover More',
+    minLength: 1,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  buttonTitleTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button link/URL (optional)',
+    example: '/discover-more',
+    maxLength: 500,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  buttonLinkTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second description text color (hex color code)',
+    example: '#666666',
+    pattern: '^#[0-9A-F]{6}$',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message:
+      'Second description color must be a valid hex color code (e.g., #666666)',
+  })
+  descriptionTwoColor?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button text color (hex color code)',
+    example: '#FFFFFF',
+    pattern: '^#[0-9A-F]{6}$',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message:
+      'Second button text color must be a valid hex color code (e.g., #FFFFFF)',
+  })
+  buttonTwoColor?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button background color (hex color code)',
     example: '#28A745',
     pattern: '^#[0-9A-F]{6}$',
   })
   @IsOptional()
   @IsString()
   @Matches(/^#[0-9A-Fa-f]{6}$/, {
-    message: 'Button link color must be a valid hex color code (e.g., #28A745)',
+    message:
+      'Second button background color must be a valid hex color code (e.g., #28A745)',
   })
-  buttonLinkColor?: string;
+  buttonBackgroundTwo?: string;
 
   @ApiPropertyOptional({
     description: 'Slider status (active/inactive)',
@@ -646,7 +843,44 @@ export class SliderResponseDto {
     description: 'Button background color (hex color code)',
     example: '#007BFF',
   })
-  buttonLinkColor!: string;
+  buttonBackground!: string;
+
+  @ApiPropertyOptional({
+    description: 'Second slider description (optional)',
+    example:
+      'Additional information about our platform and investment opportunities for experienced investors.',
+  })
+  descriptionTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button title/text (optional)',
+    example: 'Learn More',
+  })
+  buttonTitleTwo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Second button link/URL (optional)',
+    example: '/learn-more',
+  })
+  buttonLinkTwo?: string;
+
+  @ApiProperty({
+    description: 'Second description text color (hex color code)',
+    example: '#666666',
+  })
+  descriptionTwoColor!: string;
+
+  @ApiProperty({
+    description: 'Second button text color (hex color code)',
+    example: '#FFFFFF',
+  })
+  buttonTwoColor!: string;
+
+  @ApiProperty({
+    description: 'Second button background color (hex color code)',
+    example: '#28A745',
+  })
+  buttonBackgroundTwo!: string;
 
   @ApiProperty({ description: 'Slider status', example: true })
   status!: boolean;

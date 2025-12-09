@@ -1150,7 +1150,14 @@ export class SlidersModule {}
 - **Multi-Language Slider Management**: Create sliders that replicate across all active languages
 - **Unique Code System**: Auto-generated 10-digit unique codes shared across language variants
 - **Image Upload Support**: File upload with AWS S3 and local storage support
-- **Color Customization**: Custom color options for title, description, and buttons with hex validation
+- **Dual Content System**: Primary and secondary content sets for complex slider layouts
+  - **Primary Content**: title, description, buttonTitle, buttonLink with custom colors
+  - **Secondary Content**: descriptionTwo, buttonTitleTwo, buttonLinkTwo with separate styling
+- **Advanced Color Customization**:
+  - **Primary Colors**: titleColor, descriptionColor, buttonTitleColor, buttonBackground
+  - **Secondary Colors**: descriptionTwoColor, buttonTwoColor, buttonBackgroundTwo
+  - **Color Toggle**: customColor boolean flag to enable/disable custom styling
+  - **Default Color Scheme**: Professional defaults for consistent branding
 - **URL Validation**: Support for both absolute URLs and relative paths for button links
 - **Dual Database Support**: MongoDB and PostgreSQL repository implementations
 - **Public/Admin Endpoints**: Separate access levels for frontend and admin use

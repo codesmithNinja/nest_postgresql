@@ -81,7 +81,14 @@ export class SliderMongodbRepository
       titleColor: doc.titleColor || '#000000',
       descriptionColor: doc.descriptionColor || '#000000',
       buttonTitleColor: doc.buttonTitleColor || '#FFFFFF',
-      buttonLinkColor: doc.buttonLinkColor || '#007BFF',
+      buttonBackground: doc.buttonBackground || '#007BFF',
+      // Second set of description and button fields
+      descriptionTwo: doc.descriptionTwo,
+      buttonTitleTwo: doc.buttonTitleTwo,
+      buttonLinkTwo: doc.buttonLinkTwo,
+      descriptionTwoColor: doc.descriptionTwoColor || '#666666',
+      buttonTwoColor: doc.buttonTwoColor || '#FFFFFF',
+      buttonBackgroundTwo: doc.buttonBackgroundTwo || '#28A745',
       status: doc.status !== false, // Default to true if undefined
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
@@ -110,8 +117,21 @@ export class SliderMongodbRepository
       doc.descriptionColor = entity.descriptionColor;
     if (entity.buttonTitleColor !== undefined)
       doc.buttonTitleColor = entity.buttonTitleColor;
-    if (entity.buttonLinkColor !== undefined)
-      doc.buttonLinkColor = entity.buttonLinkColor;
+    if (entity.buttonBackground !== undefined)
+      doc.buttonBackground = entity.buttonBackground;
+    // Second set of description and button fields
+    if (entity.descriptionTwo !== undefined)
+      doc.descriptionTwo = entity.descriptionTwo;
+    if (entity.buttonTitleTwo !== undefined)
+      doc.buttonTitleTwo = entity.buttonTitleTwo;
+    if (entity.buttonLinkTwo !== undefined)
+      doc.buttonLinkTwo = entity.buttonLinkTwo;
+    if (entity.descriptionTwoColor !== undefined)
+      doc.descriptionTwoColor = entity.descriptionTwoColor;
+    if (entity.buttonTwoColor !== undefined)
+      doc.buttonTwoColor = entity.buttonTwoColor;
+    if (entity.buttonBackgroundTwo !== undefined)
+      doc.buttonBackgroundTwo = entity.buttonBackgroundTwo;
     if (entity.status !== undefined) doc.status = entity.status;
     if (entity.publicId !== undefined) doc.publicId = entity.publicId;
 

@@ -44,7 +44,7 @@ Enterprise-grade NestJS application with dual database support (PostgreSQL/Mongo
 - **💰 Currencies Management** - Multi-currency support with ISO codes, symbols, and usage tracking
 - **📋 Manage Dropdown** - Dynamic dropdown data management with multi-language support
 - **⚙️ Dynamic Settings Management** - Fully dynamic application configuration with mixed data type support (boolean, number, string) and file uploads
-- **🎯 Sliders Management** - Multi-language slider management with image upload, color customization, and unique code system
+- **🎯 Sliders Management** - Multi-language slider management with image upload, dual content system (primary/secondary), advanced color customization, and unique code system
 - **💰 Revenue Subscriptions Management** - Subscription plan management for INVESTOR and SPONSOR types with financial limits, refund/cancel policies, and multi-language content support
 - **🔍 Meta Settings Management** - SEO and social media optimization with meta titles, descriptions, keywords, OpenGraph data, OG image uploads, and AI-generated image tracking across all languages
 - **💳 Payment Gateway Management** - Multi-payment processor support with slug-based routing, sandbox/live configuration modes, default gateway system, sensitive data sanitization, and dual database support

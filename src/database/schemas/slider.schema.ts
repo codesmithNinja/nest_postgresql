@@ -62,7 +62,26 @@ export class Slider {
   buttonTitleColor!: string;
 
   @Prop({ required: true, default: '#007BFF', trim: true })
-  buttonLinkColor!: string;
+  buttonBackground!: string;
+
+  // Second set of description and button fields
+  @Prop({ required: false, trim: true })
+  descriptionTwo!: string;
+
+  @Prop({ required: false, trim: true })
+  buttonTitleTwo!: string;
+
+  @Prop({ required: false, trim: true })
+  buttonLinkTwo!: string;
+
+  @Prop({ required: true, default: '#666666', trim: true })
+  descriptionTwoColor!: string;
+
+  @Prop({ required: true, default: '#FFFFFF', trim: true })
+  buttonTwoColor!: string;
+
+  @Prop({ required: true, default: '#28A745', trim: true })
+  buttonBackgroundTwo!: string;
 
   @Prop({ default: true })
   status!: boolean;
