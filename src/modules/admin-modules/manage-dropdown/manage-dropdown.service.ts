@@ -252,8 +252,7 @@ export class ManageDropdownService {
   async update(
     dropdownType: string,
     publicId: string,
-    updateDropdownDto: UpdateManageDropdownDtoValidated,
-    languageId?: string
+    updateDropdownDto: UpdateManageDropdownDtoValidated
   ): Promise<ManageDropdown> {
     try {
       // Validate and normalize dropdown type
@@ -262,60 +261,33 @@ export class ManageDropdownService {
         throw new BadRequestException(`Invalid dropdown type: ${dropdownType}`);
       }
 
-      // Find dropdown with language support
-      const existingDropdown = await this.findSingleByTypeAndLanguage(
-        normalizedDropdownType,
-        publicId,
-        languageId
-      );
+      // First, find the dropdown by publicId (regardless of language)
+      const existingDropdown =
+        await this.manageDropdownRepository.findByPublicId(publicId);
 
-      // Check for name conflicts if updating name
-      if (
-        updateDropdownDto.name &&
-        updateDropdownDto.name !== existingDropdown.name
-      ) {
-        // Extract the languageId (primary key) for conflict checking
-        // languageId should always be a string (primary key) or MinimalLanguage with publicId
-        let languageId: string;
-        if (typeof existingDropdown.languageId === 'string') {
-          languageId = existingDropdown.languageId;
-        } else if (
-          existingDropdown.languageId &&
-          'publicId' in existingDropdown.languageId
-        ) {
-          // If it's populated language data, we need to get the actual language ID
-          // This should not happen in normal operation, but handle it gracefully
-          languageId =
-            await this.manageDropdownRepository.getDefaultLanguageId();
-        } else {
-          throw new Error('Invalid languageId format in existing dropdown');
-        }
-
-        const languageDropdowns =
-          await this.manageDropdownRepository.findByTypeAndLanguage(
-            normalizedDropdownType,
-            languageId
-          );
-        const existingByName = languageDropdowns.find(
-          (dropdown) =>
-            dropdown.name.toLowerCase() ===
-              updateDropdownDto.name!.toLowerCase() &&
-            dropdown.id !== existingDropdown.id
+      if (!existingDropdown) {
+        throw new NotFoundException(
+          `Dropdown with public ID '${publicId}' not found`
         );
-        if (existingByName) {
-          throw new ConflictException(
-            `Dropdown option with name '${updateDropdownDto.name}' already exists for this type and language`
-          );
-        }
       }
 
-      // Only allow updating name and status
-      const allowedUpdateData = {
-        ...(updateDropdownDto.name && { name: updateDropdownDto.name }),
-        ...(updateDropdownDto.status !== undefined && {
-          status: updateDropdownDto.status,
-        }),
-      };
+      // Verify the dropdown type matches
+      if (existingDropdown.dropdownType !== normalizedDropdownType) {
+        throw new NotFoundException(
+          `Dropdown with public ID '${publicId}' not found for type '${normalizedDropdownType}'`
+        );
+      }
+
+      // Prepare update data (ignore any languageId in the body)
+      const allowedUpdateData: Partial<ManageDropdown> = {};
+
+      if (updateDropdownDto.name !== undefined) {
+        allowedUpdateData.name = updateDropdownDto.name;
+      }
+
+      if (updateDropdownDto.status !== undefined) {
+        allowedUpdateData.status = updateDropdownDto.status;
+      }
 
       const updatedDropdown = await this.manageDropdownRepository.updateById(
         existingDropdown.id,

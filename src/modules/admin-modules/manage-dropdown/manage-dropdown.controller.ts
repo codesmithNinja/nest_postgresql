@@ -567,8 +567,7 @@ export class ManageDropdownController {
   async updateDropdown(
     @Param('dropdownType') dropdownType: string,
     @Param('publicId') publicId: string,
-    @Body() updateDropdownDto: UpdateManageDropdownDto,
-    @Query('languageId') languageId?: string
+    @Body() updateDropdownDto: UpdateManageDropdownDto
   ): Promise<{
     message: string;
     statusCode: number;
@@ -577,8 +576,7 @@ export class ManageDropdownController {
     const dropdown = await this.manageDropdownService.update(
       dropdownType,
       publicId,
-      updateDropdownDto,
-      languageId
+      updateDropdownDto
     );
 
     return {
