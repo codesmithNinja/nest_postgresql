@@ -4,6 +4,11 @@ import { Model } from 'mongoose';
 import { Types } from 'mongoose';
 import { MongoRepository } from '../base/mongodb.repository';
 import {
+  QueryOptions,
+  PaginationOptions,
+  PaginatedResult,
+} from '../../../common/interfaces/repository.interface';
+import {
   EmailTemplate as EmailTemplateSchema,
   EmailTemplateDocument,
 } from '../../schemas/email-template.schema';
@@ -269,6 +274,28 @@ export class EmailTemplateMongodbRepository
     return result.modifiedCount || 0;
   }
 
+  async getAll(
+    filter: object = {},
+    options?: QueryOptions
+  ): Promise<EmailTemplate[]> {
+    // Convert filter for MongoDB compatibility
+    const mongoFilter = { ...filter };
+
+    // Handle languageId conversion from string to ObjectId
+    if ('languageId' in mongoFilter && mongoFilter.languageId) {
+      mongoFilter.languageId =
+        typeof mongoFilter.languageId === 'string'
+          ? new Types.ObjectId(mongoFilter.languageId)
+          : mongoFilter.languageId;
+    }
+
+    // Execute query with language population for consistency
+    const query = this.emailTemplateModel.find(mongoFilter);
+    const populatedQuery = query.populate('languageId', '-_id -__v');
+    const docs = await this.applyQueryOptions(populatedQuery, options).exec();
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
   async getAllActiveLanguageIds(): Promise<string[]> {
     const languages = await this.languageModel
       .find({
@@ -503,44 +530,29 @@ export class EmailTemplateMongodbRepository
 
   async findWithPaginationAndSearch(
     searchTerm: string,
-    filter: Partial<EmailTemplate>,
-    options: {
-      page: number;
-      limit: number;
-      sort?: Record<string, 1 | -1>;
-    }
-  ): Promise<{
-    items: EmailTemplate[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalCount: number;
-      limit: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  }> {
-    // Build search conditions for MongoDB
+    searchFields: string[],
+    filter?: Partial<EmailTemplate>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<EmailTemplate>> {
+    // Build search conditions using the provided search fields
     const searchConditions = {
-      $or: [
-        { task: { $regex: searchTerm, $options: 'i' } },
-        { subject: { $regex: searchTerm, $options: 'i' } },
-        { senderName: { $regex: searchTerm, $options: 'i' } },
-      ],
+      $or: searchFields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+      })),
     };
 
     // Build additional filters
     const additionalFilters: Record<string, unknown> = {};
-    if (filter.languageId) {
+    if (filter?.languageId) {
       additionalFilters.languageId =
         typeof filter.languageId === 'string'
           ? new Types.ObjectId(filter.languageId)
           : filter.languageId;
     }
-    if (filter.status !== undefined) {
+    if (filter?.status !== undefined) {
       additionalFilters.status = filter.status;
     }
-    if (filter.senderEmail) {
+    if (filter?.senderEmail) {
       additionalFilters.senderEmail = {
         $regex: filter.senderEmail,
         $options: 'i',
@@ -551,16 +563,18 @@ export class EmailTemplateMongodbRepository
       $and: [searchConditions, additionalFilters],
     };
 
-    // Build sort order
-    const sort: Record<string, 1 | -1> = options.sort || { createdAt: -1 };
+    // Build sort order and pagination defaults
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const sort: Record<string, 1 | -1> = options?.sort || { createdAt: -1 };
 
     const [total, emailTemplates] = await Promise.all([
       this.emailTemplateModel.countDocuments(mongoFilter).exec(),
       this.emailTemplateModel
         .find(mongoFilter)
         .populate('languageId', '-_id -__v')
-        .skip((options.page - 1) * options.limit)
-        .limit(options.limit)
+        .skip((page - 1) * limit)
+        .limit(limit)
         .sort(sort)
         .exec(),
     ]);
@@ -569,17 +583,17 @@ export class EmailTemplateMongodbRepository
       this.toEntity(emailTemplate)
     );
 
-    const totalPages = Math.ceil(total / options.limit);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       items,
       pagination: {
-        currentPage: options.page,
+        currentPage: page,
         totalPages,
         totalCount: total,
-        limit: options.limit,
-        hasNext: options.page < totalPages,
-        hasPrev: options.page > 1,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }

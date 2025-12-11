@@ -19,6 +19,14 @@ export interface IRepository<T> {
     filter?: Partial<T>,
     options?: PaginationOptions
   ): Promise<PaginatedResult<T>>;
+
+  // Search methods
+  findWithPaginationAndSearch?(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: Partial<T>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<T>>;
 }
 
 export interface QueryOptions {

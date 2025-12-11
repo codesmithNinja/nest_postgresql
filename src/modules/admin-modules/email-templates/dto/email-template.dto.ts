@@ -12,7 +12,6 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { PaginationDto } from '../../../../common/dto/pagination.dto';
 
 export class CreateEmailTemplateDto {
   @ApiPropertyOptional({
@@ -333,30 +332,21 @@ export class UpdateEmailTemplateDto {
 }
 
 export class EmailTemplateFilterDto {
-  @ApiPropertyOptional({ description: 'Filter by email template task' })
-  @IsOptional()
-  @IsString()
-  task?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by sender email' })
-  @IsOptional()
-  @IsString()
-  @IsEmail({}, { message: 'Sender email must be a valid email address' })
-  senderEmail?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by sender name' })
-  @IsOptional()
-  @IsString()
-  senderName?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by subject (partial match)' })
-  @IsOptional()
-  @IsString()
-  subject?: string;
-
   @ApiPropertyOptional({
     description:
-      'Filter by language ID (internal ID). Cannot be used with publicId.',
+      'Search keyword to filter across task, subject, and sender name',
+    example: 'welcome',
+    minLength: 1,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by language ID.',
     example: 'clm1234567890',
   })
   @IsOptional()
@@ -467,44 +457,11 @@ export class EmailTemplateResponseDto {
             example: '017905f4-5c07-4e6e-969b-7394eb71efa9',
           },
           name: { type: 'string', example: 'English' },
-          folder: { type: 'string', example: 'en' },
-          iso2: { type: 'string', example: 'EN' },
-          iso3: { type: 'string', example: 'ENG' },
         },
       },
     ],
   })
-  languageId!:
-    | string
-    | {
-        publicId: string;
-        name: string;
-        folder: string;
-        iso2: string;
-        iso3: string;
-      };
-
-  @ApiPropertyOptional({
-    description: 'Language details',
-    properties: {
-      publicId: { type: 'string' },
-      name: { type: 'string' },
-      folder: { type: 'string' },
-      iso2: { type: 'string' },
-      iso3: { type: 'string' },
-      direction: { type: 'string', enum: ['ltr', 'rtl'] },
-      flagImage: { type: 'string' },
-    },
-  })
-  language?: {
-    publicId: string;
-    name: string;
-    folder: string;
-    iso2: string;
-    iso3: string;
-    direction: 'ltr' | 'rtl';
-    flagImage: string;
-  };
+  languageId!: string | { publicId: string; name: string };
 
   @ApiProperty({
     description: 'Email template task identifier',
@@ -588,12 +545,6 @@ export class EmailTemplateListResponseDto {
     type: EmailTemplateResponseDto,
   })
   emailTemplate!: EmailTemplateResponseDto;
-
-  @ApiProperty({
-    description: 'Language code',
-    example: 'en',
-  })
-  language!: string;
 }
 
 export class EmailTemplateErrorResponseDto {
@@ -709,13 +660,6 @@ export class CreateEmailTemplateForAllLanguagesDto {
 }
 
 export class AdminEmailTemplateQueryDto extends EmailTemplateFilterDto {
-  @ApiPropertyOptional({
-    description: 'Search term for task, subject, or sender name',
-  })
-  @IsOptional()
-  @IsString()
-  search?: string;
-
   @ApiPropertyOptional({
     description: 'Sort field',
     enum: ['createdAt', 'updatedAt', 'task', 'subject', 'senderName'],
@@ -834,7 +778,7 @@ export class PublicIdParamDto {
   publicId!: string;
 }
 
-export class EmailTemplateAdminQueryDto extends PaginationDto {
+export class EmailTemplateAdminQueryDto extends EmailTemplateFilterDto {
   @ApiPropertyOptional({
     description: 'Include inactive email templates',
     example: true,
@@ -849,7 +793,7 @@ export class EmailTemplateAdminQueryDto extends PaginationDto {
 
   @ApiPropertyOptional({
     description:
-      'Language ID for filtering (optional - defaults to all languages if not provided)',
+      'Language ID for filtering (optional - Filter by defaults languages if not provided)',
     example: 'clm1234567890',
     examples: {
       specific: {
@@ -859,7 +803,7 @@ export class EmailTemplateAdminQueryDto extends PaginationDto {
       },
       all: {
         summary: 'All Languages',
-        description: 'Show templates from all languages',
+        description: 'Show all templates from default languages',
         value: undefined,
       },
     },

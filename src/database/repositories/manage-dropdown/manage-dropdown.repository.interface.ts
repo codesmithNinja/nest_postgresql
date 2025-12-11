@@ -1,9 +1,17 @@
-import { IRepository } from '../../../common/interfaces/repository.interface';
+import {
+  IRepository,
+  PaginationOptions,
+  PaginatedResult,
+} from '../../../common/interfaces/repository.interface';
 import {
   ManageDropdown,
   CreateManageDropdownDto,
   ManageDropdownWithLanguage,
 } from '../../entities/manage-dropdown.entity';
+
+export type MongoQuery<T> = {
+  [P in keyof T]?: T[P] | { $regex: string; $options: string };
+};
 
 export interface IManageDropdownRepository extends IRepository<ManageDropdown> {
   findByType(
@@ -32,6 +40,22 @@ export interface IManageDropdownRepository extends IRepository<ManageDropdown> {
     page: number;
     limit: number;
   }>;
+
+  /**
+   * Find manage dropdown options with pagination and search
+   * @param searchTerm Search term to match against dropdown option names
+   * @param searchFields Fields to search in
+   * @param filter Additional filters to apply
+   * @param options Pagination and sorting options
+   * @returns Promise with paginated search results
+   */
+  findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<ManageDropdown>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<ManageDropdown>>;
+
   findSingleByTypeAndLanguage(
     dropdownType: string,
     publicId: string,

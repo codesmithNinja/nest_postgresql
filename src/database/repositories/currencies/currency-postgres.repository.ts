@@ -2,7 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PostgresRepository } from '../base/postgres.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Currency, CreateCurrencyDto } from '../../entities/currency.entity';
-import { ICurrencyRepository } from './currency.repository.interface';
+import {
+  ICurrencyRepository,
+  MongoQuery,
+} from './currency.repository.interface';
+import {
+  PaginationOptions,
+  PaginatedResult,
+} from '../../../common/interfaces/repository.interface';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -80,6 +87,60 @@ export class CurrencyPostgresRepository
       total,
       page,
       limit,
+    };
+  }
+
+  async findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Currency>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<Currency>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build search conditions using the provided search fields
+    const searchConditions = {
+      OR: searchFields.map((field) => ({
+        [field]: { contains: searchTerm, mode: 'insensitive' as const },
+      })),
+    };
+
+    // Build additional filters
+    const additionalFilters = this.buildAdditionalFilters(filter);
+    const whereClause = additionalFilters
+      ? { AND: [searchConditions, additionalFilters] }
+      : searchConditions;
+
+    // Execute queries in parallel
+    const [items, totalCount] = await Promise.all([
+      this.prisma.currency.findMany({
+        where: whereClause,
+        select: this.selectFields,
+        skip,
+        take: limit,
+        orderBy: options?.sort
+          ? Object.entries(options.sort).map(([key, value]) => ({
+              [key]: value === 1 ? 'asc' : 'desc',
+            }))
+          : [{ createdAt: 'desc' }],
+      }),
+      this.prisma.currency.count({ where: whereClause }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items: items as unknown as Currency[],
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
     };
   }
 
@@ -273,6 +334,25 @@ export class CurrencyPostgresRepository
     } catch {
       return false;
     }
+  }
+
+  private buildAdditionalFilters(
+    filter?: MongoQuery<Currency>
+  ): Record<string, unknown> | null {
+    if (!filter) return null;
+
+    const prismaFilter: Record<string, unknown> = {};
+
+    Object.entries(filter).forEach(([key, value]) => {
+      if (key !== 'name' && key !== 'code' && key !== 'symbol') {
+        // Skip search fields, only process additional filters
+        if (value !== undefined && value !== null) {
+          prismaFilter[key] = value;
+        }
+      }
+    });
+
+    return Object.keys(prismaFilter).length > 0 ? prismaFilter : null;
   }
 
   protected convertFilterToPrisma(

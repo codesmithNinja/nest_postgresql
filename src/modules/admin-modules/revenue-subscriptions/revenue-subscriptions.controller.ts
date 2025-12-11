@@ -366,7 +366,6 @@ export class RevenueSubscriptionsController {
           HttpStatus.BAD_REQUEST
         );
       }
-      console.log(error);
       return this.i18nResponse.translateError(
         'revenue_subscriptions.creation_failed',
         HttpStatus.INTERNAL_SERVER_ERROR

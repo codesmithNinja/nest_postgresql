@@ -1,4 +1,8 @@
-import { IRepository } from '../../../common/interfaces/repository.interface';
+import {
+  IRepository,
+  PaginatedResult,
+  PaginationOptions,
+} from '../../../common/interfaces/repository.interface';
 import {
   EmailTemplate,
   EmailTemplateWithLanguage,
@@ -103,29 +107,17 @@ export interface IEmailTemplateRepository extends IRepository<EmailTemplate> {
   /**
    * Find email templates with pagination and search functionality
    * @param searchTerm Search term to look for in task, subject, and senderName
+   * @param searchFields Fields to search in
    * @param filter Additional filters
    * @param options Pagination options
    * @returns Promise with paginated search results
    */
   findWithPaginationAndSearch(
     searchTerm: string,
-    filter: Partial<EmailTemplate>,
-    options: {
-      page: number;
-      limit: number;
-      sort?: Record<string, 1 | -1>;
-    }
-  ): Promise<{
-    items: EmailTemplate[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalCount: number;
-      limit: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  }>;
+    searchFields: string[],
+    filter?: Partial<EmailTemplate>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<EmailTemplate>>;
 
   /**
    * Create email templates for all active languages

@@ -8,7 +8,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class CreateAdminDto {
   @ApiProperty({ description: 'Admin first name', minLength: 3, maxLength: 40 })
@@ -53,6 +53,7 @@ export class CreateAdminDto {
 
   @ApiPropertyOptional({ description: 'Admin active status', default: true })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   active?: boolean;
 
@@ -102,6 +103,7 @@ export class UpdateAdminDto {
 
   @ApiPropertyOptional({ description: 'Admin active status' })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   active?: boolean;
 
@@ -174,23 +176,22 @@ export class AdminResetPasswordDto {
 }
 
 export class AdminFilterDto {
-  @ApiPropertyOptional({ description: 'Filter by first name' })
+  @ApiPropertyOptional({
+    description:
+      'Search keyword to filter across first name, last name, and email',
+    example: 'john',
+    minLength: 1,
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
-  firstName?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by last name' })
-  @IsOptional()
-  @IsString()
-  lastName?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by email' })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
+  @MinLength(1)
+  @MaxLength(100)
+  search?: string;
 
   @ApiPropertyOptional({ description: 'Filter by active status' })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   @Type(() => Boolean)
   active?: boolean;

@@ -1,6 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import NodeCache from 'node-cache';
 import { ICurrencyRepository } from '../../../database/repositories/currencies/currency.repository.interface';
+import { PaginationOptions } from '../../../common/interfaces/repository.interface';
 import { Currency } from '../../../database/entities/currency.entity';
 import {
   CreateCurrencyDto,
@@ -74,14 +75,15 @@ export class CurrenciesService {
   async getCurrenciesForAdmin(
     page: number,
     limit: number,
-    includeInactive = true
+    includeInactive = true,
+    search?: string
   ): Promise<{
     data: Currency[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const cacheKey = `${this.cachePrefix}:admin:${page}:${limit}:${includeInactive}`;
+    const cacheKey = `${this.cachePrefix}:admin:${page}:${limit}:${includeInactive}:${search || 'no-search'}`;
 
     try {
       // Try to get from cache first
@@ -96,12 +98,39 @@ export class CurrenciesService {
         return cached;
       }
 
-      // Get from database
-      const result = await this.currencyRepository.findCurrenciesWithPagination(
-        page,
-        limit,
-        includeInactive
-      );
+      let result;
+      if (search && search.trim()) {
+        // Use new search method
+        const options: PaginationOptions = {
+          page,
+          limit,
+          sort: { createdAt: -1 },
+        };
+
+        const additionalFilters = includeInactive ? {} : { status: true };
+
+        const searchResult =
+          await this.currencyRepository.findWithPaginationAndSearch(
+            search.trim(),
+            ['name', 'code', 'symbol'],
+            additionalFilters,
+            options
+          );
+
+        result = {
+          data: searchResult.items,
+          total: searchResult.pagination.totalCount,
+          page: searchResult.pagination.currentPage,
+          limit: searchResult.pagination.limit,
+        };
+      } else {
+        // Use existing pagination method
+        result = await this.currencyRepository.findCurrenciesWithPagination(
+          page,
+          limit,
+          includeInactive
+        );
+      }
 
       // Cache the result
       this.cache.set(cacheKey, result, this.cacheTTL);

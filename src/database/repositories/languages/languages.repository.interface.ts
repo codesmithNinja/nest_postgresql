@@ -2,6 +2,7 @@ import {
   IRepository,
   QueryOptions,
   PaginatedResult,
+  PaginationOptions,
 } from '../../../common/interfaces/repository.interface';
 import { Language } from '../../entities/language.entity';
 
@@ -26,6 +27,12 @@ export interface ILanguagesRepository extends IRepository<Language> {
   findWithPagination(
     filter?: MongoQuery<Language>,
     options?: QueryOptions
+  ): Promise<PaginatedResult<Language>>;
+  findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Language>,
+    options?: PaginationOptions
   ): Promise<PaginatedResult<Language>>;
   bulkUpdateByPublicIds(
     publicIds: string[],

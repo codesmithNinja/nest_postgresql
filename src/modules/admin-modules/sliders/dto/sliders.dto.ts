@@ -713,7 +713,8 @@ export class SliderQueryDto extends PaginationDto {
   languageId?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter by slider title (partial match)',
+    description:
+      'Search keyword to filter across slider title, description, button titles, and secondary content',
     example: 'investment',
     minLength: 1,
     maxLength: 200,
@@ -722,17 +723,7 @@ export class SliderQueryDto extends PaginationDto {
   @IsString()
   @MinLength(1)
   @MaxLength(200)
-  title?: string;
-
-  @ApiPropertyOptional({
-    description: 'Filter by unique code',
-    example: 1234567890,
-  })
-  @IsOptional()
-  @Transform(({ value }) =>
-    typeof value === 'string' ? parseInt(value, 10) : Number(value)
-  )
-  uniqueCode?: number;
+  search?: string;
 }
 
 export class SliderResponseDto {

@@ -224,6 +224,19 @@ export class AdminCurrencyQueryDto extends PaginationDto {
     typeof value === 'string' ? value.toLowerCase() === 'true' : Boolean(value)
   )
   includeInactive?: boolean = true;
+
+  @ApiPropertyOptional({
+    description:
+      'Search keyword to filter across currency name, code, and symbol',
+    example: 'dollar',
+    minLength: 1,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  search?: string;
 }
 
 export class CurrencyResponseDto {

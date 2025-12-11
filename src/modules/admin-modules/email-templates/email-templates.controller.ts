@@ -84,15 +84,8 @@ export class EmailTemplatesController {
     @Query(ValidationPipe) query: EmailTemplateAdminQueryDto
   ) {
     try {
-      const { page, limit, includeInactive, languageId } = query;
-
       const result =
-        await this.emailTemplatesService.getAllEmailTemplatesForAdmin(
-          page,
-          limit,
-          includeInactive,
-          languageId
-        );
+        await this.emailTemplatesService.getEmailTemplatesForAdmin(query);
 
       return this.i18nResponse.translateAndRespond(
         'email_templates.retrieved_successfully',

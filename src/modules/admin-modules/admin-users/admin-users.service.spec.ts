@@ -163,8 +163,8 @@ describe('AdminUsersService', () => {
 
       const result = await service.login(loginDto, '127.0.0.1');
 
-      expect(result.data!.access_token).toBe('jwt-token');
-      expect(result.data!.admin.email).toBe(mockAdmin.email);
+      expect(result.access_token).toBe('jwt-token');
+      expect(result.admin.email).toBe(mockAdmin.email);
     });
 
     it('should throw InvalidAdminCredentialsException when admin not found', async () => {
@@ -291,9 +291,9 @@ describe('AdminUsersService', () => {
         limit: 10,
       });
 
-      expect(result.data!.admins).toHaveLength(1);
-      expect(result.data!.total).toBe(1);
-      expect(result.data!.totalPages).toBe(1);
+      expect(result.admins).toHaveLength(1);
+      expect(result.total).toBe(1);
+      expect(result.totalPages).toBe(1);
     });
   });
 

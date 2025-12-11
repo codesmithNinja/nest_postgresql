@@ -1,9 +1,17 @@
-import { IRepository } from '../../../common/interfaces/repository.interface';
+import {
+  IRepository,
+  PaginationOptions,
+  PaginatedResult,
+} from '../../../common/interfaces/repository.interface';
 import {
   Slider,
   CreateSliderDto,
   SliderWithLanguage,
 } from '../../entities/slider.entity';
+
+export type MongoQuery<T> = {
+  [P in keyof T]?: T[P] | { $regex: string; $options: string };
+};
 
 export interface ISliderRepository extends IRepository<Slider> {
   /**
@@ -57,6 +65,21 @@ export interface ISliderRepository extends IRepository<Slider> {
     page: number;
     limit: number;
   }>;
+
+  /**
+   * Find sliders with pagination and search
+   * @param searchTerm Search term to match against slider fields
+   * @param searchFields Fields to search in
+   * @param filter Additional filters to apply
+   * @param options Pagination and sorting options
+   * @returns Promise with paginated search results
+   */
+  findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Slider>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<Slider>>;
 
   /**
    * Create slider in multiple languages

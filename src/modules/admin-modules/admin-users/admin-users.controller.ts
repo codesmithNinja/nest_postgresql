@@ -69,7 +69,12 @@ export class AdminUsersController {
     @Request() req: RequestWithAdmin
   ) {
     const clientIp = IpExtractionUtil.getSanitizedIp(req);
-    return this.adminUsersService.login(loginDto, clientIp);
+    const loginResult = await this.adminUsersService.login(loginDto, clientIp);
+    return this.i18nResponse.translateAndRespond(
+      'admin.login_success',
+      HttpStatus.OK,
+      loginResult
+    );
   }
 
   @Public()

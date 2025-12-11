@@ -80,14 +80,14 @@ GET /payment-gateway/default/front             # Get default payment gateway for
 ```
 /admins                                # Admin user management
   GET    /me                             # Get current admin profile
-  GET    /                               # Get all admins with pagination
+  GET    /                               # Get all admins with pagination and search
   POST   /                               # Create new admin user
   PATCH  /:id                            # Update admin user
   DELETE /:id                            # Delete admin user
 
 /languages                             # Languages management
   GET    /front                          # Public: Get active languages
-  GET    /                               # Admin: Get all languages with pagination
+  GET    /                               # Admin: Get all languages with pagination and search
   GET    /:publicId                      # Admin: Get single language
   POST   /                               # Admin: Create new language with flag upload
   PATCH  /:publicId                      # Admin: Update language
@@ -97,7 +97,7 @@ GET /payment-gateway/default/front             # Get default payment gateway for
 
 /countries                             # Countries management
   GET    /front                          # Public: Get active countries
-  GET    /                               # Admin: Get all countries with pagination
+  GET    /                               # Admin: Get all countries with pagination and search
   GET    /:publicId                      # Admin: Get single country
   POST   /                               # Admin: Create new country with flag upload
   PATCH  /:publicId                      # Admin: Update country
@@ -107,7 +107,7 @@ GET /payment-gateway/default/front             # Get default payment gateway for
 
 /currencies                            # Currencies management
   GET    /front                          # Public: Get active currencies
-  GET    /                               # Admin: Get all currencies with pagination
+  GET    /                               # Admin: Get all currencies with pagination and search
   GET    /:publicId                      # Admin: Get single currency
   POST   /                               # Admin: Create new currency
   PATCH  /:publicId                      # Admin: Update currency
@@ -117,7 +117,7 @@ GET /payment-gateway/default/front             # Get default payment gateway for
 
 /sliders                               # Sliders management
   GET    /front                          # Public: Get active sliders for frontend
-  GET    /                               # Admin: Get all sliders with pagination
+  GET    /                               # Admin: Get all sliders with pagination and search
   GET    /:publicId                      # Admin: Get single slider
   POST   /                               # Admin: Create new slider with image upload
   PATCH  /:publicId                      # Admin: Update slider with optional image upload
@@ -168,7 +168,7 @@ GET /payment-gateway/default/front             # Get default payment gateway for
 
 /manage-dropdown                       # Master dropdown data management
   GET    /:dropdownType/front            # Public: Get active dropdown options by type
-  GET    /:dropdownType/admin            # Admin: Get dropdown options with pagination
+  GET    /:dropdownType/admin            # Admin: Get dropdown options with pagination and search
   POST   /:dropdownType                  # Admin: Create new dropdown option
   GET    /:dropdownType/:publicId        # Admin: Get single dropdown by publicId
   PATCH  /:dropdownType/:publicId        # Admin: Update dropdown option

@@ -1,9 +1,9 @@
 {
   "info": {
-    "_postman_id": "61b229e7-a8c7-4e31-a587-317a14511560",
+    "_postman_id": "8bc78ddc-0381-4cb8-b421-43ba66dfa16b",
     "name": "Equity Crowdfunding with NestJS + PostgreSQL + MongoDB",
     "description": "Comprehensive API collection for equity crowdfunding platform built with NestJS, supporting dual database architecture (PostgreSQL & MongoDB) with JWT authentication, campaign management, user management, and file uploads.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
     "_exporter_id": "15694815"
   },
   "item": [
@@ -21,21 +21,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/me",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "me"]
-                    },
+                    "url": "{{BASE_URL}}/admins/me",
                     "description": "Get current admin profile information including personal details and settings."
                   },
                   "response": []
@@ -45,13 +37,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -69,19 +57,10 @@
                           "value": "10"
                         },
                         {
-                          "key": "firstName",
+                          "key": "search",
                           "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "lastName",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "email",
-                          "value": "",
-                          "disabled": true
+                          "disabled": true,
+                          "description": "Search across firstName, lastName, and email"
                         },
                         {
                           "key": "active",
@@ -90,7 +69,7 @@
                         }
                       ]
                     },
-                    "description": "Get all admins with pagination and filtering options. Supports filtering by name, email, and active status."
+                    "description": "Get all admins with pagination and filtering options. Supports unified search across firstName, lastName, and email, plus filtering by active status."
                   },
                   "response": []
                 },
@@ -99,13 +78,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -129,13 +104,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -186,11 +157,7 @@
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins"]
-                    },
+                    "url": "{{BASE_URL}}/admins",
                     "description": "Create a new admin with optional photo upload. Supports multipart form data."
                   },
                   "response": []
@@ -200,13 +167,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -234,13 +197,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -264,13 +223,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -278,11 +233,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"currentPassword\": \"CurrentAdminPass123\",\n  \"newPassword\": \"NewAdminPass123\",\n  \"confirmPassword\": \"NewAdminPass123\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/update-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "update-password"]
-                    },
+                    "url": "{{BASE_URL}}/admins/update-password",
                     "description": "Update admin password. Requires current password verification."
                   },
                   "response": []
@@ -292,21 +243,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/logout",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "logout"]
-                    },
+                    "url": "{{BASE_URL}}/admins/logout",
                     "description": "Logout current admin session. Logs the logout action for audit purposes."
                   },
                   "response": []
@@ -322,21 +265,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/settings/admin/cache/stats",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["settings", "admin", "cache", "stats"]
-                    },
+                    "url": "{{BASE_URL}}/settings/admin/cache/stats",
                     "description": "Get cache statistics for settings."
                   },
                   "response": []
@@ -346,13 +281,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -383,21 +314,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/settings/admin/cache/clear",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["settings", "admin", "cache", "clear"]
-                    },
+                    "url": "{{BASE_URL}}/settings/admin/cache/clear",
                     "description": "Clear all settings cache."
                   },
                   "response": []
@@ -413,43 +336,32 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/countries?page=1&limit=10",
+                      "raw": "{{BASE_URL}}/countries",
                       "host": ["{{BASE_URL}}"],
                       "path": ["countries"],
                       "query": [
                         {
                           "key": "page",
-                          "value": "1"
+                          "value": "1",
+                          "disabled": true
                         },
                         {
                           "key": "limit",
-                          "value": "10"
-                        },
-                        {
-                          "key": "name",
-                          "value": "",
+                          "value": "10",
                           "disabled": true
                         },
                         {
-                          "key": "iso2",
+                          "key": "search",
                           "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "",
-                          "disabled": true
+                          "disabled": true,
+                          "description": "Search across name, iso2, and iso3"
                         },
                         {
                           "key": "isDefault",
@@ -458,7 +370,7 @@
                         }
                       ]
                     },
-                    "description": "Admin endpoint to retrieve all countries with pagination and filtering."
+                    "description": "Admin endpoint to retrieve all countries with pagination and unified search across name, iso2, and iso3."
                   },
                   "response": []
                 },
@@ -467,13 +379,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -497,13 +405,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -538,11 +442,7 @@
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries"]
-                    },
+                    "url": "{{BASE_URL}}/countries",
                     "description": "Admin endpoint to create a new country with flag upload."
                   },
                   "response": []
@@ -552,13 +452,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -617,13 +513,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -647,30 +539,22 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"publicIds\": [\n        \"7ec991a2-04d8-45bc-8429-523f414fab4f\",\n        \"bb041da0-21e8-404e-aca6-81a0429a2ec9\"\n    ],\n    \"status\": true\n}",
+                      "raw": "{\n    \"publicIds\": [\n        \"7ec991a2-04d8-45bc-8429-523f414fab4f\",\n        \"3209234a-64a1-474d-81b3-af2c4f5637f0\",\n        \"bb041da0-21e8-404e-aca6-81a0429a2ec9\"\n    ],\n    \"status\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries", "bulk-update"]
-                    },
+                    "url": "{{BASE_URL}}/countries/bulk-update",
                     "description": "Admin endpoint to update multiple countries at once."
                   },
                   "response": []
@@ -680,13 +564,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -694,11 +574,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries", "bulk-delete"]
-                    },
+                    "url": "{{BASE_URL}}/countries/bulk-delete",
                     "description": "Admin endpoint to delete multiple countries at once (only if useCount is 0 for each)."
                   },
                   "response": []
@@ -714,13 +590,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -741,10 +613,16 @@
                           "key": "includeInactive",
                           "value": "true",
                           "description": "Include inactive currencies in results"
+                        },
+                        {
+                          "key": "search",
+                          "value": "",
+                          "disabled": true,
+                          "description": "Search across name, code, and symbol"
                         }
                       ]
                     },
-                    "description": "Admin endpoint to retrieve all currencies with pagination and filtering."
+                    "description": "Admin endpoint to retrieve all currencies with pagination and search across name, code, and symbol."
                   },
                   "response": []
                 },
@@ -753,13 +631,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -783,13 +657,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [
@@ -807,11 +677,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/currencies",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["currencies"]
-                    },
+                    "url": "{{BASE_URL}}/currencies",
                     "description": "Admin endpoint to create a new currency. All fields are required except status (defaults to true)."
                   },
                   "response": []
@@ -821,13 +687,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -865,13 +727,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -895,13 +753,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -919,11 +773,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/currencies/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["currencies", "bulk-update"]
-                    },
+                    "url": "{{BASE_URL}}/currencies/bulk-update",
                     "description": "Admin endpoint to update the status of multiple currencies. Set status to true to activate or false to deactivate."
                   },
                   "response": []
@@ -933,13 +783,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -957,11 +803,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/currencies/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["currencies", "bulk-delete"]
-                    },
+                    "url": "{{BASE_URL}}/currencies/bulk-delete",
                     "description": "Admin endpoint to delete multiple currencies. Only allowed if all currencies have useCount = 0."
                   },
                   "response": []
@@ -977,18 +819,14 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{BASE_URL}}/email-templates?task=&senderEmail=&senderName=&subject=&languageId=&status=&search=&sortBy=createdAt&sortOrder=desc&page=1&limit=10",
+                      "raw": "{{BASE_URL}}/email-templates?page=1&limit=10",
                       "host": ["{{BASE_URL}}"],
                       "path": ["email-templates"],
                       "query": [
@@ -1018,7 +856,7 @@
                         },
                         {
                           "key": "languageId",
-                          "value": "",
+                          "value": "c30f0644-e3d6-463f-abf9-2796e5d1bd4f",
                           "description": "Filter by language ID (publicId or ObjectId)",
                           "disabled": true
                         },
@@ -1037,12 +875,14 @@
                         {
                           "key": "sortBy",
                           "value": "createdAt",
-                          "description": "Sort field (createdAt, updatedAt, task, subject, senderName)"
+                          "description": "Sort field (createdAt, updatedAt, task, subject, senderName)",
+                          "disabled": true
                         },
                         {
                           "key": "sortOrder",
                           "value": "desc",
-                          "description": "Sort order (asc, desc)"
+                          "description": "Sort order (asc, desc)",
+                          "disabled": true
                         },
                         {
                           "key": "page",
@@ -1065,24 +905,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "email-templates",
-                        "{{EMAIL_TEMPLATE_PUBLIC_ID}}"
-                      ]
-                    },
+                    "url": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
                     "description": "Get specific email template by public ID with language information and complete template data."
                   },
                   "response": []
@@ -1092,13 +921,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [
@@ -1116,11 +941,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["email-templates"]
-                    },
+                    "url": "{{BASE_URL}}/email-templates",
                     "description": "Create new email template with task, sender details, and HTML message content. Task field is immutable after creation."
                   },
                   "response": []
@@ -1130,13 +951,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -1147,7 +964,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"senderEmail\": \"updated@example.com\",\n  \"replyEmail\": \"support@example.com\",\n  \"senderName\": \"Updated Platform Name\",\n  \"subject\": \"Updated: Please activate your account\",\n  \"message\": \"<html><body><h1>Welcome to Updated Platform!</h1><p>Please click the link below to activate your account:</p><a href='{{activation_link}}'>Activate Account</a><p>Best regards,<br>Updated Platform Team</p></body></html>\",\n  \"status\": true\n}",
+                      "raw": "{\n    \"senderEmail\": \"noreply@example.com\",\n    \"replyEmail\": \"support@example.com\",\n    \"senderName\": \"Example Platform\",\n    \"subject\": \"Confirm your email address Spanish\",\n    \"message\": \"<html><body><h1>Email Verification</h1><p>Click the link below to confirm your email:</p><a href='{{confirmation_link}}'>Confirm Email</a></body></html>\",\n    \"status\": true\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -1155,11 +972,14 @@
                       }
                     },
                     "url": {
-                      "raw": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
+                      "raw": "{{BASE_URL}}/email-templates/:publicId",
                       "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "email-templates",
-                        "{{EMAIL_TEMPLATE_PUBLIC_ID}}"
+                      "path": ["email-templates", ":publicId"],
+                      "variable": [
+                        {
+                          "key": "publicId",
+                          "value": "5b0c9130-2530-4ecb-9e82-85812f555170"
+                        }
                       ]
                     },
                     "description": "Update email template. Note: Task field cannot be modified after creation (immutable)."
@@ -1171,24 +991,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
-                      "host": ["{{BASE_URL}}"],
-                      "path": [
-                        "email-templates",
-                        "{{EMAIL_TEMPLATE_PUBLIC_ID}}"
-                      ]
-                    },
+                    "url": "{{BASE_URL}}/email-templates/{{EMAIL_TEMPLATE_PUBLIC_ID}}",
                     "description": "Delete email template by public ID. This action is irreversible."
                   },
                   "response": []
@@ -1198,13 +1007,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -1222,11 +1027,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["email-templates", "bulk-update"]
-                    },
+                    "url": "{{BASE_URL}}/email-templates/bulk-update",
                     "description": "Bulk update email templates status (active/inactive) for multiple templates at once."
                   },
                   "response": []
@@ -1236,13 +1037,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [
@@ -1255,11 +1052,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"task\": \"welcome_email\",\n  \"senderEmail\": \"noreply@example.com\",\n  \"replyEmail\": \"support@example.com\",\n  \"senderName\": \"Example Team\",\n  \"subject\": \"Welcome to Our Platform\",\n  \"message\": \"<h1>Welcome!</h1><p>Thank you for joining us.</p>\",\n  \"status\": true\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates/all-languages",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["email-templates", "all-languages"]
-                    },
+                    "url": "{{BASE_URL}}/email-templates/all-languages",
                     "description": "Create email template for all active languages with the same content."
                   },
                   "response": []
@@ -1269,21 +1062,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates/admin/cache/stats",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["email-templates", "admin", "cache", "stats"]
-                    },
+                    "url": "{{BASE_URL}}/email-templates/admin/cache/stats",
                     "description": "Get cache statistics for email templates module."
                   },
                   "response": []
@@ -1293,21 +1078,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/email-templates/admin/cache/clear",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["email-templates", "admin", "cache", "clear"]
-                    },
+                    "url": "{{BASE_URL}}/email-templates/admin/cache/clear",
                     "description": "Clear all email template cache entries."
                   },
                   "response": []
@@ -1317,13 +1094,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -1360,13 +1133,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -1384,24 +1153,10 @@
                           "value": "10"
                         },
                         {
-                          "key": "name",
+                          "key": "search",
                           "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "folder",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso2",
-                          "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "iso3",
-                          "value": "",
-                          "disabled": true
+                          "disabled": true,
+                          "description": "Search across name, folder, iso2, and iso3"
                         },
                         {
                           "key": "direction",
@@ -1420,7 +1175,7 @@
                         }
                       ]
                     },
-                    "description": "Admin endpoint to retrieve all languages with pagination and filtering."
+                    "description": "Admin endpoint to retrieve all languages with pagination and unified search across name, folder, iso2, and iso3."
                   },
                   "response": []
                 },
@@ -1429,13 +1184,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -1459,13 +1210,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -1516,11 +1263,7 @@
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages"]
-                    },
+                    "url": "{{BASE_URL}}/languages",
                     "description": "Admin endpoint to create a new language with flag image upload."
                   },
                   "response": []
@@ -1530,13 +1273,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -1614,13 +1353,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -1644,13 +1379,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -1663,11 +1394,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", "bulk-update"]
-                    },
+                    "url": "{{BASE_URL}}/languages/bulk-update",
                     "description": "Admin endpoint to update multiple languages status at once."
                   },
                   "response": []
@@ -1677,13 +1404,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -1691,11 +1414,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"publicIds\": [\n    \"627a5038-e5be-4135-9569-404d50c836c1\",\n    \"e4113de7-5388-4f24-a58c-a22fb77d00a8\"\n  ]\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", "bulk-delete"]
-                    },
+                    "url": "{{BASE_URL}}/languages/bulk-delete",
                     "description": "Admin endpoint to delete multiple languages at once (only if isDefault is NO for each)."
                   },
                   "response": []
@@ -1711,13 +1430,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -1757,13 +1472,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -1787,13 +1498,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [
@@ -1826,13 +1533,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -1843,7 +1546,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"name\": \"TEST123\",\n  \"status\": false\n}"
+                      "raw": "{\n  \"name\": \"Institutional Investor\"\n//   \"status\": false\n}"
                     },
                     "url": {
                       "raw": "{{BASE_URL}}/manage-dropdown/:dropdownType/:publicId",
@@ -1852,11 +1555,11 @@
                       "variable": [
                         {
                           "key": "dropdownType",
-                          "value": "campaign-stage"
+                          "value": "investor-type"
                         },
                         {
                           "key": "publicId",
-                          "value": "36b29fd4-b71f-407d-a4ba-48b20769d7b0"
+                          "value": "2755f283-40b2-42a9-a038-aea7edac172a"
                         }
                       ]
                     },
@@ -1869,13 +1572,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -1907,13 +1606,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -1950,13 +1645,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -1999,13 +1690,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -2030,13 +1717,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -2060,13 +1743,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -2115,11 +1794,7 @@
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/meta-settings",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["meta-settings"]
-                    },
+                    "url": "{{BASE_URL}}/meta-settings",
                     "description": "Create meta settings for all active languages with OpenGraph image upload."
                   },
                   "response": []
@@ -2129,13 +1804,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -2192,13 +1863,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [
@@ -2230,13 +1897,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [
@@ -2275,13 +1938,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -2319,13 +1978,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [
@@ -2355,13 +2010,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [
@@ -2396,21 +2047,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/payment-gateway/admin/cache/stats",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["payment-gateway", "admin", "cache", "stats"]
-                    },
+                    "url": "{{BASE_URL}}/payment-gateway/admin/cache/stats",
                     "description": "Get payment gateway cache statistics including hit ratio and performance metrics."
                   },
                   "response": []
@@ -2420,21 +2063,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/payment-gateway/admin/cache/clear",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["payment-gateway", "admin", "cache", "clear"]
-                    },
+                    "url": "{{BASE_URL}}/payment-gateway/admin/cache/clear",
                     "description": "Clear all payment gateway cache entries for performance troubleshooting."
                   },
                   "response": []
@@ -2450,13 +2085,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -2506,13 +2137,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -2525,11 +2152,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions"]
-                    },
+                    "url": "{{BASE_URL}}/revenue-subscriptions",
                     "description": "Admin endpoint to create new revenue subscription with multi-language content support."
                   },
                   "response": []
@@ -2539,13 +2162,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -2570,13 +2189,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -2610,13 +2225,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -2641,13 +2252,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -2660,11 +2267,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", "bulk-update"]
-                    },
+                    "url": "{{BASE_URL}}/revenue-subscriptions/bulk-update",
                     "description": "Admin endpoint to update status of multiple revenue subscriptions at once."
                   },
                   "response": []
@@ -2674,13 +2277,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -2693,11 +2292,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/revenue-subscriptions/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["revenue-subscriptions", "bulk-delete"]
-                    },
+                    "url": "{{BASE_URL}}/revenue-subscriptions/bulk-delete",
                     "description": "Admin endpoint to delete multiple revenue subscriptions. Cannot delete if any subscription has useCount > 0."
                   },
                   "response": []
@@ -2716,21 +2311,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/recaptcha-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "recaptcha-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/recaptcha-setting/admin",
                         "description": "Get recaptcha settings for admin management."
                       },
                       "response": []
@@ -2740,13 +2327,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -2779,11 +2362,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/recaptcha-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "recaptcha-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/recaptcha-setting/admin",
                         "description": "Create or update recaptcha settings for various forms."
                       },
                       "response": []
@@ -2793,21 +2372,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/recaptcha-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "recaptcha-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/recaptcha-setting/admin",
                         "description": "Delete all recaptcha settings."
                       },
                       "response": []
@@ -2823,21 +2394,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/google-map-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "google-map-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/google-map-setting/admin",
                         "description": "Get Google Maps settings for admin management."
                       },
                       "response": []
@@ -2847,13 +2410,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -2880,11 +2439,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/google-map-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "google-map-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/google-map-setting/admin",
                         "description": "Create or update Google Maps configuration settings."
                       },
                       "response": []
@@ -2894,21 +2449,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/google-map-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "google-map-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/google-map-setting/admin",
                         "description": "Delete all Google Maps settings."
                       },
                       "response": []
@@ -2924,21 +2471,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/newsletter-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "newsletter-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/newsletter-setting/admin",
                         "description": "Get newsletter settings for admin management."
                       },
                       "response": []
@@ -2948,13 +2487,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -2987,11 +2522,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/newsletter-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "newsletter-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/newsletter-setting/admin",
                         "description": "Create or update newsletter and email list configuration."
                       },
                       "response": []
@@ -3001,21 +2532,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/newsletter-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "newsletter-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/newsletter-setting/admin",
                         "description": "Delete all newsletter settings."
                       },
                       "response": []
@@ -3031,21 +2554,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/project-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "project-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/project-setting/admin",
                         "description": "Get project settings for admin management."
                       },
                       "response": []
@@ -3055,13 +2570,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -3190,11 +2701,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/project-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "project-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/project-setting/admin",
                         "description": "Create or update project and campaign configuration settings."
                       },
                       "response": []
@@ -3204,21 +2711,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/project-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "project-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/project-setting/admin",
                         "description": "Delete all project settings."
                       },
                       "response": []
@@ -3234,21 +2733,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/date-and-time-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "date-and-time-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/date-and-time-setting/admin",
                         "description": "Get date and time settings for admin management."
                       },
                       "response": []
@@ -3258,13 +2749,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -3285,11 +2772,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/date-and-time-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "date-and-time-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/date-and-time-setting/admin",
                         "description": "Create or update date and time formatting settings."
                       },
                       "response": []
@@ -3299,21 +2782,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/date-and-time-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "date-and-time-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/date-and-time-setting/admin",
                         "description": "Delete all date and time settings."
                       },
                       "response": []
@@ -3329,21 +2804,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/amount-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "amount-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/amount-setting/admin",
                         "description": "Get amount and currency settings for admin management."
                       },
                       "response": []
@@ -3353,13 +2820,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -3380,11 +2843,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/amount-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "amount-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/amount-setting/admin",
                         "description": "Create or update currency and amount formatting settings."
                       },
                       "response": []
@@ -3394,21 +2853,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/amount-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "amount-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/amount-setting/admin",
                         "description": "Delete all amount settings."
                       },
                       "response": []
@@ -3424,21 +2875,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/email-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "email-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/email-setting/admin",
                         "description": "Get email configuration for admin management."
                       },
                       "response": []
@@ -3448,13 +2891,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -3505,11 +2944,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/email-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "email-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/email-setting/admin",
                         "description": "Create or update email server configuration."
                       },
                       "response": []
@@ -3519,21 +2954,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/email-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "email-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/email-setting/admin",
                         "description": "Delete all email settings."
                       },
                       "response": []
@@ -3549,25 +2976,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/maintenance-mode-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": [
-                            "settings",
-                            "maintenance-mode-setting",
-                            "admin"
-                          ]
-                        },
+                        "url": "{{BASE_URL}}/settings/maintenance-mode-setting/admin",
                         "description": "Get maintenance mode settings for admin management."
                       },
                       "response": []
@@ -3577,13 +2992,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -3604,15 +3015,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/maintenance-mode-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": [
-                            "settings",
-                            "maintenance-mode-setting",
-                            "admin"
-                          ]
-                        },
+                        "url": "{{BASE_URL}}/settings/maintenance-mode-setting/admin",
                         "description": "Create or update maintenance mode configuration."
                       },
                       "response": []
@@ -3622,25 +3025,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/maintenance-mode-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": [
-                            "settings",
-                            "maintenance-mode-setting",
-                            "admin"
-                          ]
-                        },
+                        "url": "{{BASE_URL}}/settings/maintenance-mode-setting/admin",
                         "description": "Delete all maintenance settings."
                       },
                       "response": []
@@ -3656,21 +3047,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/revenue-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "revenue-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/revenue-setting/admin",
                         "description": "Get revenue settings for admin management."
                       },
                       "response": []
@@ -3680,13 +3063,9 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "POST",
                         "header": [],
@@ -3869,11 +3248,7 @@
                             }
                           ]
                         },
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/revenue-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "revenue-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/revenue-setting/admin",
                         "description": "Create or update comprehensive revenue and fee configuration settings."
                       },
                       "response": []
@@ -3883,21 +3258,13 @@
                       "request": {
                         "auth": {
                           "type": "bearer",
-                          "bearer": [
-                            {
-                              "key": "token",
-                              "value": "{{ADMIN_JWT}}",
-                              "type": "string"
-                            }
-                          ]
+                          "bearer": {
+                            "token": "{{ADMIN_JWT}}"
+                          }
                         },
                         "method": "DELETE",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/revenue-setting/admin",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "revenue-setting", "admin"]
-                        },
+                        "url": "{{BASE_URL}}/settings/revenue-setting/admin",
                         "description": "Delete all revenue settings."
                       },
                       "response": []
@@ -3916,13 +3283,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -3949,18 +3312,14 @@
                           "disabled": true
                         },
                         {
-                          "key": "title",
+                          "key": "search",
                           "value": "",
-                          "disabled": true
-                        },
-                        {
-                          "key": "uniqueCode",
-                          "value": "",
-                          "disabled": true
+                          "disabled": true,
+                          "description": "Search across title, description, button titles"
                         }
                       ]
                     },
-                    "description": "Admin endpoint to retrieve all sliders with pagination and filtering by language, title, and unique code."
+                    "description": "Admin endpoint to retrieve all sliders with pagination and unified search across title, description, and button titles."
                   },
                   "response": []
                 },
@@ -3969,13 +3328,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -3999,13 +3354,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -4059,8 +3410,39 @@
                           "type": "text"
                         },
                         {
-                          "key": "buttonLinkColor",
-                          "value": "#007BFF",
+                          "key": "buttonBackground",
+                          "value": "#28A745",
+                          "type": "text"
+                        },
+                        {
+                          "key": "descriptionTwo",
+                          "value": "Updated description for this amazing slider 2",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonTitleTwo",
+                          "value": "Learn More 2",
+                          "description": "Slider image (PNG, JPG, JPEG, WEBP, SVG - max 5MB)",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonLinkTwo",
+                          "value": "/learn-more-2",
+                          "type": "text"
+                        },
+                        {
+                          "key": "descriptionTwoColor",
+                          "value": "#444444",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonTwoColor",
+                          "value": "#dcdcdc",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonBackgroundTwo",
+                          "value": "#ff0000",
                           "type": "text"
                         },
                         {
@@ -4076,11 +3458,7 @@
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/sliders",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["sliders"]
-                    },
+                    "url": "{{BASE_URL}}/sliders",
                     "description": "Admin endpoint to create a new slider with image upload. Creates entries for all active languages automatically."
                   },
                   "response": []
@@ -4090,13 +3468,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -4106,56 +3480,78 @@
                         {
                           "key": "title",
                           "value": "Updated Slider Title",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "description",
                           "value": "Updated description for this amazing slider",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "buttonTitle",
                           "value": "Learn More",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "buttonLink",
                           "value": "/learn-more",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "customColor",
                           "value": "true",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "titleColor",
                           "value": "#FF5733",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "descriptionColor",
                           "value": "#333333",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
                           "key": "buttonTitleColor",
                           "value": "#FFFFFF",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
                         },
                         {
-                          "key": "buttonLinkColor",
+                          "key": "buttonBackground",
                           "value": "#28A745",
-                          "type": "text",
-                          "disabled": true
+                          "type": "text"
+                        },
+                        {
+                          "key": "descriptionTwo",
+                          "value": "Updated description for this amazing slider 2",
+                          "description": "New slider image (optional)",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonTitleTwo",
+                          "value": "Learn More 2",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonLinkTwo",
+                          "value": "/learn-more-2",
+                          "type": "text"
+                        },
+                        {
+                          "key": "descriptionTwoColor",
+                          "value": "#444444",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonTwoColor",
+                          "value": "#dcdcdc",
+                          "type": "text"
+                        },
+                        {
+                          "key": "buttonBackgroundTwo",
+                          "value": "#ff0000",
+                          "type": "text"
                         },
                         {
                           "key": "status",
@@ -4179,7 +3575,7 @@
                       "variable": [
                         {
                           "key": "publicId",
-                          "value": "550e8400-e29b-41d4-a716-446655440000"
+                          "value": "786a9406-cc1e-4b9c-a185-950ed7b286fb"
                         }
                       ]
                     },
@@ -4192,13 +3588,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
@@ -4222,13 +3614,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -4241,11 +3629,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/sliders/bulk-update",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["sliders", "bulk-update"]
-                    },
+                    "url": "{{BASE_URL}}/sliders/bulk-update",
                     "description": "Admin endpoint to update multiple sliders status at once."
                   },
                   "response": []
@@ -4255,13 +3639,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -4274,11 +3654,7 @@
                         }
                       }
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/sliders/bulk-delete",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["sliders", "bulk-delete"]
-                    },
+                    "url": "{{BASE_URL}}/sliders/bulk-delete",
                     "description": "Admin endpoint to delete multiple sliders. Deletes all language variants and associated image files."
                   },
                   "response": []
@@ -4358,11 +3734,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"admin@example.com\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/forgot-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "forgot-password"]
-                    },
+                    "url": "{{BASE_URL}}/admins/forgot-password",
                     "description": "Request admin password reset token. Sends reset token via email."
                   },
                   "response": []
@@ -4379,11 +3751,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"token\": \"{{ADMIN_RESET_TOKEN}}\",\n  \"password\": \"NewAdminPassword123\",\n  \"confirmPassword\": \"NewAdminPassword123\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/admins/reset-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["admins", "reset-password"]
-                    },
+                    "url": "{{BASE_URL}}/admins/reset-password",
                     "description": "Reset admin password using token received via email."
                   },
                   "response": []
@@ -4402,11 +3770,7 @@
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/countries/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["countries", "front"]
-                    },
+                    "url": "{{BASE_URL}}/countries/front",
                     "description": "Public endpoint to retrieve all countries for frontend usage."
                   },
                   "response": []
@@ -4480,11 +3844,7 @@
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/languages/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["languages", "front"]
-                    },
+                    "url": "{{BASE_URL}}/languages/front",
                     "description": "Public endpoint to retrieve all active languages for frontend usage."
                   },
                   "response": []
@@ -4523,13 +3883,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{ADMIN_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{ADMIN_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -4629,11 +3985,7 @@
                         "type": "text"
                       }
                     ],
-                    "url": {
-                      "raw": "{{BASE_URL}}/payment-gateway/default/front",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["payment-gateway", "default", "front"]
-                    },
+                    "url": "{{BASE_URL}}/payment-gateway/default/front",
                     "description": "Public endpoint to get the default payment gateway configuration for frontend use. Returns sanitized data without sensitive credentials."
                   },
                   "response": []
@@ -4681,11 +4033,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/recaptcha-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "recaptcha-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/recaptcha-setting/front",
                         "description": "Get recaptcha settings for public frontend use."
                       },
                       "response": []
@@ -4701,11 +4049,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/google-map-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "google-map-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/google-map-setting/front",
                         "description": "Get Google Maps settings for public frontend use."
                       },
                       "response": []
@@ -4721,11 +4065,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/newsletter-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "newsletter-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/newsletter-setting/front",
                         "description": "Get newsletter settings for public frontend use."
                       },
                       "response": []
@@ -4741,11 +4081,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/project-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "project-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/project-setting/front",
                         "description": "Get project settings for public frontend use."
                       },
                       "response": []
@@ -4761,11 +4097,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/date-and-time-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "date-and-time-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/date-and-time-setting/front",
                         "description": "Get date and time settings for public frontend use."
                       },
                       "response": []
@@ -4781,11 +4113,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/amount-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "amount-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/amount-setting/front",
                         "description": "Get amount and currency settings for public frontend use."
                       },
                       "response": []
@@ -4801,11 +4129,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/email-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "email-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/email-setting/front",
                         "description": "Get email configuration for public frontend use."
                       },
                       "response": []
@@ -4821,15 +4145,7 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/maintenance-mode-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": [
-                            "settings",
-                            "maintenance-mode-setting",
-                            "front"
-                          ]
-                        },
+                        "url": "{{BASE_URL}}/settings/maintenance-mode-setting/front",
                         "description": "Get maintenance mode settings for public frontend use."
                       },
                       "response": []
@@ -4845,17 +4161,21 @@
                       "request": {
                         "method": "GET",
                         "header": [],
-                        "url": {
-                          "raw": "{{BASE_URL}}/settings/revenue-setting/front",
-                          "host": ["{{BASE_URL}}"],
-                          "path": ["settings", "revenue-setting", "front"]
-                        },
+                        "url": "{{BASE_URL}}/settings/revenue-setting/front",
                         "description": "Get revenue settings for public frontend use."
                       },
                       "response": []
                     }
                   ],
                   "description": "Comprehensive revenue model configuration including investor fees, sponsor fees, and subscription settings."
+                },
+                {
+                  "name": "site setting",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
                 }
               ],
               "description": "Settings management endpoints for dynamic application configuration."
@@ -4928,13 +4248,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -5020,13 +4336,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "POST",
                     "header": [],
@@ -5034,11 +4346,7 @@
                       "mode": "raw",
                       "raw": "{\n    \"companyLogo\": \"https://example.com/logo.jpg\",\n    \"companyName\": \"TechStartup Inc.\",\n    \"companyTagline\": \"Revolutionary tech solution for modern businesses\",\n    \"companyEmail\": \"company@example.com\",\n    \"companyPhoneNumber\": \"+919876543210\",\n    \"companyAddress\": \"Vadodara, Gujarat, India\",\n    \"yearFounded\": 2025,\n    \"website\": \"https://example.com/\",\n    \"companyCategory\": \"Technology\",\n    \"companyIndustry\": \"Software Development\",\n    \"companyDescription\": \"We are building the future of business automation with cutting-edge AI solutions\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/equity",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["equity"]
-                    },
+                    "url": "{{BASE_URL}}/equity",
                     "description": "Create a new equity crowdfunding campaign. This is Step 1 of the campaign creation process."
                   },
                   "response": []
@@ -5699,11 +5007,7 @@
                         }
                       ]
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/lead-investor/upload/photo",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["lead-investor", "upload", "photo"]
-                    },
+                    "url": "{{BASE_URL}}/lead-investor/upload/photo",
                     "description": "Upload investor profile photo. Use returned URL in investor creation/update."
                   },
                   "response": []
@@ -5821,21 +5125,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/me",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "me"]
-                    },
+                    "url": "{{BASE_URL}}/users/me",
                     "description": "Get authenticated user's profile information including personal details and settings."
                   },
                   "response": []
@@ -5845,13 +5141,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -5859,11 +5151,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"phoneNumber\": \"+1234567891\",\n  \"userLocation\": \"San Francisco, CA\",\n  \"zipcode\": \"94102\",\n  \"aboutYourself\": \"Updated profile description\",\n  \"photo\": \"https://example.com/photo.jpg\",\n  \"coverPhoto\": \"https://example.com/cover.jpg\",\n  \"outsideLinks\": [\n    {\n      \"title\": \"Updated LinkedIn\",\n      \"url\": \"https://linkedin.com/in/johnupdated\"\n    }\n  ],\n  \"walletAddress\": \"0x742d35Cc6335CAA4C7A5B7a5a9C5B0E1234567890\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/profile",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "profile"]
-                    },
+                    "url": "{{BASE_URL}}/users/profile",
                     "description": "Update authenticated user's profile information. All fields are optional."
                   },
                   "response": []
@@ -5873,13 +5161,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "PATCH",
                     "header": [],
@@ -5887,11 +5171,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewSecurePassword123\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/change-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "change-password"]
-                    },
+                    "url": "{{BASE_URL}}/users/change-password",
                     "description": "Change user password. Requires current password verification."
                   },
                   "response": []
@@ -5901,13 +5181,9 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "GET",
                     "header": [],
@@ -5931,21 +5207,13 @@
                   "request": {
                     "auth": {
                       "type": "bearer",
-                      "bearer": [
-                        {
-                          "key": "token",
-                          "value": "{{FRONT_JWT}}",
-                          "type": "string"
-                        }
-                      ]
+                      "bearer": {
+                        "token": "{{FRONT_JWT}}"
+                      }
                     },
                     "method": "DELETE",
                     "header": [],
-                    "url": {
-                      "raw": "{{BASE_URL}}/users/deactivate",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["users", "deactivate"]
-                    },
+                    "url": "{{BASE_URL}}/users/deactivate",
                     "description": "Deactivate user account. This sets the account status to inactive without permanent deletion."
                   },
                   "response": []
@@ -6066,11 +5334,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/auth/forgot-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["auth", "forgot-password"]
-                    },
+                    "url": "{{BASE_URL}}/auth/forgot-password",
                     "description": "Request password reset token. Rate limited to 3 requests per minute. Sends reset token via email."
                   },
                   "response": []
@@ -6084,11 +5348,7 @@
                       "mode": "raw",
                       "raw": "{\n  \"token\": \"{{RESET_TOKEN}}\",\n  \"password\": \"NewSecurePassword123\"\n}"
                     },
-                    "url": {
-                      "raw": "{{BASE_URL}}/auth/reset-password",
-                      "host": ["{{BASE_URL}}"],
-                      "path": ["auth", "reset-password"]
-                    },
+                    "url": "{{BASE_URL}}/auth/reset-password",
                     "description": "Reset password using token received via email. Rate limited to 5 requests per minute."
                   },
                   "response": []
@@ -6171,11 +5431,7 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": {
-              "raw": "{{BASE_URL}}/health",
-              "host": ["{{BASE_URL}}"],
-              "path": ["health"]
-            },
+            "url": "{{BASE_URL}}/health",
             "description": "Check system health including PostgreSQL, MongoDB, and Redis connectivity. No authentication required."
           },
           "response": []
@@ -6196,11 +5452,7 @@
                 "value": "text/plain"
               }
             ],
-            "url": {
-              "raw": "{{BASE_URL}}/metrics",
-              "host": ["{{BASE_URL}}"],
-              "path": ["metrics"]
-            },
+            "url": "{{BASE_URL}}/metrics",
             "description": "Get Prometheus metrics for monitoring application performance, database connections, active users, and campaign statistics. Returns metrics in Prometheus text format."
           },
           "response": []

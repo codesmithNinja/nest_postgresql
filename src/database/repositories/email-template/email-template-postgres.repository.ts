@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PostgresRepository } from '../base/postgres.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
+  PaginationOptions,
+  PaginatedResult,
+} from '../../../common/interfaces/repository.interface';
+import {
   EmailTemplate,
   CreateEmailTemplateDto,
   UpdateEmailTemplateDto,
@@ -505,56 +509,29 @@ export class EmailTemplatePostgresRepository
 
   async findWithPaginationAndSearch(
     searchTerm: string,
-    filter: Partial<EmailTemplate>,
-    options: {
-      page: number;
-      limit: number;
-      sort?: Record<string, 1 | -1>;
-    }
-  ): Promise<{
-    items: EmailTemplate[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalCount: number;
-      limit: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-  }> {
-    // Build search conditions for PostgreSQL
+    searchFields: string[],
+    filter?: Partial<EmailTemplate>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<EmailTemplate>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+
+    // Build search conditions using the provided search fields
     const searchConditions = {
-      OR: [
-        {
-          task: {
-            contains: searchTerm,
-            mode: 'insensitive' as const,
-          },
-        },
-        {
-          subject: {
-            contains: searchTerm,
-            mode: 'insensitive' as const,
-          },
-        },
-        {
-          senderName: {
-            contains: searchTerm,
-            mode: 'insensitive' as const,
-          },
-        },
-      ],
+      OR: searchFields.map((field) => ({
+        [field]: { contains: searchTerm, mode: 'insensitive' as const },
+      })),
     };
 
     // Build additional filters
     const additionalFilters: Record<string, unknown> = {};
-    if (filter.languageId) {
+    if (filter?.languageId) {
       additionalFilters.languageId = filter.languageId;
     }
-    if (filter.status !== undefined) {
+    if (filter?.status !== undefined) {
       additionalFilters.status = filter.status;
     }
-    if (filter.senderEmail) {
+    if (filter?.senderEmail) {
       additionalFilters.senderEmail = {
         contains: filter.senderEmail,
         mode: 'insensitive',
@@ -567,7 +544,7 @@ export class EmailTemplatePostgresRepository
 
     // Build sort order
     const orderBy: Record<string, 'asc' | 'desc'> = {};
-    if (options.sort) {
+    if (options?.sort) {
       Object.entries(options.sort).forEach(([key, value]) => {
         orderBy[key] = value === 1 ? 'asc' : 'desc';
       });
@@ -582,8 +559,8 @@ export class EmailTemplatePostgresRepository
       this.prisma.emailTemplate.findMany({
         where: whereClause,
         include: { language: true },
-        skip: (options.page - 1) * options.limit,
-        take: options.limit,
+        skip: ((options?.page || 1) - 1) * (options?.limit || 10),
+        take: options?.limit || 10,
         orderBy,
       }),
     ]);
@@ -607,17 +584,17 @@ export class EmailTemplatePostgresRepository
         : undefined,
     })) as EmailTemplate[];
 
-    const totalPages = Math.ceil(total / options.limit);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       items,
       pagination: {
-        currentPage: options.page,
+        currentPage: page,
         totalPages,
         totalCount: total,
-        limit: options.limit,
-        hasNext: options.page < totalPages,
-        hasPrev: options.page > 1,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }

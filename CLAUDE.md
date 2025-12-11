@@ -203,7 +203,7 @@ src/
 
 /languages (admin-modules)
   GET    /front                    # Public: Get active languages
-  GET    /                         # Admin: Get all languages with pagination
+  GET    /                         # Admin: Get all languages with pagination (supports search across name, folder, ISO2, ISO3)
   GET    /:publicId                # Admin: Get single language
   POST   /                         # Admin: Create new language with flag upload
   PATCH  /:publicId                # Admin: Update language with optional flag upload
@@ -213,7 +213,7 @@ src/
 
 /manage-dropdown (admin-modules)
   GET    /:dropdownType/front      # Public: Get active dropdown options by type (no auth)
-  GET    /:dropdownType/admin      # Admin: Get dropdown options with pagination
+  GET    /:dropdownType/admin      # Admin: Get dropdown options with pagination (supports search across option names)
   POST   /:dropdownType            # Admin: Create new dropdown option
   GET    /:dropdownType/:publicId  # Admin: Get single dropdown option
   PATCH  /:dropdownType/:publicId  # Admin: Update dropdown option
@@ -223,7 +223,7 @@ src/
 
 /countries (admin-modules)
   GET    /front                    # Public: Get active countries
-  GET    /                         # Admin: Get all countries with pagination
+  GET    /                         # Admin: Get all countries with pagination (supports search across name, ISO2, ISO3)
   GET    /:publicId                # Admin: Get single country
   POST   /                         # Admin: Create new country with flag upload
   PATCH  /:publicId                # Admin: Update country with optional flag upload
@@ -233,7 +233,7 @@ src/
 
 /currencies (admin-modules)
   GET    /front                    # Public: Get active currencies
-  GET    /                         # Admin: Get all currencies with pagination
+  GET    /                         # Admin: Get all currencies with pagination (supports search across name, code, symbol)
   GET    /:publicId                # Admin: Get single currency
   POST   /                         # Admin: Create new currency
   PATCH  /:publicId                # Admin: Update currency
@@ -251,14 +251,14 @@ src/
 
 /admins (admin-modules)
   GET    /me                       # Admin: Get current admin profile
-  GET    /                         # Admin: Get all admins with pagination
+  GET    /                         # Admin: Get all admins with pagination (supports search across firstName, lastName, email)
   POST   /                         # Admin: Create new admin user
   PATCH  /:id                      # Admin: Update admin user
   DELETE /:id                      # Admin: Delete admin user
 
 /sliders (admin-modules)
   GET    /front                    # Public: Get active sliders for frontend
-  GET    /                         # Admin: Get all sliders with pagination
+  GET    /                         # Admin: Get all sliders with pagination (supports search across title, description, button titles)
   GET    /:publicId                # Admin: Get single slider
   POST   /                         # Admin: Create new slider with image upload
   PATCH  /:publicId                # Admin: Update slider with optional image upload
@@ -284,7 +284,7 @@ src/
   PATCH  /:publicId                # Admin: Update meta setting with optional OG image upload
 
 /email-templates (admin-modules)
-  GET    /                         # Admin: Get email templates with pagination and search (supports filtering by task, senderEmail, senderName, subject, languageId, status, and search across task/subject/senderName)
+  GET    /                         # Admin: Get email templates with pagination (supports unified search across task, subject, sender name)
   GET    /:publicId                # Admin: Get single email template by public ID
   POST   /                         # Admin: Create new email template with task and content
   POST   /all-languages            # Admin: Create email template for all active languages

@@ -12,6 +12,7 @@ import {
   IAdminRepository,
   ADMIN_REPOSITORY,
 } from '../../../database/repositories/admin/admin.repository.interface';
+import { PaginationOptions } from '../../../common/interfaces/repository.interface';
 import { discardUnderscores } from '../../../common/utils/discard-underscores.util';
 import { EmailService } from '../../../email/email.service';
 import { FileUploadUtil } from '../../../common/utils/file-upload.util';
@@ -83,7 +84,7 @@ export class AdminUsersService {
 
     const admin = await this.adminRepository.insert(adminData);
 
-    return this.i18nResponse.adminCreated(this.transformToResponseDto(admin));
+    return this.transformToResponseDto(admin);
   }
 
   async login(loginDto: AdminLoginDto, loginIp: string) {
@@ -119,10 +120,10 @@ export class AdminUsersService {
 
     const access_token = this.jwtService.sign(payload);
 
-    return this.i18nResponse.adminLoginSuccess({
+    return {
       access_token,
       admin: this.transformToResponseDto(updatedAdmin),
-    });
+    };
   }
 
   async getProfile(adminId: string) {
@@ -131,33 +132,42 @@ export class AdminUsersService {
       throw new AdminNotFoundException('Admin not found');
     }
 
-    return this.i18nResponse.adminProfileRetrieved(
-      this.transformToResponseDto(admin)
-    );
+    return this.transformToResponseDto(admin);
   }
 
   async getAllAdmins(filterDto: AdminFilterDto) {
-    const { page = 1, limit = 10, ...filters } = filterDto;
-    const skip = (page - 1) * limit;
+    const { page = 1, limit = 10, search, ...additionalFilters } = filterDto;
 
-    const options = {
-      skip,
+    const options: PaginationOptions = {
+      page,
       limit,
-      sort: { createdAt: -1 as -1 },
+      sort: { createdAt: -1 },
     };
 
-    const result = await this.adminRepository.findWithPagination(
-      filters,
-      options
-    );
+    let result;
+    if (search && search.trim()) {
+      // Use new search method
+      result = await this.adminRepository.findWithPaginationAndSearch(
+        search.trim(),
+        ['firstName', 'lastName', 'email'],
+        additionalFilters,
+        options
+      );
+    } else {
+      // Use existing pagination method
+      result = await this.adminRepository.findWithPagination(
+        additionalFilters,
+        options
+      );
+    }
 
-    return this.i18nResponse.adminsRetrieved({
+    return {
       admins: result.items.map((admin) => this.transformToResponseDto(admin)),
       total: result.pagination.totalCount,
       page: result.pagination.currentPage,
       limit: result.pagination.limit,
       totalPages: result.pagination.totalPages,
-    });
+    };
   }
 
   async getAdminByPublicId(publicId: string) {
@@ -166,9 +176,7 @@ export class AdminUsersService {
       throw new AdminNotFoundException('Admin not found');
     }
 
-    return this.i18nResponse.adminProfileRetrieved(
-      this.transformToResponseDto(admin)
-    );
+    return this.transformToResponseDto(admin);
   }
 
   // Internal method for getting raw admin data (used internally, not for API responses)
@@ -200,9 +208,7 @@ export class AdminUsersService {
       updateAdminDto
     );
 
-    return this.i18nResponse.adminUpdated(
-      this.transformToResponseDto(updatedAdmin)
-    );
+    return this.transformToResponseDto(updatedAdmin);
   }
 
   async deleteAdmin(publicId: string): Promise<void> {

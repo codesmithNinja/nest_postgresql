@@ -2279,6 +2279,10 @@ curl -X GET "http://localhost:3000/currencies/front?lang=en"
 curl -X GET "http://localhost:3000/currencies?page=1&limit=10&includeInactive=true" \
   -H "Authorization: Bearer <admin-token>"
 
+# Get currencies with search filter (admin)
+curl -X GET "http://localhost:3000/currencies?search=dollar&page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
 # Create new currency (admin)
 curl -X POST "http://localhost:3000/currencies" \
   -H "Authorization: Bearer <admin-token>" \
@@ -2321,6 +2325,10 @@ curl -X GET "http://localhost:3000/manage-dropdown/industry/front?lang=en"
 curl -X GET "http://localhost:3000/manage-dropdown/industry/admin?page=1&limit=10" \
   -H "Authorization: Bearer <admin-token>"
 
+# Get dropdown options with search filter (admin)
+curl -X GET "http://localhost:3000/manage-dropdown/industry/admin?search=technology&page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
 # Create new dropdown option (admin)
 curl -X POST "http://localhost:3000/manage-dropdown/industry" \
   -H "Authorization: Bearer <admin-token>" \
@@ -2359,6 +2367,10 @@ curl -X GET "http://localhost:3000/countries/front?lang=en"
 curl -X GET "http://localhost:3000/countries?page=1&limit=10" \
   -H "Authorization: Bearer <admin-token>"
 
+# Get countries with search filter (admin)
+curl -X GET "http://localhost:3000/countries?search=united&page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
 # Create new country with flag upload (admin)
 curl -X POST "http://localhost:3000/countries" \
   -H "Authorization: Bearer <admin-token>" \
@@ -2383,6 +2395,10 @@ curl -X GET "http://localhost:3000/admins/me" \
 
 # Get all admin users with pagination
 curl -X GET "http://localhost:3000/admins?page=1&limit=10" \
+  -H "Authorization: Bearer <admin-token>"
+
+# Get admin users with search filter
+curl -X GET "http://localhost:3000/admins?search=john&page=1&limit=10" \
   -H "Authorization: Bearer <admin-token>"
 
 # Create new admin user

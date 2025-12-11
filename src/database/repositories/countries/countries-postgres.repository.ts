@@ -136,6 +136,60 @@ export class CountriesPostgresRepository
     };
   }
 
+  async findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: Partial<Country>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<Country>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build search conditions using the provided search fields
+    const searchConditions = {
+      OR: searchFields.map((field) => ({
+        [field]: { contains: searchTerm, mode: 'insensitive' as const },
+      })),
+    };
+
+    // Build additional filters
+    const additionalFilters = this.buildAdditionalFilters(filter);
+    const whereClause = additionalFilters
+      ? { AND: [searchConditions, additionalFilters] }
+      : searchConditions;
+
+    // Execute queries in parallel
+    const [items, totalCount] = await Promise.all([
+      this.prisma.country.findMany({
+        where: whereClause,
+        select: this.selectFields,
+        skip,
+        take: limit,
+        orderBy: options?.sort
+          ? Object.entries(options.sort).map(([key, value]) => ({
+              [key]: value === 1 ? 'asc' : 'desc',
+            }))
+          : [{ createdAt: 'desc' }],
+      }),
+      this.prisma.country.count({ where: whereClause }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items: items as unknown as Country[],
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   async bulkUpdateByPublicIds(
     publicIds: string[],
     data: Partial<Country>
@@ -172,6 +226,25 @@ export class CountriesPostgresRepository
       count: deleteResult.count,
       deleted: deleted as unknown as Country[],
     };
+  }
+
+  private buildAdditionalFilters(
+    filter?: Partial<Country>
+  ): Record<string, unknown> | null {
+    if (!filter) return null;
+
+    const prismaFilter: Record<string, unknown> = {};
+
+    Object.entries(filter).forEach(([key, value]) => {
+      if (key !== 'name' && key !== 'iso2' && key !== 'iso3') {
+        // Skip search fields, only process additional filters
+        if (value !== undefined && value !== null) {
+          prismaFilter[key] = value;
+        }
+      }
+    });
+
+    return Object.keys(prismaFilter).length > 0 ? prismaFilter : null;
   }
 
   protected getModelDelegate() {

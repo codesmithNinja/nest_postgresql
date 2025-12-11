@@ -2,6 +2,7 @@ import {
   IRepository,
   QueryOptions,
   PaginatedResult,
+  PaginationOptions,
 } from '../../../common/interfaces/repository.interface';
 import { Admin } from '../../entities/admin.entity';
 
@@ -23,6 +24,12 @@ export interface IAdminRepository extends IRepository<Admin> {
   findWithPagination(
     filter?: MongoQuery<Admin>,
     options?: QueryOptions
+  ): Promise<PaginatedResult<Admin>>;
+  findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Admin>,
+    options?: PaginationOptions
   ): Promise<PaginatedResult<Admin>>;
 }
 

@@ -17,7 +17,10 @@ import {
   ManageDropdownWithLanguage,
   MinimalLanguage,
 } from '../../entities/manage-dropdown.entity';
-import { IManageDropdownRepository } from './manage-dropdown.repository.interface';
+import {
+  IManageDropdownRepository,
+  MongoQuery,
+} from './manage-dropdown.repository.interface';
 import {
   PaginationOptions,
   PaginatedResult,
@@ -300,6 +303,60 @@ export class ManageDropdownMongodbRepository
     };
   }
 
+  async findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<ManageDropdown>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<ManageDropdown>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build search conditions using the provided search fields
+    const searchConditions = {
+      $or: searchFields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+      })),
+    };
+
+    // Build additional filters
+    const additionalFilters = this.buildAdditionalFilters(filter);
+    const mongoFilter = additionalFilters
+      ? { $and: [searchConditions, additionalFilters] }
+      : searchConditions;
+
+    // Build query
+    const query = this.manageDropdownModel.find(mongoFilter);
+
+    if (options?.sort) {
+      query.sort(options.sort);
+    } else {
+      query.sort({ createdAt: -1 });
+    }
+
+    // Execute queries in parallel
+    const [documents, total] = await Promise.all([
+      query.skip(skip).limit(limit).exec(),
+      this.manageDropdownModel.countDocuments(mongoFilter).exec(),
+    ]);
+
+    const items = documents.map((doc) => this.toEntity(doc));
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount: total,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   // Base interface implementations
   async getDetail(
     filter: Partial<ManageDropdown>
@@ -540,5 +597,24 @@ export class ManageDropdownMongodbRepository
       .deleteMany({ uniqueCode })
       .exec();
     return result.deletedCount || 0;
+  }
+
+  private buildAdditionalFilters(
+    filter?: MongoQuery<ManageDropdown>
+  ): Record<string, unknown> | null {
+    if (!filter) return null;
+
+    const mongoFilter: Record<string, unknown> = {};
+
+    Object.entries(filter).forEach(([key, value]) => {
+      if (key !== 'name') {
+        // Skip search fields, only process additional filters
+        if (value !== undefined && value !== null) {
+          mongoFilter[key] = value;
+        }
+      }
+    });
+
+    return Object.keys(mongoFilter).length > 0 ? mongoFilter : null;
   }
 }

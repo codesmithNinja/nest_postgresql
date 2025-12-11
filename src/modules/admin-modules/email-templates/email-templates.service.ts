@@ -140,8 +140,6 @@ export class EmailTemplatesService implements OnModuleInit {
       // Transform to response format
       const result = emailTemplates.map((template) => ({
         emailTemplate: this.transformToResponseDto(template),
-        language:
-          template.language?.folder || language.folder || languageCode || 'en',
       }));
 
       // Cache the result
@@ -173,7 +171,7 @@ export class EmailTemplatesService implements OnModuleInit {
   ): Promise<EmailTemplatePaginationResponseDto> {
     try {
       // Convert publicId to languageId if provided, otherwise use default language fallback
-      let resolvedLanguageId = queryDto.languageId;
+      let resolvedLanguageId: string | undefined;
 
       if (queryDto.publicId) {
         const language = await this.getLanguageByPublicId(queryDto.publicId);
@@ -181,53 +179,30 @@ export class EmailTemplatesService implements OnModuleInit {
           throw new EmailTemplateLanguageException(queryDto.publicId);
         }
         resolvedLanguageId = language.id;
-      } else if (!queryDto.languageId) {
-        // If neither languageId nor publicId is provided, use default language with fallback
+      } else if (queryDto.languageId) {
+        // Resolve explicit languageId (could be UUID or ObjectId) to ObjectId
+        resolvedLanguageId = await this.resolveLanguageId(queryDto.languageId);
+      } else {
+        // If neither languageId nor publicId is provided, use default language
         const defaultLanguage = await this.languagesRepository.findDefault();
         if (defaultLanguage) {
           resolvedLanguageId = defaultLanguage.id;
-
-          // Check if default language has any templates
-          const defaultLanguageHasTemplates =
-            await this.emailTemplateRepository.exists({
-              languageId: defaultLanguage.id,
-            });
-
-          if (!defaultLanguageHasTemplates) {
-            // Find first language that has templates
-            const allActiveLanguages = await this.languagesRepository.findMany({
-              status: true,
-            });
-
-            for (const language of allActiveLanguages) {
-              const hasTemplates = await this.emailTemplateRepository.exists({
-                languageId: language.id,
-              });
-
-              if (hasTemplates) {
-                resolvedLanguageId = language.id;
-                break;
-              }
-            }
-          }
         } else {
           this.logger.warn('No default language found');
+          // If no default language, find first active language
+          const firstActiveLanguage = await this.languagesRepository.findMany({
+            status: true,
+          });
+          if (firstActiveLanguage && firstActiveLanguage.length > 0) {
+            resolvedLanguageId = firstActiveLanguage[0].id;
+          }
         }
       }
 
-      // Debug logging for troubleshooting empty array issue
-
       // Build filter for repository
-      const filter = {
-        task: queryDto.task,
-        senderEmail: queryDto.senderEmail,
-        senderName: queryDto.senderName,
-        subject: queryDto.subject,
-        // Only filter by languageId if user explicitly provided one
-        ...(queryDto.languageId || queryDto.publicId
-          ? { languageId: resolvedLanguageId }
-          : {}),
-        status: queryDto.status,
+      const baseFilter = {
+        // Only include status in filter if it's defined (not undefined)
+        ...(queryDto.status !== undefined ? { status: queryDto.status } : {}),
       };
 
       // Check if we need to use search functionality
@@ -235,16 +210,15 @@ export class EmailTemplatesService implements OnModuleInit {
       if (queryDto.search && queryDto.search.trim()) {
         // Use search functionality when search term is provided
         const searchTerm = queryDto.search.trim();
+        const searchFilter = {
+          // Always include languageId in filter if resolved
+          ...(resolvedLanguageId ? { languageId: resolvedLanguageId } : {}),
+          ...baseFilter,
+        };
         result = await this.emailTemplateRepository.findWithPaginationAndSearch(
           searchTerm,
-          {
-            senderEmail: queryDto.senderEmail,
-            // Only filter by languageId if user explicitly provided one
-            ...(queryDto.languageId || queryDto.publicId
-              ? { languageId: resolvedLanguageId }
-              : {}),
-            status: queryDto.status,
-          },
+          ['task', 'subject', 'senderName'],
+          searchFilter,
           {
             page: queryDto.page || 1,
             limit: queryDto.limit || 10,
@@ -256,14 +230,23 @@ export class EmailTemplatesService implements OnModuleInit {
         );
       } else {
         // Use regular pagination when no search term
-        result = await this.emailTemplateRepository.findWithPagination(filter, {
-          page: queryDto.page || 1,
-          limit: queryDto.limit || 10,
-          sort: {
-            [queryDto.sortBy || 'createdAt']:
-              queryDto.sortOrder === 'asc' ? 1 : -1,
-          },
-        });
+        // First try with language filter if resolved
+        const filterWithLanguage = {
+          ...(resolvedLanguageId ? { languageId: resolvedLanguageId } : {}),
+          ...baseFilter,
+        };
+
+        result = await this.emailTemplateRepository.findWithPagination(
+          filterWithLanguage,
+          {
+            page: queryDto.page || 1,
+            limit: queryDto.limit || 10,
+            sort: {
+              [queryDto.sortBy || 'createdAt']:
+                queryDto.sortOrder === 'asc' ? 1 : -1,
+            },
+          }
+        );
       }
 
       // Transform results
@@ -863,19 +846,13 @@ export class EmailTemplatesService implements OnModuleInit {
     return {
       id: emailTemplate.id,
       publicId: emailTemplate.publicId,
-      languageId: emailTemplate.languageId,
-      language:
+      languageId:
         'language' in emailTemplate && emailTemplate.language
           ? {
               publicId: emailTemplate.language.publicId,
-              name: emailTemplate.language.name,
-              folder: emailTemplate.language.folder,
-              iso2: emailTemplate.language.iso2,
-              iso3: emailTemplate.language.iso3,
-              direction: emailTemplate.language.direction,
-              flagImage: emailTemplate.language.flagImage,
+              name: emailTemplate.language.name || '',
             }
-          : undefined,
+          : emailTemplate.languageId,
       task: emailTemplate.task,
       senderEmail: emailTemplate.senderEmail,
       replyEmail: emailTemplate.replyEmail,

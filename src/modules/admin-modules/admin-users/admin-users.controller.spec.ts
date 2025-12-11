@@ -88,13 +88,7 @@ describe('AdminUsersController', () => {
         password: 'password123',
       };
 
-      service.login.mockResolvedValue({
-        success: true,
-        data: mockLoginResponse,
-        statusCode: 200,
-        message: 'Login successful',
-        timestamp: new Date().toISOString(),
-      });
+      service.login.mockResolvedValue(mockLoginResponse);
 
       const result = await controller.login(
         loginDto,
@@ -125,18 +119,12 @@ describe('AdminUsersController', () => {
   describe('getAllAdmins', () => {
     it('should get all admins with pagination', async () => {
       const filterDto = { page: 1, limit: 10 };
-      service.getAllAdmins.mockResolvedValue({
-        success: true,
-        data: mockPaginationResponse,
-        statusCode: 200,
-        message: 'Admins retrieved',
-        timestamp: new Date().toISOString(),
-      });
+      service.getAllAdmins.mockResolvedValue(mockPaginationResponse);
 
       const result = await controller.getAllAdmins(filterDto);
 
       expect(mockAdminService.getAllAdmins).toHaveBeenCalledWith(filterDto);
-      expect(result.data).toEqual(mockPaginationResponse);
+      expect(result).toEqual(mockPaginationResponse);
     });
   });
 
@@ -307,9 +295,9 @@ describe('AdminUsersController', () => {
     it('should logout admin successfully', () => {
       service.logout.mockReturnValue(undefined);
 
-      const result = controller.logout(mockRequest as RequestWithAdmin);
+      const result = controller.logout();
 
-      expect(mockAdminService.logout).toHaveBeenCalledWith('1');
+      expect(mockAdminService.logout).toHaveBeenCalled();
       expect(result.message).toBe('Admin logged out successfully');
     });
   });

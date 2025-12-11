@@ -12,6 +12,7 @@ import {
   ILanguagesRepository,
   LANGUAGES_REPOSITORY,
 } from '../../../database/repositories/languages/languages.repository.interface';
+import { PaginationOptions } from '../../../common/interfaces/repository.interface';
 import { SliderWithLanguage } from '../../../database/entities/slider.entity';
 import {
   CreateSliderDto as CreateSliderDtoValidated,
@@ -91,8 +92,7 @@ export class SlidersService {
         limit = 10,
         includeInactive = true,
         languageId,
-        title,
-        uniqueCode,
+        search,
       } = queryDto;
 
       // Validate pagination parameters
@@ -103,35 +103,65 @@ export class SlidersService {
       // Resolve languageId to primary key
       const resolvedLanguageId = await this.resolveLanguageId(languageId);
 
-      // Get sliders with pagination
-      const result = await this.sliderRepository.findWithPaginationByLanguage(
+      // Set up pagination options
+      const options: PaginationOptions = {
         page,
         limit,
-        resolvedLanguageId,
-        includeInactive
-      );
+        sort: { createdAt: -1 },
+      };
 
-      // Apply additional filters if provided
-      let filteredData = result.data;
-      if (title) {
-        filteredData = filteredData.filter((slider) =>
-          slider.title.toLowerCase().includes(title.toLowerCase())
-        );
-      }
-      if (uniqueCode !== undefined) {
-        filteredData = filteredData.filter(
-          (slider) => slider.uniqueCode === uniqueCode
-        );
-      }
+      // Prepare additional filters
+      const additionalFilters = {
+        languageId: resolvedLanguageId,
+        ...(includeInactive ? {} : { status: true }),
+      };
 
-      const totalPages = Math.ceil(result.total / limit);
+      let result;
+      if (search && search.trim()) {
+        // Use new search method
+        result = await this.sliderRepository.findWithPaginationAndSearch(
+          search.trim(),
+          [
+            'title',
+            'description',
+            'buttonTitle',
+            'buttonTitleTwo',
+            'descriptionTwo',
+          ],
+          additionalFilters,
+          options
+        );
+      } else {
+        // Use existing pagination method
+        const legacyResult =
+          await this.sliderRepository.findWithPaginationByLanguage(
+            page,
+            limit,
+            resolvedLanguageId,
+            includeInactive
+          );
+        // Convert legacy result to match PaginatedResult format
+        result = {
+          items: legacyResult.data,
+          pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(legacyResult.total / limit),
+            totalCount: legacyResult.total,
+            limit,
+            hasNext: page * limit < legacyResult.total,
+            hasPrev: page > 1,
+          },
+        };
+      }
 
       return {
-        data: filteredData.map((slider) => this.transformToResponseDto(slider)),
-        total: result.total,
-        page,
-        limit,
-        totalPages,
+        data: result.items.map((slider) =>
+          this.transformToResponseDto(slider as SliderWithLanguage)
+        ),
+        total: result.pagination.totalCount,
+        page: result.pagination.currentPage,
+        limit: result.pagination.limit,
+        totalPages: result.pagination.totalPages,
       };
     } catch (error) {
       this.logger.error('Failed to fetch sliders for admin:', error);

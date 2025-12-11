@@ -147,22 +147,18 @@ export class UpdateCountryDto {
 }
 
 export class CountryFilterDto {
-  @ApiPropertyOptional({ description: 'Filter by country name' })
+  @ApiPropertyOptional({
+    description:
+      'Search keyword to filter across country name, ISO2, and ISO3 codes',
+    example: 'united states',
+    minLength: 1,
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
-  name?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by ISO 2-letter code' })
-  @IsOptional()
-  @IsString()
-  @Length(2, 2)
-  iso2?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by ISO 3-letter code' })
-  @IsOptional()
-  @IsString()
-  @Length(3, 3)
-  iso3?: string;
+  @MinLength(1)
+  @MaxLength(100)
+  search?: string;
 
   @ApiPropertyOptional({
     description: 'Filter by default status',

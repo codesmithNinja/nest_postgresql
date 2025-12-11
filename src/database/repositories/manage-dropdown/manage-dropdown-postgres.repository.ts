@@ -7,7 +7,10 @@ import {
   ManageDropdownWithLanguage,
   MinimalLanguage,
 } from '../../entities/manage-dropdown.entity';
-import { IManageDropdownRepository } from './manage-dropdown.repository.interface';
+import {
+  IManageDropdownRepository,
+  MongoQuery,
+} from './manage-dropdown.repository.interface';
 import {
   PaginationOptions,
   PaginatedResult,
@@ -289,6 +292,60 @@ export class ManageDropdownPostgresRepository
     };
   }
 
+  async findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<ManageDropdown>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<ManageDropdown>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build search conditions using the provided search fields
+    const searchConditions = {
+      OR: searchFields.map((field) => ({
+        [field]: { contains: searchTerm, mode: 'insensitive' as const },
+      })),
+    };
+
+    // Build additional filters
+    const additionalFilters = this.buildAdditionalFilters(filter);
+    const whereClause = additionalFilters
+      ? { AND: [searchConditions, additionalFilters] }
+      : searchConditions;
+
+    // Execute queries in parallel
+    const [items, totalCount] = await Promise.all([
+      this.prisma.manageDropdown.findMany({
+        where: whereClause,
+        select: this.selectFields,
+        skip,
+        take: limit,
+        orderBy: options?.sort
+          ? Object.entries(options.sort).map(([key, value]) => ({
+              [key]: value === 1 ? 'asc' : 'desc',
+            }))
+          : [{ createdAt: 'desc' }],
+      }),
+      this.prisma.manageDropdown.count({ where: whereClause }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items: items as unknown as ManageDropdown[],
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   // Base interface implementations
   async getDetail(
     filter: Partial<ManageDropdown>
@@ -556,5 +613,24 @@ export class ManageDropdownPostgresRepository
     });
 
     return result.count;
+  }
+
+  private buildAdditionalFilters(
+    filter?: MongoQuery<ManageDropdown>
+  ): Record<string, unknown> | null {
+    if (!filter) return null;
+
+    const prismaFilter: Record<string, unknown> = {};
+
+    Object.entries(filter).forEach(([key, value]) => {
+      if (key !== 'name') {
+        // Skip search fields, only process additional filters
+        if (value !== undefined && value !== null) {
+          prismaFilter[key] = value;
+        }
+      }
+    });
+
+    return Object.keys(prismaFilter).length > 0 ? prismaFilter : null;
   }
 }

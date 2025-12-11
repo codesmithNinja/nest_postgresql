@@ -7,7 +7,7 @@ import {
   SliderWithLanguage,
   MinimalLanguage,
 } from '../../entities/slider.entity';
-import { ISliderRepository } from './slider.repository.interface';
+import { ISliderRepository, MongoQuery } from './slider.repository.interface';
 import {
   PaginationOptions,
   PaginatedResult,
@@ -231,6 +231,60 @@ export class SliderPostgresRepository
       total,
       page,
       limit,
+    };
+  }
+
+  async findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Slider>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<Slider>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build search conditions using the provided search fields
+    const searchConditions = {
+      OR: searchFields.map((field) => ({
+        [field]: { contains: searchTerm, mode: 'insensitive' as const },
+      })),
+    };
+
+    // Build additional filters
+    const additionalFilters = this.buildAdditionalFilters(filter);
+    const whereClause = additionalFilters
+      ? { AND: [searchConditions, additionalFilters] }
+      : searchConditions;
+
+    // Execute queries in parallel
+    const [items, totalCount] = await Promise.all([
+      this.prisma.slider.findMany({
+        where: whereClause,
+        select: this.selectFields,
+        skip,
+        take: limit,
+        orderBy: options?.sort
+          ? Object.entries(options.sort).map(([key, value]) => ({
+              [key]: value === 1 ? 'asc' : 'desc',
+            }))
+          : [{ createdAt: 'desc' }],
+      }),
+      this.prisma.slider.count({ where: whereClause }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      items: items as unknown as Slider[],
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
     };
   }
 
@@ -588,5 +642,30 @@ export class SliderPostgresRepository
     }
 
     return prismaFilter;
+  }
+
+  private buildAdditionalFilters(
+    filter?: MongoQuery<Slider>
+  ): Record<string, unknown> | null {
+    if (!filter) return null;
+
+    const prismaFilter: Record<string, unknown> = {};
+
+    Object.entries(filter).forEach(([key, value]) => {
+      if (
+        key !== 'title' &&
+        key !== 'description' &&
+        key !== 'buttonTitle' &&
+        key !== 'buttonTitleTwo' &&
+        key !== 'descriptionTwo'
+      ) {
+        // Skip search fields, only process additional filters
+        if (value !== undefined && value !== null) {
+          prismaFilter[key] = value;
+        }
+      }
+    });
+
+    return Object.keys(prismaFilter).length > 0 ? prismaFilter : null;
   }
 }

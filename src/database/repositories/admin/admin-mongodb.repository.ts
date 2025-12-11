@@ -6,6 +6,7 @@ import { IAdminRepository, MongoQuery } from './admin.repository.interface';
 import {
   QueryOptions,
   PaginatedResult,
+  PaginationOptions,
 } from '../../../common/interfaces/repository.interface';
 import { Admin as AdminEntity } from '../../entities/admin.entity';
 
@@ -176,6 +177,79 @@ export class AdminMongoRepository implements IAdminRepository {
         hasPrev: page > 1,
       },
     };
+  }
+
+  async findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<AdminEntity>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<AdminEntity>> {
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build search conditions using the provided search fields
+    const searchConditions = {
+      $or: searchFields.map((field) => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+      })),
+    };
+
+    // Build additional filters
+    const additionalFilters = this.buildAdditionalFilters(filter);
+    const mongoFilter = additionalFilters
+      ? { $and: [searchConditions, additionalFilters] }
+      : searchConditions;
+
+    // Build query
+    const query = this.adminModel.find(mongoFilter);
+
+    if (options?.sort) {
+      query.sort(options.sort);
+    } else {
+      query.sort({ createdAt: -1 });
+    }
+
+    // Execute queries in parallel
+    const [documents, total] = await Promise.all([
+      query.skip(skip).limit(limit).exec(),
+      this.adminModel.countDocuments(mongoFilter).exec(),
+    ]);
+
+    const items = documents.map((doc) => this.toEntity(doc));
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      items,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount: total,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  private buildAdditionalFilters(
+    filter?: MongoQuery<AdminEntity>
+  ): Record<string, unknown> | null {
+    if (!filter) return null;
+
+    const mongoFilter: Record<string, unknown> = {};
+
+    Object.entries(filter).forEach(([key, value]) => {
+      if (key !== 'firstName' && key !== 'lastName' && key !== 'email') {
+        // Skip search fields, only process additional filters
+        if (value !== undefined && value !== null) {
+          mongoFilter[key] = value;
+        }
+      }
+    });
+
+    return Object.keys(mongoFilter).length > 0 ? mongoFilter : null;
   }
 
   private convertToMongoFilter(

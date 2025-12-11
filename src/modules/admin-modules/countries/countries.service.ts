@@ -6,6 +6,7 @@ import {
   ICountriesRepository,
   COUNTRIES_REPOSITORY,
 } from '../../../database/repositories/countries/countries.repository.interface';
+import { PaginationOptions } from '../../../common/interfaces/repository.interface';
 import {
   FileUploadUtil,
   getBucketName,
@@ -40,19 +41,30 @@ export class CountriesService {
   ) {}
 
   async getAllCountries(filterDto: CountryFilterDto) {
-    const { page = 1, limit = 10, ...filters } = filterDto;
-    const skip = (page - 1) * limit;
+    const { page = 1, limit = 10, search, ...additionalFilters } = filterDto;
 
-    const options = {
-      skip,
+    const options: PaginationOptions = {
+      page,
       limit,
-      sort: { createdAt: -1 as -1 },
+      sort: { createdAt: -1 },
     };
 
-    const result = await this.countriesRepository.findWithPagination(
-      filters,
-      options
-    );
+    let result;
+    if (search && search.trim()) {
+      // Use new search method
+      result = await this.countriesRepository.findWithPaginationAndSearch(
+        search.trim(),
+        ['name', 'iso2', 'iso3'],
+        additionalFilters,
+        options
+      );
+    } else {
+      // Use existing pagination method
+      result = await this.countriesRepository.findWithPagination(
+        additionalFilters,
+        options
+      );
+    }
 
     return this.i18nResponse.success('countries.retrieved_successfully', {
       countries: result.items.map((country) =>

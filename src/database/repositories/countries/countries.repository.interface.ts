@@ -2,6 +2,7 @@ import {
   IRepository,
   QueryOptions,
   PaginatedResult,
+  PaginationOptions,
 } from '../../../common/interfaces/repository.interface';
 import { Country } from '../../entities/country.entity';
 
@@ -24,6 +25,12 @@ export interface ICountriesRepository extends IRepository<Country> {
   findWithPagination(
     filter?: MongoQuery<Country>,
     options?: QueryOptions
+  ): Promise<PaginatedResult<Country>>;
+  findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Country>,
+    options?: PaginationOptions
   ): Promise<PaginatedResult<Country>>;
   bulkUpdateByPublicIds(
     publicIds: string[],

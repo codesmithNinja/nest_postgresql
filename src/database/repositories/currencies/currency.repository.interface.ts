@@ -1,5 +1,13 @@
-import { IRepository } from '../../../common/interfaces/repository.interface';
+import {
+  IRepository,
+  PaginatedResult,
+  PaginationOptions,
+} from '../../../common/interfaces/repository.interface';
 import { Currency, CreateCurrencyDto } from '../../entities/currency.entity';
+
+export type MongoQuery<T> = {
+  [P in keyof T]?: T[P] | { $regex: string; $options: string };
+};
 
 export interface ICurrencyRepository extends IRepository<Currency> {
   /**
@@ -20,6 +28,16 @@ export interface ICurrencyRepository extends IRepository<Currency> {
     page: number;
     limit: number;
   }>;
+
+  /**
+   * Find currencies with pagination and search
+   */
+  findWithPaginationAndSearch(
+    searchTerm: string,
+    searchFields: string[],
+    filter?: MongoQuery<Currency>,
+    options?: PaginationOptions
+  ): Promise<PaginatedResult<Currency>>;
 
   /**
    * Find currency by public ID

@@ -144,12 +144,18 @@ export class CurrenciesController {
   })
   async getAdminCurrencies(@Query() adminQueryDto: AdminCurrencyQueryDto) {
     try {
-      const { page = 1, limit = 10, includeInactive = true } = adminQueryDto;
+      const {
+        page = 1,
+        limit = 10,
+        includeInactive = true,
+        search,
+      } = adminQueryDto;
 
       const result = await this.currenciesService.getCurrenciesForAdmin(
         page,
         limit,
-        includeInactive
+        includeInactive,
+        search
       );
 
       const response = {

@@ -80,6 +80,106 @@ export class ManageDropdownController {
     };
   }
 
+  @Get(':dropdownType')
+  @UseGuards(AdminJwtUserGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get dropdown options by dropdown type (Admin)',
+    description:
+      'Retrieve all dropdown options for a specific dropdown type with admin authentication.',
+  })
+  @ApiParam({
+    name: 'dropdownType',
+    description: 'Dropdown type',
+    example: 'industry',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Dropdown options retrieved successfully',
+    type: ManageDropdownListResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid option type',
+    type: ManageDropdownErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Dropdown options not found',
+    type: ManageDropdownErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Admin authentication required',
+  })
+  async getAdminDropdownsByDropdownType(
+    @Param() params: DropdownTypeParamDto,
+    @Query() adminQueryDto: AdminQueryDto
+  ) {
+    try {
+      this.logger.log(
+        `Fetching admin dropdowns for dropdown type: ${params.dropdownType}, languageId: ${adminQueryDto.languageId || 'default'}`
+      );
+
+      const {
+        page = 1,
+        limit = 10,
+        includeInactive = true,
+        languageId,
+        search,
+      } = adminQueryDto;
+
+      const result =
+        await this.manageDropdownService.getDropdownsByDropdownType(
+          params.dropdownType,
+          page,
+          limit,
+          includeInactive,
+          languageId,
+          search
+        );
+
+      const response = {
+        dropdowns: result.data.map((dropdown) =>
+          this.transformToResponseDto(dropdown)
+        ),
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+      };
+
+      return this.i18nResponse.translateAndRespond(
+        'manage_dropdown.retrieved_successfully',
+        HttpStatus.OK,
+        response
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch admin dropdowns for dropdown type: ${params.dropdownType}`,
+        (error as Error).stack
+      );
+
+      if (error instanceof ManageDropdownNotFoundException) {
+        return this.i18nResponse.translateError(
+          'manage_dropdown.not_found',
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      if (error instanceof InvalidDropdownTypeException) {
+        return this.i18nResponse.translateError(
+          'manage_dropdown.invalid_option_type',
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      return this.i18nResponse.translateError(
+        'manage_dropdown.fetch_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   @Get(':dropdownType/front')
   @Public()
   @ApiOperation({
@@ -147,104 +247,6 @@ export class ManageDropdownController {
     } catch (error) {
       this.logger.error(
         `Failed to fetch public dropdowns for dropdown type: ${params.dropdownType}`,
-        (error as Error).stack
-      );
-
-      if (error instanceof ManageDropdownNotFoundException) {
-        return this.i18nResponse.translateError(
-          'manage_dropdown.not_found',
-          HttpStatus.NOT_FOUND
-        );
-      }
-
-      if (error instanceof InvalidDropdownTypeException) {
-        return this.i18nResponse.translateError(
-          'manage_dropdown.invalid_option_type',
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      return this.i18nResponse.translateError(
-        'manage_dropdown.fetch_failed',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Get(':dropdownType/admin')
-  @UseGuards(AdminJwtUserGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Get dropdown options by dropdown type (Admin)',
-    description:
-      'Retrieve all dropdown options for a specific dropdown type with admin authentication.',
-  })
-  @ApiParam({
-    name: 'dropdownType',
-    description: 'Dropdown type',
-    example: 'industry',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Dropdown options retrieved successfully',
-    type: ManageDropdownListResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid option type',
-    type: ManageDropdownErrorResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Dropdown options not found',
-    type: ManageDropdownErrorResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Admin authentication required',
-  })
-  async getAdminDropdownsByDropdownType(
-    @Param() params: DropdownTypeParamDto,
-    @Query() adminQueryDto: AdminQueryDto
-  ) {
-    try {
-      this.logger.log(
-        `Fetching admin dropdowns for dropdown type: ${params.dropdownType}, languageId: ${adminQueryDto.languageId || 'default'}`
-      );
-
-      const {
-        page = 1,
-        limit = 10,
-        includeInactive = true,
-        languageId,
-      } = adminQueryDto;
-
-      const result =
-        await this.manageDropdownService.getDropdownsByDropdownType(
-          params.dropdownType,
-          page,
-          limit,
-          includeInactive,
-          languageId
-        );
-
-      const response = {
-        dropdowns: result.data.map((dropdown) =>
-          this.transformToResponseDto(dropdown)
-        ),
-        total: result.total,
-        page: result.page,
-        limit: result.limit,
-      };
-
-      return this.i18nResponse.translateAndRespond(
-        'manage_dropdown.retrieved_successfully',
-        HttpStatus.OK,
-        response
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch admin dropdowns for dropdown type: ${params.dropdownType}`,
         (error as Error).stack
       );
 

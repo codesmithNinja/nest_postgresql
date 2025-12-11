@@ -160,6 +160,18 @@ export class AdminQueryDto extends PaginationDto {
   includeInactive?: boolean = true;
 
   @ApiPropertyOptional({
+    description: 'Search keyword to filter across dropdown option names',
+    example: 'technology',
+    minLength: 1,
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  search?: string;
+
+  @ApiPropertyOptional({
     description:
       'Language ID for filtering (optional - defaults to default language if not provided)',
     example: 'clm1234567890',

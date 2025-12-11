@@ -14,6 +14,7 @@ import {
   ILanguagesRepository,
   LANGUAGES_REPOSITORY,
 } from '../../../database/repositories/languages/languages.repository.interface';
+import { PaginationOptions } from '../../../common/interfaces/repository.interface';
 import {
   ManageDropdown,
   CreateManageDropdownDto,
@@ -149,7 +150,8 @@ export class ManageDropdownService {
     page: number = 1,
     limit: number = 10,
     includeInactive: boolean = true,
-    languageId?: string
+    languageId?: string,
+    search?: string
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -172,14 +174,46 @@ export class ManageDropdownService {
       // Resolve languageId to primary key
       const resolvedLanguageId = await this.resolveLanguageId(languageId);
 
-      const result =
-        await this.manageDropdownRepository.findByTypeWithPagination(
+      // Set up pagination options
+      const options: PaginationOptions = {
+        page,
+        limit,
+        sort: { createdAt: -1 },
+      };
+
+      // Prepare additional filters
+      const additionalFilters = {
+        dropdownType: normalizedDropdownType,
+        languageId: resolvedLanguageId,
+        ...(includeInactive ? {} : { status: true }),
+      };
+
+      let result;
+      if (search && search.trim()) {
+        // Use new search method
+        const searchResult =
+          await this.manageDropdownRepository.findWithPaginationAndSearch(
+            search.trim(),
+            ['name'],
+            additionalFilters,
+            options
+          );
+        result = {
+          data: searchResult.items as ManageDropdownWithLanguage[],
+          total: searchResult.pagination.totalCount,
+          page: searchResult.pagination.currentPage,
+          limit: searchResult.pagination.limit,
+        };
+      } else {
+        // Use existing pagination method
+        result = await this.manageDropdownRepository.findByTypeWithPagination(
           normalizedDropdownType,
           page,
           limit,
           includeInactive,
           resolvedLanguageId
         );
+      }
 
       return result;
     } catch (error) {
@@ -487,7 +521,8 @@ export class ManageDropdownService {
     page: number = 1,
     limit: number = 10,
     includeInactive: boolean = true,
-    languageId?: string
+    languageId?: string,
+    search?: string
   ): Promise<{
     data: ManageDropdownWithLanguage[];
     total: number;
@@ -499,7 +534,8 @@ export class ManageDropdownService {
       page,
       limit,
       includeInactive,
-      languageId
+      languageId,
+      search
     );
   }
 
