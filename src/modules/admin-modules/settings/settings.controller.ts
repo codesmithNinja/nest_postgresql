@@ -48,6 +48,60 @@ export class SettingsController {
     private readonly i18nResponse: I18nResponseService
   ) {}
 
+  @Get(':groupType')
+  @UseGuards(JwtAdminGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get settings by group type (Admin)',
+    description:
+      'Retrieve all settings for a specific group type with admin authentication.',
+  })
+  @ApiParam({
+    name: 'groupType',
+    description: 'Settings group type',
+    example: 'site_setting',
+  })
+  async getAdminSettingsByGroupType(@Param() params: GroupTypeParamDto) {
+    try {
+      this.logger.log(
+        `Fetching admin settings for group type: ${params.groupType}`
+      );
+
+      const settings = await this.settingsService.getSettingsByGroupType(
+        params.groupType
+      );
+
+      const response = {
+        settings,
+        groupType: params.groupType,
+        count: settings.length,
+      };
+
+      return this.i18nResponse.translateAndRespond(
+        'settings.retrieved_successfully',
+        HttpStatus.OK,
+        response
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch admin settings for group type: ${params.groupType}`,
+        (error as Error).stack
+      );
+
+      if (error instanceof SettingsNotFoundException) {
+        return this.i18nResponse.translateError(
+          'settings.not_found',
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      return this.i18nResponse.translateError(
+        'settings.fetch_failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   @Get(':groupType/front')
   @Public()
   @ApiOperation({
@@ -116,61 +170,7 @@ export class SettingsController {
     }
   }
 
-  @Get(':groupType/admin')
-  @UseGuards(JwtAdminGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Get settings by group type (Admin)',
-    description:
-      'Retrieve all settings for a specific group type with admin authentication.',
-  })
-  @ApiParam({
-    name: 'groupType',
-    description: 'Settings group type',
-    example: 'site_setting',
-  })
-  async getAdminSettingsByGroupType(@Param() params: GroupTypeParamDto) {
-    try {
-      this.logger.log(
-        `Fetching admin settings for group type: ${params.groupType}`
-      );
-
-      const settings = await this.settingsService.getSettingsByGroupType(
-        params.groupType
-      );
-
-      const response = {
-        settings,
-        groupType: params.groupType,
-        count: settings.length,
-      };
-
-      return this.i18nResponse.translateAndRespond(
-        'settings.retrieved_successfully',
-        HttpStatus.OK,
-        response
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch admin settings for group type: ${params.groupType}`,
-        (error as Error).stack
-      );
-
-      if (error instanceof SettingsNotFoundException) {
-        return this.i18nResponse.translateError(
-          'settings.not_found',
-          HttpStatus.NOT_FOUND
-        );
-      }
-
-      return this.i18nResponse.translateError(
-        'settings.fetch_failed',
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @Post(':groupType/admin')
+  @Post(':groupType')
   @UseGuards(JwtAdminGuard)
   @UploadFiles({
     maxFiles: 20,
@@ -453,7 +453,7 @@ export class SettingsController {
     }
   }
 
-  @Delete(':groupType/admin')
+  @Delete(':groupType')
   @UseGuards(JwtAdminGuard)
   @ApiBearerAuth()
   @ApiOperation({
