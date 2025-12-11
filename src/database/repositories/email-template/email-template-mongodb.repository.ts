@@ -296,6 +296,21 @@ export class EmailTemplateMongodbRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  async count(filter: object = {}): Promise<number> {
+    // Convert filter for MongoDB compatibility
+    const mongoFilter = { ...filter };
+
+    // Handle languageId conversion from string to ObjectId
+    if ('languageId' in mongoFilter && mongoFilter.languageId) {
+      mongoFilter.languageId =
+        typeof mongoFilter.languageId === 'string'
+          ? new Types.ObjectId(mongoFilter.languageId)
+          : mongoFilter.languageId;
+    }
+
+    return this.emailTemplateModel.countDocuments(mongoFilter).exec();
+  }
+
   async getAllActiveLanguageIds(): Promise<string[]> {
     const languages = await this.languageModel
       .find({
