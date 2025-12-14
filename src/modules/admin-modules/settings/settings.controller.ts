@@ -61,6 +61,21 @@ export class SettingsController {
     description: 'Settings group type',
     example: 'site_setting',
   })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Settings retrieved successfully',
+    type: SettingsListResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid group type',
+    type: SettingsErrorResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Settings not found',
+    type: SettingsErrorResponseDto,
+  })
   async getAdminSettingsByGroupType(@Param() params: GroupTypeParamDto) {
     try {
       this.logger.log(
@@ -71,8 +86,10 @@ export class SettingsController {
         params.groupType
       );
 
+      const transformedSettings =
+        this.settingsService.transformSettingsToKeyValue(settings);
       const response = {
-        settings,
+        settings: transformedSettings,
         groupType: params.groupType,
         count: settings.length,
       };
@@ -139,8 +156,10 @@ export class SettingsController {
         params.groupType
       );
 
+      const transformedSettings =
+        this.settingsService.transformSettingsToKeyValue(settings);
       const response = {
-        settings,
+        settings: transformedSettings,
         groupType: params.groupType,
         count: settings.length,
       };
@@ -274,18 +293,14 @@ export class SettingsController {
         message: 'Settings created/updated successfully',
         statusCode: 201,
         data: {
-          settings: [
-            {
-              id: 'clxxxxxxxxxxxxxxx',
-              groupType: 'site_setting',
-              recordType: 'STRING',
-              key: 'siteName',
-              value: 'My Website',
-              createdAt: '2023-12-01T10:00:00Z',
-              updatedAt: '2023-12-01T10:00:00Z',
-            },
-          ],
-          count: 1,
+          settings: {
+            siteName: 'My Website',
+            maxUsers: 1000,
+            enableFeatures: true,
+            primaryColor: '#FF5722',
+          },
+          count: 4,
+          groupType: 'site_setting',
         },
       },
     },
@@ -400,8 +415,10 @@ export class SettingsController {
         formData
       );
 
+      const transformedSettings =
+        this.settingsService.transformSettingsToKeyValue(settings);
       const response = {
-        settings,
+        settings: transformedSettings,
         count: settings.length,
         groupType: params.groupType,
       };

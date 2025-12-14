@@ -473,4 +473,23 @@ export class SettingsService implements OnModuleInit {
       );
     }
   }
+
+  /**
+   * Transform settings array to key-value object format
+   * Preserves data types (string, number, boolean)
+   *
+   * @param settings - Array of settings objects
+   * @returns Key-value object with setting keys as properties
+   */
+  public transformSettingsToKeyValue(
+    settings: Settings[]
+  ): Record<string, string | number | boolean> {
+    const result: Record<string, string | number | boolean> = {};
+
+    for (const setting of settings) {
+      result[setting.key] = setting.value;
+    }
+
+    return result;
+  }
 }
