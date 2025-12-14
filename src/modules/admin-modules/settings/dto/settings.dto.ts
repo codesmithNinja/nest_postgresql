@@ -167,12 +167,38 @@ export class BulkSettingsDto {
   settings!: CreateSettingsDto[];
 }
 
+/**
+ * Settings Key-Value Response DTO
+ *
+ * Represents settings as a simple key-value object without metadata
+ * Used for the new simplified response format in all settings endpoints
+ *
+ * Example:
+ * {
+ *   "aiassintant": "NO",
+ *   "darklogo": "settings/1762694109860_efby10ahkrr.png",
+ *   "editortype": "ckeditorMode",
+ *   "maxUsers": 1000,
+ *   "enableFeatures": true
+ * }
+ */
+export class SettingsKeyValueResponseDto {
+  [key: string]: string | number | boolean;
+}
+
 export class SettingsListResponseDto {
   @ApiProperty({
-    description: 'List of settings',
-    type: [SettingsResponseDto],
+    description: 'Settings as key-value pairs',
+    type: SettingsKeyValueResponseDto,
+    example: {
+      aiassintant: 'NO',
+      darklogo: 'settings/1762694109860_efby10ahkrr.png',
+      editortype: 'ckeditorMode',
+      maxUsers: 1000,
+      enableFeatures: true,
+    },
   })
-  settings!: SettingsResponseDto[];
+  settings!: SettingsKeyValueResponseDto;
 
   @ApiProperty({
     description: 'Group type',
@@ -284,3 +310,4 @@ export class DynamicSettingsDto {
    */
   [key: string]: unknown;
 }
+
